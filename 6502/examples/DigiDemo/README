@@ -1,0 +1,22 @@
+
+
+Digital sample playback demo
+
+
+Stephen Jungels
+12/3/90
+
+
+This directory contains a sampled audio playback utility
+(DIGI.SRC) and an example program which uses the sampler
+to play back several samples (DIGIDEMO.SRC).
+
+To try the demo, type
+
+	CD 6502:Examples/DigiDemo
+	asm DigiDemo
+	handyrom DigiDemo.hsf
+
+The example program created is called DIGIDEMO.ROM.
+See the source and release note for more information about 
+the demo.

@@ -1,0 +1,42 @@
+; Monday 30-Apr-90 17:26:11
+; === TestAll ===============================================================
+;
+; Script to assemble all test programs in 6502:examples
+;
+; Confidential and Proprietary
+; Copyright (c) 1988,1989,1990 Epyx, Inc.
+;
+; Date		Name		Description
+; ---------	--------------	---------------------------------------------
+; 26-Mar-90	SHL		Removed references to testeol.src and added
+;				assembly of testredeye.src
+; 14-Feb-90	SHL		modified to assemble programs included in 1.1
+;				release
+;
+; ===========================================================================
+echo "asm divide.src"
+asm divide.src
+echo "asm mandel.src"
+asm mandel.src
+echo "asm mult32.src"
+asm mult32.src
+echo "asm multiply.src"
+asm multiply.src
+echo "asm spritedemo.src"
+asm spritedemo.src
+echo "asm testaudio.src"
+asm testaudio.src
+echo "asm testcart.src"
+asm testcart.src
+echo "handyrom testcart.hsf"
+handyrom testcart.hsf
+echo "asm testcontrols.src"
+asm testcontrols.src
+echo "asm testhmusic.src"
+asm testhmusic.src
+echo "asm testhprint.src"
+asm testhprint.src
+echo "asm testredeye.src"
+asm testredeye.src
+echo "asm testsprite.src"
+asm testsprite.src

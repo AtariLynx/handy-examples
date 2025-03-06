@@ -1,0 +1,160 @@
+
+* === testaudio.src =========================================================
+* 
+* Test Audio  --  Handy Software
+* 
+* Confidential and Proprietary
+* Copyright (C) 1988, Epyx, Inc.
+* 
+* Date		Name		Description
+* ---------	--------------	----------------------------------------------
+* 9-Feb-90	SHL		Updated for compatibility with 1.1 release
+* 6 Apr 89	-RJ		Added sys.mac, sys.src, and INITSYS
+* 4 Jan 88	=RJ Mical=	Created this file!
+* 
+* ===========================================================================
+
+
+* Define BRK_USER to do debugging.
+BRK_USER	.EQU	1
+
+KNOCK_KNOCK	.EQU	0
+WOOP_WOOP_WOOP	.EQU	1
+SPARKLE		.EQU	2
+
+
+		.IN	6502:include/monitor.i
+		.IN	6502:include/harddefs.i
+		.IN	6502:include/hsfx.i
+
+		;------	Include the system's zpage data declarations 
+		;------	after the include file inclusions and 
+		;------	before any code or data declarations
+		.IN	6502:macros/zpage.mac
+		.IN	6502:src/syszpage.src
+
+		.IN	6502:macros/sys.mac
+		.IN	6502:macros/hsfx.mac
+
+
+		.ORG	$0800
+
+
+Start		.RUN
+
+		INITSYS
+		INITINT	InterruptTable,SafeReturn
+
+* Set up for normal operation
+		CLI
+		CLD
+		LDX	#$FF
+		TXS
+
+		INITHSFX
+
+Loop		LDA	Index
+		INC
+		AND	#3
+		STA	Index
+		BNE	.10
+		
+		LDX	#KNOCK_KNOCK
+		JSR	LaunchSound
+		BRA	*
+
+.10		CMP	#1
+		BNE	.20
+
+		LDX	#WOOP_WOOP_WOOP
+		JSR	LaunchSound
+		BRA	*
+
+.20		LDX	#SPARKLE
+		JSR	LaunchSound
+		BRA	*
+
+
+
+LaunchSound
+* ===========================================================================
+* This routine expects the sound effect number to be in X.  
+* Asks the HSFX driver to play that sound effect.  
+
+		LDY	SoundPriorities,X
+		LDA	SoundTableHigh,X
+		PHA
+		LDA	SoundTableLow,X
+		PLX
+		PLAYHSFX
+
+SafeReturn
+		RTS
+
+
+
+SoundPriorities	.BYTE	100,100,100
+SoundTableLow	.BYTE	<KnockKnock,<WoopWoopWoop,<Sparkle
+SoundTableHigh	.BYTE	>KnockKnock,>WoopWoopWoop,>Sparkle
+Index		.BYTE	0
+InterruptTable	.DS	8*2
+
+
+		.IN	6502:src/sysdata.src
+		.IN	6502:src/sys.src
+		.IN	6502:src/hsfx.src
+
+
+KnockKnock
+; HSFX Table for KnockKnock sound effect
+	;------ Next Frame
+	.WORD	0	; Frame number
+	.WORD	$8f90	; Flags
+	.BYTE	$02	; Outer loop count
+	.WORD	$0000	; Freq accum
+	.WORD	$ffff	; Shifter accum
+	.WORD	$0290	; Feedback accum
+	.WORD	$7f00	; Volume accum
+	.WORD	$0323	; Freq interp
+	.WORD	$fd76	; Volume interp
+	;------ Next Frame
+	.WORD	50	; Frame number
+	.WORD	$4001	; Flags
+
+WoopWoopWoop
+; HSFX Table for WoopWoopWoop sound effect
+	;------ Next Frame
+	.WORD	0	; Frame number
+	.WORD	$8f90	; Flags
+	.BYTE	$03	; Outer loop count
+	.WORD	$9cfc	; Freq accum
+	.WORD	$ffff	; Shifter accum
+	.WORD	$0010	; Feedback accum
+	.WORD	$0000	; Volume accum
+	.WORD	$fced	; Freq interp
+	.WORD	$028a	; Volume interp
+	;------ Next Frame
+	.WORD	50	; Frame number
+	.WORD	$4001	; Flags
+
+Sparkle
+; HSFX Table for Sparkle sound effect
+	;------ Next Frame
+	.WORD	0	; Frame number
+	.WORD	$0f30	; Flags
+	.WORD	$0024	; Freq accum
+	.WORD	$ffff	; Shifter accum
+	.WORD	$0010	; Feedback accum
+	.WORD	$7f00	; Volume accum
+	.WORD	$0004	; Feedback interp
+	.WORD	$ff02	; Volume interp
+	;------ Next Frame
+	.WORD	128	; Frame number
+	.WORD	$0001	; Flags
+
+
+
+	.IN 6502:src/hsfx.var
+
+
+

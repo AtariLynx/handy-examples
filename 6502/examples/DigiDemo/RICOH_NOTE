@@ -1,0 +1,20 @@
+
+
+
+Ricoh patch problem & digitized sound
+
+The software workaround which was distributed recently to handle a run of
+buggy Suzy chips has a bug of its own which can show up in two cases.  Games
+which try to access the joystick and switches or the ROM cart in an interrupt
+routine will have problems if the ricoh patch is included.  The problem shows
+up as garbled sounds in the digitized sound driver.
+
+The recommended solution for now is to leave out the ricoh patch if you are
+using the digitized sound driver (you can do this by defining the assembly
+switch NO_RICOH_PATCH).  We will send a new version of the driver that has a
+workaround in the next release, allowing the digitized sound driver and the
+ricoh patch to work together.
+
+Also, anyone writing an interrupt routine that accesses the ROM cart or the
+joystick needs to be aware of the need for a workaround.  You can check with
+me for details if you are doing something like this.

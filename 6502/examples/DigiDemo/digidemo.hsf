@@ -1,0 +1,39 @@
+
+	.in cartdefs.i
+
+	FILE 0
+	BIN title0.bin
+
+	FILE 1
+	BIN digidemo.bin
+
+* fonts
+
+	FILE FIRST_FONT_FILE+LILFONT
+	BIN lilfont.bin
+
+	FILE FIRST_FONT_FILE+PLAINFONT
+	BIN plainfont.bin
+
+
+* samples
+
+	FILE FIRST_SOUND_FILE+0
+	ALIGN ROMPAGESIZE
+	RAW 6502:Examples/DigiSounds/Gentlemen.raw
+
+	FILE FIRST_SOUND_FILE+1
+	ALIGN ROMPAGESIZE
+	RAW 6502:Examples/DigiSounds/vidpwr4000.raw
+
+	FILE FIRST_SOUND_FILE+2
+	ALIGN ROMPAGESIZE
+	BIN 6502:Examples/DigiSounds/aww.bin
+
+	FILE FIRST_SOUND_FILE+3
+	ALIGN ROMPAGESIZE
+	BIN 6502:Examples/DigiSounds/oooh.bin
+
+	FILE FIRST_SOUND_FILE+4
+	ALIGN ROMPAGESIZE
+	BIN 6502:Examples/DigiSounds/yeah.bin

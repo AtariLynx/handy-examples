@@ -1,0 +1,281 @@
+; Wednesday 28-Mar-90 12:24:00
+* === redeye_glue.src =======================================================
+*
+* Redeye test program  --  Handy Software
+*
+* Confidential and Proprietary
+* Copyright (c) 1990 Epyx, Inc.
+*
+* Date		Name		Description
+* ---------	--------------	---------------------------------------------
+* 28-Mar-90	SHL		Split file off from testredeye.src
+* 22-Mar-90	SHL		Added AUTO_TIMEOUT_USER support, resetting
+*				timeout on input from anyone
+* 20-Mar-90	SHL		Cleaned up getinput routine, added RESET
+*				support if communication goes down
+* 14-Mar-90	SHL		Working with new version of Redeye
+*
+* Jan-90	SHL		Created this file to work with Gauntlet's
+*				version of Redeye
+*
+* ===========================================================================
+*
+*	When using this glue code, the variables restartflag and restartcount
+* need to be provided.  They do not need initialization, but should not be
+* interfered with.  The glue code also expects the arrays joystick, switch,
+* oldjoystick, and oldswitch (each MAX_PLAYERS long) to be provided.  The call
+* to do_start_comlink will (among other things) initialize these arrays all to
+* $FF's and the routine do_comlink_joysticks will copy joystick and switch to
+* oldjoystcik and oldswitch, and will get new input from redeye to update the
+* joystick and switch arrays.
+*
+*	The subroutine showlogonscreen should be provided, which will be
+* called during the do_logon code.  The subroutine should display a screen
+* which provides some feedback to the user about the state of logon, and
+* should handle double-buffering.
+*
+*	The glue code also expects the WAITEOF to be available.
+*
+*-----------------------------------------------------------------------------
+
+* Glue code constants
+
+LOCALRESET	.EQ %01000000
+GLOBALRESET	.EQ %10000000
+
+EOFS_TIL_RESTART .EQ 20	; how long we wait for communication if player tries
+; to reset machine - make sure EOFS_TIL_RESTART is bigger than the longest
+; possible game frame (allow reset message enough time to get around)
+
+*-----------------------------------------------------------------------------
+
+* Glue code
+
+
+glue_start_address
+
+
+do_logon
+.20	  GETJOY	; make sure my buttons/joystick not being pressed
+	 bne .20	;  before coming up
+
+	jsr start_logon	; start logon process
+
+.00	  jsr showlogonscreen	; show a screen during logon
+	  WAITEOF
+
+	  jsr checklogonover	; see if logon is over
+	 bmi .00
+
+	rts
+
+
+do_start_comlink
+	stz restartflag
+
+	jsr start_comlink	; start up real communication
+
+	ldx #MAX_PLAYERS-1	; start everyone off with all buttons pressed
+	lda #$ff		;  so that first frame with real inputs won't
+.0	  sta joystick,x	;   get phantom positive edges
+	  sta oldjoystick,x
+	  sta switch,x
+	  sta oldswitch,x
+	  dex
+	 bpl .0
+
+	jmp preparejoysticks	; start first redeye transaction before game
+
+
+do_comlink_joysticks
+	jsr getinput
+	lda restartflag
+	beq .00
+	jmp restart
+
+.00	ldx PlayerNumber
+	jsr checkflip
+
+	jmp checkreset
+
+
+
+checkflip
+	lda joystick,x		; see if player is pressing FLIP
+	bit #FLIP_BUTTON
+	beq .90
+	lda switch,x
+	bit #PAUSE_SWITCH
+	beq .90
+
+	lda oldjoystick,x	; and wasn't pressing FLIP last frame
+	bit #FLIP_BUTTON
+	beq .00
+	lda oldswitch,x
+	bit #PAUSE_SWITCH
+	bne .90
+
+.00	FLIP			; signal EOF code to flip display
+
+.90	rts
+
+
+
+getinput
+	ldx #0		; index to player getting input from
+	ldy #0		; relative offset to player's input buffer
+.00	  lda joystick,x	; copy last frame's inputs
+	  sta oldjoystick,x
+	  lda switch,x
+	  sta oldswitch,x
+
+.13	  lda Seq		; are we receiving even or odd sequence?
+	  beq .20
+
+.10	  lda PlayerFlag0,x	; has player's data come in ?
+	  bpl .15
+	  jsr checklocalreset	; if not, handle possible reset
+	  beq .10
+	  WAITEOF
+	  dec restartcount
+	  bne .10
+	  jmp restart
+
+.15	  lda PlayerData0,y	; get joystick data
+	  sta joystick,x	; & store for program use
+	  lda PlayerData0+1,y	; get switch data
+	  sta switch,x		; & store for program use
+	  lda #$80
+	  sta PlayerFlag0,x	; tell redeye it's been used
+	  bra .30
+
+.20	  lda PlayerFlag1,x	;has player's data come in ?
+	  bpl .25
+	  jsr checklocalreset	; if not, handle possible reset
+	  beq .20
+	  WAITEOF
+	  dec restartcount
+	  bne .20
+	  jmp restart
+
+.25	  lda PlayerData1,y	; get joystick data
+	  sta joystick,x	; & store for program use
+	  lda PlayerData1+1,y	; get switch data
+	  sta switch,x		; & store for program use
+	  lda #$80
+	  sta PlayerFlag1,x	; tell redeye it's been used
+
+.30	  clc
+	  tya
+	  adc #PLAYER_DATA_SIZE
+	  tay
+	  cpx NumberOfPlayers
+	  inx
+	 bcc .00
+
+.50	lda #LOCALRESET		; if we're getting input, don't reset until
+	trb restartflag		;  we can let the other guys know
+	lda #EOFS_TIL_RESTART
+	sta restartcount
+
+;	jmp preparejoysticks	; fall through
+
+
+preparejoysticks
+	GETJOY			; read this unit's joystick
+	sta OutGoingData	; store joystick in output buffer
+	GETSWITCH
+	and #PAUSE_SWITCH
+	sta OutGoingData+1	; store switch in output buffer
+
+ #IFDEF VAR_SIZE_DATA
+ 	ldx PlayerNumber
+	ldy #2			; if data is same as frame before last
+	lda OutGoingData+1	;  no need to send it again
+	cmp oldswitch,x
+	bne .00
+	dey
+	lda OutGoingData
+	cmp oldjoystick,x
+	bne .00
+	dey
+.00	sty OutGoingSize
+ #ENDIF
+
+	jsr launch_redeye	; tell Redeye to take it away
+	rts
+
+
+checkreset
+ #IFDEF AUTO_TIMEOUT_USER
+	lda #0			; check to see if there is activity on any
+	ldx NumberOfPlayers	; players joystick, and if so reset inactivity
+.00	  ora joystick,x	; counter
+	  ora switch,x
+	  dex
+	 bpl .00
+
+	tax
+	beq .10
+
+	RESET_TIMEOUT		; reset inactivity power-down timeout
+ #ENDIF
+
+.10	ldx NumberOfPlayers
+.11	  lda joystick,x	; see if player pressing OPTION 1
+	  bit #RESTART_BUTTON
+	  beq .12
+	  lda switch,x		;  and PAUSE at same time
+	  bit #PAUSE_SWITCH
+	  beq .12
+	  lda #GLOBALRESET	; set bit that passes through getinput
+	  tsb restartflag
+.12	  dex
+	 bpl .11
+
+	rts
+
+
+checklogonover
+	jsr checklocalreset	; allow player to trigger reset
+	beq .00
+	jmp restart
+
+.00	lda joystick		; simple joystick handler while not in game
+	sta oldjoystick
+	lda switch
+	sta oldswitch
+	GETJOY
+	sta joystick
+	GETSWITCH
+	sta switch
+
+	ldx #0			; handle display flip logic
+	jsr checkflip
+
+	lda joystick		; see if I am pressing A/B buttons
+	and #OUTER_BUTTON|INNER_BUTTON
+	beq .01
+	lda #$80		; pressing button, request end of logon
+	sta EndLogonRequest
+
+.01	lda LogonInProgress	; return current status of logon
+	rts
+
+
+checklocalreset
+	GETJOY			; see if I am pressing RESET
+	bit #RESTART_BUTTON
+	beq .90
+	GETSWITCH
+	bit #PAUSE_SWITCH
+	beq .90
+	lda #LOCALRESET		; set local reset bit
+	tsb restartflag
+
+.90	lda restartflag		; return state of restartflag
+	rts
+
+glue_end_address
+
+

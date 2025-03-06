@@ -1,0 +1,317 @@
+
+*****************************************
+*										*
+*	DIGI.SRC							*
+*										*
+*	Lynx digitized sound playback 		*
+*	routines							*
+*										*
+*	Confidential and Proprietary		*
+*	Copyright (C) 1990, Atari Corp.		*
+*										*
+*****************************************
+
+*
+* Programmer : Stephen Jungels
+*
+
+* 12/18		fixed channel allocation bug in launch_sound
+
+* 12/3		changed to fast cart loading, code cleanup
+*			for release, variable volume
+
+* 11/19		added attenuation, variable sample rate,
+* 			and stop sound requests
+
+* 11/12		created
+
+
+* -------------------------------------------------------------
+* 
+* These routines will play back ROM based digital audio
+* samples.  The technique used is to page the ROM data
+* into a 256 byte buffer.  An interrupt is set up to
+* play back the sample at a constant sample rate,
+* while loading the next segment of sample data in the
+* background.
+* 
+* A custom cart reader is used which reads page-aligned
+* files 128 bytes at a time.  This allows the cart read
+* loop to be sped up significantly.
+*
+* See the release notes for documentation
+* 
+* -------------------------------------------------------------
+
+
+
+* -------------------------------------------------------------
+* Sampler constants 
+* 
+* This value should not be changed
+* 
+ROMSEGSPERPAGE	.eq ROMPAGESIZE/128
+
+* -------------------------------------------------------------
+
+	BEGIN_ZPAGE
+* 
+* Game interface variables
+* 
+soundactive		.ds 1	; true (-1) while the sound interrupt is running
+stopsound		.ds 1	; set to -1 to ask for the current sound to be stopped
+digichannel		.ds 1	; the audio channel used for current digitized sound
+ #IFDEF VARIVOLUME
+volume			.ds 1	; set volume from none (0) to highest (255)
+ #ENDIF
+
+* Internal variables
+* 
+loadinprogress	.ds 1	; to prevent reentry if a buffer overflow occurs
+cartseg			.ds 1	; segment of the current cart page are we on
+* 
+ END_ZPAGE
+
+
+* -------------------------------------------------------------
+* Game interface routines
+* 
+
+
+* 
+init_sampler
+* 
+* Call this routine once to initialize the
+* sample interrupt driver.
+* 
+* Interrupts should be disabled when you
+* call this routine.
+* 
+* Entry:		none
+* Exit:			none
+* 
+	stz soundactive
+	stz loadinprogress
+	stz TIMER0+DIGITIMER*4+TIM_CONTROLA
+	#IFNDEF HSFX_ACTIVE
+	 stz digichannel
+	#ENDIF
+	#IFDEF VARIVOLUME
+	  lda #255
+	  sta volume
+	  jsr set_volume
+	#ENDIF
+	lda #<sound_interrupt
+	sta interrupts+2*DIGITIMER
+	lda #>sound_interrupt
+	sta interrupts+2*DIGITIMER+1
+
+	rts
+
+
+	#IFDEF VARIVOLUME
+* 
+set_volume
+* 
+* Entry:		volume		-		volume level (0..255)
+* Exit:			axy	trashed
+* 
+	lda volume
+	sta MATHD
+	stz MATHC
+
+	ldx #0
+	ldy #127
+.1	stx MATHB
+	stz MATHA
+	WAITMATH
+	lda MATHG
+	sta volumetable,x
+	eor #$ff	
+	inc
+	sta volumetable+128,y
+	inx
+	dey
+	bpl .1
+	rts
+
+	#ENDIF ; IFDEF VARIVOLUME
+
+
+* 
+launch_sound
+* 
+* Call this routine with the file number of
+* the sample you want to play in the
+* accumulator, the reload value for the
+* sample rate timer in the x-register, and,
+* if HSFX_ACTIVE is defined, the priority of
+* the sound in the y-register.
+*
+* If HSFX_ACTIVE is defined, an attempt will
+* be made to allocate an audio channel from
+* HSFX at the priority in the y-register.
+* If this attempt fails, no sound will start
+* playing, and carry will be set on return.
+* 
+* If the allocation succeeds, or HSFX_ACTIVE
+* isn't defined, the sound will begin playing
+* immediately, and the flag soundactive will
+* be set to true (-1).  Carry will be clear
+* on return.
+* 
+* You can find out when the sound is finished
+* playing by testing soundactive (0 ==> the
+* sound is finished playing).
+* 
+* You can stop the sound at the end of the
+* next segment by setting stopsound to -1.
+* soundactive will drop to zero when the
+* sound has been stopped.
+* 
+*
+* Entry:	a	-	file number of audio sample
+*			x	-	reload value for sample rate timer
+* 			y	-	sound priority if HSFX is active
+* 
+* Exit:		carry clear	-	a sound started playing
+*			carry set	-	no channel was available 
+*							at the selected priority
+* 			soundactive -	-1 if a sound started
+* 			digichannel	-	if a sound started, the audio
+* 							channel used for playback
+* 			
+* 			
+	stz TIMER0+DIGITIMER*4+TIM_CONTROLA
+	stx TIMER0+DIGITIMER*4+TIM_BACKUP
+	pha
+
+	#IFDEF HSFX_ACTIVE
+	 jsr AllocAudio
+	 bcc .1
+	 pla
+	 rts
+.1	 stx digichannel
+	#ENDIF
+
+	lda digichannel
+	asl
+	asl
+	asl
+	clc
+	adc #<{AUDIO0+AUD_OUTPUT}
+	sta soundchannel+1
+
+	pla
+	GETDIR
+	OPENFILE
+	stz soundmod+1
+	stz stopsound
+	dec soundactive		; ff
+	lda #128
+	sta readsegmod+1
+
+	stz cartseg
+	jsr read_sound_segment
+
+	lda #ENABLE_COUNT+ENABLE_RELOAD+AUD_1+ENABLE_INT
+	sta TIMER0+DIGITIMER*4+TIM_CONTROLA
+
+	clc
+	rts
+
+
+* -------------------------------------------------------------
+* Internal routines
+
+
+* 
+read_sound_segment
+* 
+* 
+	bit loadinprogress
+	bmi rss_done
+	dec loadinprogress	; lock out reentries,
+	cli					; but let the sampler run freely
+
+	lda #128
+	eor readsegmod+1
+	sta readsegmod+1
+
+	SET_TO_READ_CART
+
+	ldx #0
+readsegloop
+	lda RCART_0
+readsegmod
+	sta soundbuffer,x
+	inx
+	bpl readsegloop
+
+	inc cartseg
+	lda cartseg
+	cmp #ROMSEGSPERPAGE
+	bne .1
+
+	stz cartseg
+	inc CartPage
+	lda CartPage
+	jsr SetCartPage
+
+.1	jsr RestoreReturn
+	stz loadinprogress
+
+rss_done
+	rts
+
+
+* -------------------------------------------------------------
+* Interrupt code
+
+sound_interrupt
+
+soundmod
+	ldx soundbuffer		; self mod load address here
+	cpx #128			; 128 is the end-of-sample flag
+	beq sounddone
+
+	#IFDEF VARIVOLUME
+	 lda volumetable,x
+soundchannel				; self mod audio channel here
+	 sta AUDIO0+AUD_OUTPUT	; let's make some noise
+	#ELSE
+soundchannel
+	 stx AUDIO0+AUD_OUTPUT
+	#ENDIF
+
+	inc soundmod+1
+
+	lda soundmod+1			; see if another sound segment needs to load now
+	eor readsegmod+1
+	bmi soundload
+
+soundexit
+	plx
+	pla
+	rti
+
+soundload ; handle rom load
+	bit stopsound			; has someone asked for this sound to stop?
+	bmi sounddone
+	phy
+	jsr read_sound_segment
+	ply
+	bra soundexit
+
+
+sounddone					; the sound is finished playing, bye for now
+	stz TIMER0+DIGITIMER*4+TIM_CONTROLA
+	stz soundactive
+
+	#IFDEF HSFX_ACTIVE
+	  phy
+	  ldx digichannel
+	  jsr FreeAudio
+	  ply
+	#ENDIF
+	bra soundexit

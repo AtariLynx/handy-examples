@@ -1,0 +1,1300 @@
+
+*****************************************
+*										*
+* 	DIGIDEMO.SRC						*
+*										*
+*	A demonstration of digitized sample	*
+* 	playback on the Lynx				*
+*										*
+*	Confidential and Proprietary		*
+*	Copyright (C) 1990, Atari Corp.		*
+*										*
+*****************************************
+
+*
+* Programmer : Stephen Jungels
+*
+
+* 12/10		added sample stereo code
+
+* 11/19		added attenuation, variable sample rate, pause, flip
+* 			and restart, and stop sound requests
+
+* 11/12		created
+
+;DEBUG			.eq 1
+
+* -------------------------------------------------------------
+* Standard handy switches and defines
+* 
+EOF_USER		.eq 1
+GETDIR_USER		.eq 1
+GRABAUDIO_USER	.eq 1
+FRAMECOUNT_UP	.eq 1
+* -------------------------------------------------------------
+* Digitized sound switches and defines
+*
+HSFX_ACTIVE		.eq 1	; Tell the sampler to allocate its channel
+VARIVOLUME		.eq 1	; Include variable volume code
+DIGITIMER		.eq	5	; This timer will be used to generate the sample rate
+* 
+* -------------------------------------------------------------
+* Some equates for the example program
+* 
+MIL				.eq 1000000
+MINRELOAD		.eq 65
+MAXRELOAD		.eq 255
+
+* screen definitions
+
+TOPEDGE         .eq 77
+LEFTEDGE        .eq 48
+SCREENWIDTH     .eq 160
+SCREENHEIGHT    .eq 102
+SCREENHCENTER   .eq LEFTEDGE+SCREENWIDTH/2
+SCREENVCENTER   .eq TOPEDGE+SCREENHEIGHT/2
+
+* rom font template
+
+FONTSIZE	.eq 0
+FONTOFFSET	.eq 1
+FONTCHARLEN	.eq 2
+FONTWIDTH	.eq 3
+FONTBLANK	.eq 4	; first char of font
+
+
+* -------------------------------------------------------------
+								
+
+* HANDY includes and macros
+
+	.in 6502:include/harddefs.i
+	.in 6502:include/sprite.i
+	.in 6502:include/hsfx.i
+	.in 6502:include/hprint.i
+
+	.in 6502:macros/zpage.mac
+	.in 6502:src/syszpage.src
+	.in 6502:macros/sys.mac
+	.in 6502:macros/hsfx.mac
+	.in 6502:macros/hprint.mac
+	.in 6502:macros/cart.mac
+	.in 6502:macros/display.mac
+	.in 6502:macros/sprite.mac
+	.in 6502:macros/controls.mac
+	.in 6502:macros/handymath.mac
+
+	.in cartdefs.i
+
+FONT_TYPE	   .eq HPR_UPPER+HPR_DIGIT+HPR_PUNC
+
+	HPR_CHARSET
+
+
+* -------------------------------------------------------------
+
+	BEGIN_ZPAGE
+
+samplenum		.ds 1
+samplerequest	.ds 1
+joystick		.ds 1
+lastjoy			.ds 1
+switch			.ds 1
+lastswitch		.ds 1
+fontptr			.ds 2
+pausestate		.ds 1
+timersave		.ds 1
+numfonts		.ds 1
+panval			.ds 1
+slider			.ds 1
+fontwidth		.ds 1
+
+	END_ZPAGE
+
+
+* -------------------------------------------------------------
+
+
+	.or $400
+
+main
+	#ifdef DEBUG
+		HBRK
+	#endif
+
+	SEI
+	cld
+	INITSYS
+
+restart
+	ldx #$ff
+	txs
+
+	INITINT interrupts
+	jsr init_sampler	; call init_sampler while protected from interrupts
+
+	#IFDEF HSFX_ACTIVE
+	 INITHSFX
+	#ENDIF
+
+	SETDISP_60
+	INITEOF
+	INITSUZY
+	SETDBUF dispbuf0,dispbuf1
+
+	lda SPRSYS_RAM
+	ora #NO_COLLIDE
+	sta SPRSYS_RAM
+	sta SPRSYS
+
+	lda #LEFTEDGE
+	sta HOFFL
+
+	lda #TOPEDGE
+	sta VOFFL
+
+	jsr init_my_stereo
+	lda #31
+	sta panval
+
+	ldx #31			; set up palette
+.0	  lda palette,x
+	  sta GREEN0,x
+	  dex
+	 bpl .0
+
+	stz samplenum
+	lda #$ff
+	sta lastjoy
+	stz samplerequest
+	stz slider
+
+	ldx #NUMSOUNDS
+.1	lda defaultrates-1,x
+	sta samplerates-1,x
+	dex
+	bne .1
+
+	stz pausestate
+
+	stz numfonts
+	ldx #<lilfont	 	; load font files
+	ldy #>lilfont
+	lda #FIRST_FONT_FILE+LILFONT
+	jsr load_font
+
+	ldx #<plainfont
+	ldy #>plainfont
+	lda #FIRST_FONT_FILE+PLAINFONT
+	jsr load_font
+
+	lda #<helptext
+	sta sysptr
+	lda #>helptext
+	sta sysptr+1
+	ldx #<helpbuffer
+	ldy #>helpbuffer
+	jsr create_sprite_text
+
+	lda #<slidertext
+	sta sysptr
+	lda #>slidertext
+	sta sysptr+1
+	ldx #<sliderbuffer
+	ldy #>sliderbuffer
+	jsr create_sprite_text
+
+	lda #<ratetext
+	sta sysptr
+	lda #>ratetext
+	sta sysptr+1
+	ldx #<rbuf
+	ldy #>rbuf
+	jsr create_sprite_text
+
+	ldx #0
+.2	clc
+	lda stextoffsets,x
+	adc #<stbase
+	sta sysptr
+	lda #0
+	adc #>stbase
+	sta sysptr+1
+	ldy sscabs_h,x
+	lda sscabs_l,x
+	phx
+	tax
+	jsr create_sprite_text
+	plx
+	inx
+	cpx #NUMSOUNDS+1
+	bne .2
+	
+	CLI
+
+loop
+
+	WAITEOF
+	lda DisplayFrameCount
+	stz DisplayFrameCount
+	clc
+	adc #"0"
+	sta rate
+
+	jsr draw_screen
+
+	DBUF_DISPLAY
+	jsr read_controls
+	jsr set_sliders
+
+	bit pausestate
+	bmi loop
+	jsr play_sample
+	bra loop
+
+
+* -------------------------------------------------------------
+
+
+read_controls
+
+	GETSWITCH
+	sta switch
+	GETJOY
+	sta joystick
+
+	jsr pause_flip_restart	; standard option buttons
+
+	bit pausestate
+	bmi .f
+
+.1	lda joystick
+	bit #INNER_BUTTON
+	beq .2
+	bit #JOY_LEFT
+	beq .3
+	  jsr slider_down
+	  bra .f
+.3	bit #JOY_RIGHT
+	beq .f
+	  jsr slider_up
+	  bra .f
+
+.2	lda joystick
+	eor lastjoy
+	and joystick
+
+	bit #JOY_LEFT
+	beq .4
+	  lda samplenum
+	  bne .41
+	   lda #NUMSOUNDS
+.41	  dec
+	  sta samplenum
+	bra .f
+.4	bit #JOY_RIGHT
+	beq .5
+	  lda samplenum
+	  inc
+	  cmp #NUMSOUNDS
+	  bcc .51
+	    lda #0
+.51	  sta samplenum
+	bra .f
+
+.5	bit #JOY_UP
+	beq .6
+	  dec slider
+	  bpl .f
+	  lda #2
+	  sta slider
+	bra .f
+
+.6	bit #JOY_DOWN
+	beq .f
+	  lda slider
+	  inc
+	  cmp #3
+	  bne .71
+	  lda #0
+.71	  sta slider
+	;bra .f
+
+.f	lda joystick
+	eor lastjoy
+	and joystick
+	bit #OUTER_BUTTON
+	beq .f1
+	  dec samplerequest
+.f1	lda joystick
+	sta lastjoy
+	lda switch
+	sta lastswitch
+
+	rts
+
+
+set_sliders
+
+	lda #" "
+	sta vstext
+	sta rstext
+	sta pstext
+	lda #";"
+	ldy slider
+	ldx sltextoffsets,y
+	sta slbase,x
+
+	#ifdef VARIVOLUME
+	 lda volume
+	#else
+	 lda #255
+	#endif
+	lsr
+	lsr
+	clc
+	adc #LEFTEDGE+4+8*8
+	sta volumeslider+SCB_HPOS
+
+	ldy samplenum
+	lda samplerates,y
+	eor #$ff
+	inc
+	lsr
+	lsr
+	clc
+	adc #LEFTEDGE+4+8*8
+	sta rateslider+SCB_HPOS
+
+	; panning
+
+	lda panval
+	ldx digichannel
+	jsr set_stereo_pan
+
+	lda panval
+	clc
+	adc #LEFTEDGE+4+8*8
+	sta panslider+SCB_HPOS
+
+	rts
+
+
+slider_down
+	  lda slider
+	  asl
+	  tax
+	  jmp (.1,x)
+.1	.wo voldown, ratedown, pandown
+
+voldown
+	#ifdef VARIVOLUME
+	  lda volume
+	  beq .1
+	  dec volume
+.1	  jsr set_volume
+	#endif
+	rts
+
+ratedown
+	ldy samplenum
+	lda samplerates,y
+	cmp #MAXRELOAD
+	beq .1
+	inc
+.1	bra setrate
+
+pandown
+	lda panval
+	beq .1
+	dec
+	sta panval
+.1	rts
+
+
+slider_up
+	  lda slider
+	  asl
+	  tax
+	  jmp (.1,x)
+.1	.wo volup, rateup, panup
+
+volup
+	#ifdef VARIVOLUME
+	  lda volume
+	  inc
+	  beq .1
+	  sta volume
+.1	  jsr set_volume
+	#endif
+	rts
+
+panup
+	lda panval
+	cmp #63
+	beq .1
+	inc
+	sta panval
+.1	rts
+
+rateup
+	ldy samplenum
+	lda samplerates,y
+	cmp #MINRELOAD
+	beq setrate
+	dec
+
+* fall in ...
+
+setrate
+	sta samplerates,y
+	sei
+	sta TIMER0+DIGITIMER*4+TIM_BACKUP
+	cli
+	rts
+
+
+pause_flip_restart
+
+	lda #PAUSE_SWITCH
+	bit switch
+	beq .1
+	bit lastswitch
+	bne .2
+	  jsr toggle_pause_state
+.2	lda #OPTION2_BUTTON
+	jsr check_option
+	bcc .3
+	  FLIP
+.3	lda #OPTION1_BUTTON
+	jsr check_option
+	bcc .1
+	  jmp restart
+.1	rts
+
+
+check_option
+	clc
+	bit joystick
+	beq .1
+	bit lastjoy
+	beq .2
+	lda lastswitch
+	bit #PAUSE_SWITCH
+	bne .1
+.2	sec
+.1	rts
+
+
+toggle_pause_state
+	sei
+	lda pausestate
+	eor #$ff
+	sta pausestate
+	bmi .1
+	  lda timersave			  				; let's get unpaused
+	  sta TIMER0+DIGITIMER*4+TIM_CONTROLA
+	bra .2
+.1	  lda TIMER0+DIGITIMER*4+TIM_CONTROLA	; let's get paused
+	  stz TIMER0+DIGITIMER*4+TIM_CONTROLA
+	  sta timersave
+.2	cli
+	rts
+
+
+* 
+play_sample
+* 
+* If a sample is playing when we want to start a new one,
+* politely request that the sample be stopped, then 
+* wait till we detect that it has before launching the
+* new one:
+* 
+	bit samplerequest
+	bpl .1
+	bit soundactive
+	bmi .2
+	  stz samplerequest
+	  ldy samplenum	  
+	  ldx samplerates,y
+	  tya
+	  clc
+	  adc #FIRST_SOUND_FILE
+	  ldy #128
+	  jmp launch_sound
+.2	lda #$ff
+	sta stopsound
+.1	rts
+
+
+* -------------------------------------------------------------
+
+
+draw_screen
+
+	lda RenderBuffer
+	sta VIDBASL
+	lda RenderBuffer+1
+	sta VIDBASH
+
+	ldx #<screenerase
+	lda #>screenerase
+	jsr resprite
+
+	bit pausestate
+	bpl .1
+
+	ldy #0
+	bra .2
+
+.1	jsr draw_glider
+	ldy samplenum			; show sample name
+	iny
+.2	lda sscabs_l,y
+	tax
+	lda sscabs_h,y
+	jsr resprite
+
+	lda #<ratetext			; show rate text
+	sta sysptr
+	lda #>ratetext
+	sta sysptr+1
+	ldx #<rbuf
+	ldy #>rbuf
+	jsr set_sprite_text
+
+	lda #<slidertext
+	sta sysptr
+	lda #>slidertext
+	sta sysptr+1
+	ldx #<sliderbuffer
+	ldy #>sliderbuffer
+	jsr set_sprite_text
+
+	ldx #<sliderbuffer
+	lda #>sliderbuffer
+	jsr resprite
+
+	ldx #<helpbuffer
+	lda #>helpbuffer
+	jmp resprite
+	;jsr resprite
+	;rts
+
+draw_glider
+
+	lda glider+SCB_CTRL0
+	bit #HFLIP
+	bne .1
+	inc glider+SCB_HPOS
+	lda glider+SCB_HPOS
+	cmp #LEFTEDGE+SCREENWIDTH
+	bcc .2
+	lda #HFLIP
+	tsb glider+SCB_CTRL0
+	bra .2
+
+.1	dec glider+SCB_HPOS
+	lda glider+SCB_HPOS
+	cmp #LEFTEDGE
+	bcs .2
+	lda #HFLIP
+	trb glider+SCB_CTRL0
+
+.2	ldx #<glider
+	lda #>glider
+	;jmp resprite
+	;jsr resprite
+	;rts
+
+* fall in ...
+
+resprite
+	stx SCBNEXTL
+	sta SCBNEXTH
+	stz SDONEACK
+	lda #$01
+	sta SPRGO
+	WAITSUZY
+
+	rts
+
+
+* -------------------------------------------------------------
+
+
+* 
+* stereo routines
+* 
+
+* 
+init_my_stereo
+* 
+* Entry:		none
+* Exit:			the stereo hardware is initialized
+* 
+	stz MSTEREO		; turn on all channels
+	lda #255
+	sta MPAN		; enable panning on all channels
+	sta ATTENREG0	; set attenuation to full on both sides
+	sta ATTENREG1	; for all channels
+	sta ATTENREG2
+	sta ATTENREG3
+
+	rts
+
+
+* 
+set_stereo_pan
+* 
+* Entry:		a		-		pan value (0..63)
+* 				x		-		audio channel (0..3)
+* 
+* this routine demonstrates one method of panning a sound.
+* it is table driven to get equal total volume levels at
+* all pan positions, and equal sized steps.
+* 
+* 
+	pha
+	eor #63
+	tay
+	lda .1,y
+	asl
+	asl
+	asl
+	asl
+	ply
+	ora .1,y
+	sta ATTENREG0,x
+	rts
+
+; square root table
+.1	.by  1, 2, 2, 3, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8
+	.by  8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9,10,10,10,10,10
+	.by 11,11,11,11,12,12,12,12,12,12,13,13,13,13,13,13
+	.by 13,14,14,14,14,14,14,14,14,15,15,15,15,15,15,15
+
+
+
+* -------------------------------------------------------------
+
+* 
+* Standard handy code
+* 
+	.in 6502:src/sysdata.src
+	.in 6502:src/sys.src
+	.in 6502:src/cart.src
+	.in 6502:src/display.src
+	.in 6502:src/hsfx.src
+
+	.in 6502:Examples/DigiDemo/digi.src	; get the sample playback code
+
+
+* -------------------------------------------------------------
+
+* 
+* font routines
+* 
+
+* 
+set_sprite_text
+* 
+	stx sysptr2				; scab pointer
+	sty sysptr2+1
+
+	ldy #255
+.1	jsr get_char_pointer
+	beq .2	
+
+	PHY
+	ldy #SCB_NEXT			; next scab
+	lda (sysptr2),y	
+	tax
+	iny
+	lda (sysptr2),y	
+	sta sysptr2+1
+	stx sysptr2
+
+	PLY
+	bra .1
+
+.2	rts
+
+
+* 
+create_sprite_text
+* 
+	stx sysptr2
+	sty sysptr2+1
+
+	ldy #20-1					; copy firstchar template
+	sty .ff						; the first char scab is 20 bytes
+.3	lda firstchar,y
+	sta (sysptr2),y
+	dey
+	bpl .3
+
+	ldy #255
+.1	jsr get_char_pointer
+	PHY
+	iny
+	lda (sysptr),y
+	beq .2
+
+	ldy #SCB_HPOS				; find next hpos
+	clc
+	lda fontwidth
+	adc (sysptr2),y
+	sta nextchar+SCB_HPOS
+	iny
+	lda #0
+	adc (sysptr2),y
+	sta nextchar+SCB_HPOS+1
+	iny
+	lda (sysptr2),y
+	sta nextchar+SCB_VPOS
+	iny
+	lda (sysptr2),y
+	sta nextchar+SCB_VPOS+1
+
+	ldy #SCB_NEXT				; point this scab to next scab
+	sec							; compensate for -1 bias
+	lda .ff
+	adc sysptr2
+	sta (sysptr2),y	
+	tax
+	iny
+	lda sysptr2+1
+	adc #0
+	sta (sysptr2),y	
+
+	sta sysptr2+1				; advance sysptr2 to next scab
+	stx sysptr2	
+
+	ldy #11-1					; copy nextchar template
+	sty .ff						; next char scabs are 11 bytes
+.5	lda nextchar,y
+	sta (sysptr2),y
+	dey
+	bpl .5
+
+	PLY
+	bra .1
+
+.2	PLY
+	rts					; SCB_NEXT is already pointing to NIL, so we're done
+.ff	.ds 1
+
+
+firstchar
+	.by ONE_PER_PIXEL+NONCOLL_SPRITE, LITERAL+RELOAD_HVST, 0
+	.wo 0
+	.wo 0
+	.wo 0, 0
+	.wo 1*256, 1*256
+	.wo 0*256, 0*256
+	.by 1
+
+nextchar
+	.by ONE_PER_PIXEL+NONCOLL_SPRITE, LITERAL+RELOAD_NONE+REUSE_PALETTE, 0
+	.wo 0
+	.wo 0
+	.wo 0, 0
+
+
+* 
+get_char_pointer
+* 
+.2	iny
+	lda (sysptr),y
+	beq .3				; done
+	sta sysptr3
+	bmi .1
+
+	; handle normal text
+
+	PHY
+	sec	
+	sbc #" "
+	sta MATHB
+	ldy	#FONTCHARLEN
+	lda (fontptr),y			; set up to multiply by char len
+	asl
+	inc
+	sta MATHD
+	stz MATHC
+	stz MATHA
+
+	ldy #SCB_DATA
+	WAITMATH
+	clc	
+	lda MATHH
+	adc fontptr
+	tax
+	lda MATHG
+	adc fontptr+1
+	pha	
+	txa
+	clc
+	adc #4
+	sta (sysptr2),y
+	pla
+	adc #0
+	iny
+	sta (sysptr2),y
+
+	PLY
+	lda #1
+.3	rts
+
+.1	; handle control byte
+
+	and #%00110000			; extract font index
+	lsr
+	lsr
+	lsr
+	tax
+	lda fontlist,x
+	sta fontptr
+	lda fontlist+1,x
+	sta fontptr+1
+	PHY
+	ldy #FONTWIDTH
+	lda (fontptr),y
+	sta fontwidth
+
+	ldy #SCB_CTRL1			; new color
+	lda (sysptr2),y
+	bit #REUSE_PALETTE
+	bne .4
+	and #RELOAD_HVST
+	lsr
+	lsr
+	lsr
+	lsr
+	tax
+	ldy reloaddepth,x
+	lda sysptr3
+	and #%00001111
+	sta (sysptr2),y
+.4	PLY
+
+	lda sysptr3
+	bit #64
+	beq .2
+
+	; handle new position request
+
+	iny	
+	lda (sysptr),y
+	clc
+	adc #<{LEFTEDGE+160-255}
+	tax
+	lda #>{LEFTEDGE+160-255}
+	adc #0
+	PHY
+	ldy #SCB_HPOS+1
+	sta (sysptr2),y
+	dey
+	txa
+	sta (sysptr2),y
+	PLY	
+
+	iny	
+	lda (sysptr),y
+	clc
+	adc #<{TOPEDGE+102-255}
+	tax
+	lda #>{TOPEDGE+102-255}
+	adc #0
+	PHY
+	ldy #SCB_VPOS+1
+	sta (sysptr2),y
+	dey
+	txa
+	sta (sysptr2),y
+	PLY	
+
+	jmp .2
+
+reloaddepth .by 0+11,4+11,6+11,8+11
+
+
+* 
+load_font
+* 
+	stx fontptr
+	sty fontptr+1
+	GETDIR
+	OPENFILE
+	lda fontptr
+	sta sysptr
+	lda fontptr+1
+	sta sysptr+1
+	ldx #4
+	ldy #0
+	jsr read_some_bytes
+
+	ldy #FONTSIZE
+	lda (fontptr),y
+	sta sysptr2					; count down num chars
+	iny
+	lda (fontptr),y
+	sta sysptr2+1				; save next line offset
+
+.1	ldy #FONTCHARLEN
+	lda (fontptr),y
+	sta sysptr3					; save char len
+
+.2	lda sysptr2+1
+	sta (sysptr)
+	inc sysptr
+	bne .2f
+	 inc sysptr+1
+.2f	ldx #1
+	ldy #0
+	jsr read_some_bytes
+	dec sysptr3
+	bne .2
+
+	lda #0
+	sta (sysptr)
+	inc sysptr
+	bne .28
+	 inc sysptr+1
+.28	dec sysptr2
+	bne .1
+
+	; update font list
+
+	lda numfonts
+	inc numfonts
+	asl
+	tay
+	lda fontptr
+	sta fontlist,y
+	lda fontptr+1
+	sta fontlist+1,y
+
+	rts
+
+
+* 
+read_some_bytes
+* 
+	stx CartIOCount	 
+	sty CartIOCount+1
+	sec
+	lda CartDirectory+ROMDIR_SIZE
+	sbc CartIOCount
+	tax
+	lda CartDirectory+ROMDIR_SIZE+1
+	sbc CartIOCount+1
+	tay
+	bcs .1
+
+	lda CartDirectory+ROMDIR_SIZE
+	sta CartIOCount
+	lda CartDirectory+ROMDIR_SIZE+1
+	sta CartIOCount+1
+	ldy #0
+	ldx #0
+
+.1	stx CartDirectory+ROMDIR_SIZE
+	sty CartDirectory+ROMDIR_SIZE+1
+
+	inc CartIOCount
+	inc CartIOCount+1
+	jmp readCart0Grunt
+
+fontlist	.wo plainfont, lilfont
+
+
+* -------------------------------------------------------------
+
+
+* 
+* Display data
+* 
+	#MACRO PALDEF
+	.BY $?0/256,$?1/256,$?2/256,$?3/256,$?4/256,$?5/256,$?6/256,$?7/256
+	.BY $?8/256,$?9/256,$?a/256,$?b/256,$?c/256,$?d/256,$?e/256,$?f/256
+	.BY <$?0,<$?1,<$?2,<$?3,<$?4,<$?5,<$?6,<$?7
+	.BY <$?8,<$?9,<$?a,<$?b,<$?c,<$?d,<$?e,<$?f
+	#ENDM
+
+palette
+ PALDEF	f00, 0f0, 00f, fff, 000, ff0, f0f, 0ff, 222,444,666,888,aaa,bbb,ccc,ddd
+* 		grn, blu, red, wht, blk, aqu, yel, prp, 
+
+pixelsprite			.hs 02000000
+
+screenerase
+	.by FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.wo samplebox
+	.wo pixelsprite	 
+	.wo LEFTEDGE, TOPEDGE
+	.wo SCREENWIDTH*256, SCREENHEIGHT*256
+	.by $11
+
+samplebox
+	.by FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.da volumesliderbox
+	.da pixelsprite	 
+	.da LEFTEDGE+4, TOPEDGE+4
+	.da {SCREENWIDTH-8}*256, {SCREENHEIGHT/2-8}*256
+	.by $22
+
+volumesliderbox
+	.by FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.da volumeslider
+	.da pixelsprite	 
+	.da LEFTEDGE+4+8*8, TOPEDGE+51
+	.da {64}*256, {6}*256
+	.by $44
+volumeslider
+	.by FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.da ratesliderbox
+	.da pixelsprite	 
+	.da 0, TOPEDGE+52
+	.da {2}*256, {4}*256
+	.by $33
+
+ratesliderbox
+	.by FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.da rateslider
+	.da pixelsprite	 
+	.da LEFTEDGE+4+8*8, TOPEDGE+61
+	.da {64}*256, {6}*256
+	.by $44
+rateslider
+	.by FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.da pansliderbox
+	.da pixelsprite	 
+	.da 0, TOPEDGE+62
+	.da {2}*256, {4}*256
+	.by $33
+
+pansliderbox
+	.by FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.da panslider
+	.da pixelsprite	 
+	.da LEFTEDGE+4+8*8, TOPEDGE+71
+	.da {64}*256, {6}*256
+	.by $44
+panslider
+	.by FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.da rbuf
+	.da pixelsprite	 
+	.da 0, TOPEDGE+72
+	.da {2}*256, {4}*256
+	.by $33
+
+
+glidersprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$03,$74,$30
+	.BYTE	$03,$98,$80
+	.BYTE	$03,$91,$00
+	.BYTE	$02,$8a
+	.BYTE	$02,$84
+	.BYTE	$01
+; Next data is up-right
+	.BYTE	$03,$ac,$20
+	.BYTE	$03,$b2,$10
+	.BYTE	$03,$b9,$08
+	.BYTE	$03,$c0,$84
+	.BYTE	$03,$c8,$42
+	.BYTE	$04,$d0,$21,$00
+	.BYTE	$04,$d8,$10,$80
+	.BYTE	$03,$30,$b0
+	.BYTE	$01
+; Next data is up-left
+	.BYTE	$03,$62,$72
+	.BYTE	$03,$62,$54
+	.BYTE	$03,$62,$54
+	.BYTE	$03,$6a,$10
+	.BYTE	$03,$6a,$10
+	.BYTE	$01
+; Next data is down-left
+	.BYTE	$03,$74,$30
+	.BYTE	$02,$8a
+	.BYTE	$03,$91,$00
+	.BYTE	$03,$98,$80
+	.BYTE	$03,$a0,$40
+	.BYTE	$03,$ac,$20
+	.BYTE	$03,$b2,$10
+	.BYTE	$03,$b9,$08
+	.BYTE	$03,$10,$b0
+	.BYTE	$00
+; 84 total image bytes
+
+
+glider
+	.BY	ONE_PER_PIXEL+NORMAL_SPRITE, RELOAD_HV, 0
+	.WO	0
+	.WO	glidersprite
+	.WO	LEFTEDGE, TOPEDGE+60
+	.WO	$0100, $0100
+	.BY	$02
+
+* Calculate the reload value for the sample timer using
+* 		RELOAD	=	1,000,000 / RATE,
+* where rate is in KHz.
+* 
+* The minimum sample rate suported is 3907 (when reload = 255).
+* The maximum sample rate for this example program seems to be
+* about 15000.
+
+defaultrates
+	.by MIL/7500, MIL/4000, MIL/7500, MIL/7500, MIL/7500
+
+stbase
+pausetext
+	.by %1101*16+$f
+	.by SCREENWIDTH/2-8*4+95, SCREENHEIGHT/4-4+153
+	.zs "(PAUSED)"
+s0text
+	.by %1101*16+6			; font 0, color 6, new position to follow
+	.by SCREENWIDTH/2-9*4+95, SCREENHEIGHT/4-4+153	; hpos, vpos
+	.zs "GENTLEMEN"
+s1text
+	.by %1101*16+1
+	.by SCREENWIDTH/2-6*4+95, SCREENHEIGHT/4-4+153
+	.zs "VIDPWR"
+s2text
+	.by %1101*16+3
+	.by SCREENWIDTH/2-6*4+95, SCREENHEIGHT/4-4+153
+	.zs "AWWWW!"
+s3text
+	.by %1101*16+4
+	.by SCREENWIDTH/2-6*4+95, SCREENHEIGHT/4-4+153
+	.zs "OOOOH!"
+s4text
+	.by %1101*16+5
+	.by SCREENWIDTH/2-5*4+95, SCREENHEIGHT/4-4+153
+	.zs "YEAH!"
+
+stextoffsets
+	.by 0, s0text-stbase, s1text-stbase, s2text-stbase, s3text-stbase, s4text-stbase
+
+sscabs_l
+	.by <pbuf, <s0buf, <s1buf, <s2buf, <s3buf, <s4buf
+sscabs_h
+	.by >pbuf, >s0buf, >s1buf, >s2buf, >s3buf, >s4buf
+
+
+slbase
+slidertext
+	.by %1101*16+$f
+	.by 4+95, 50+153
+vstext
+	.as "; VOLUME"								; 8
+
+	.by %1101*16+$f
+	.by 4+95, 60+153
+rstext
+	.as "  RATE"								; 6
+
+	.by %1101*16+$f
+	.by 4+95, 70+153
+pstext
+	.zs "  PAN"									; 5
+
+sltextoffsets	.by vstext-slbase, rstext-slbase, pstext-slbase
+
+helptext
+	.by %1100*16+$f
+	.by 1+95, SCREENHEIGHT+153-{4*6}
+	.as "JOYPAD LEFT-RIGHT SELECT SAMPLE"		; 31
+
+	.by %1100*16+$f
+	.by 1+95, SCREENHEIGHT+153-{3*6}
+	.as "JOYPAD UP-DOWN SELECT SLIDER"			; 28
+
+	.by %1100*16+$f
+	.by 1+95, SCREENHEIGHT+153-{2*6}
+	.as "B AND JOYPAD LEFT-RIGHT SET SLIDER"	; 34
+
+	.by %1100*16+$f
+	.by 1+95, SCREENHEIGHT+153-{1*6}
+	.zs "A PLAYS A SAMPLE"						; 16
+
+ratetext
+	.by %1101*16+$f
+	.by SCREENWIDTH-8+95, SCREENHEIGHT-8+153
+rate
+	.zs "0"
+
+
+* -------------------------------------------------------------
+* Buffers
+* 
+interrupts		.ds 16
+samplerates		.ds NUMSOUNDS
+plainfont		.ds {48*15+FONTBLANK}
+lilfont			.ds {48*11+FONTBLANK}
+
+sliderbuffer	.ds 20+{8+6+5-1}*11
+helpbuffer		.ds 20+{31+28+34+16-1}*11
+
+rbuf			.ds 20
+pbuf			.ds 20+{8-1}*11
+s0buf			.ds 20+{9-1}*11
+s1buf			.ds 20+{6-1}*11
+s2buf			.ds 20+{6-1}*11
+s3buf			.ds 20+{6-1}*11
+s4buf			.ds 20+{5-1}*11
+
+
+		.in 6502:src/hsfx.var
+* 
+* Put the display buffers as high as possible
+* 
+dispbuf0		.eq		$fff8-DISPLAY_BUFSIZE
+dispbuf1		.eq		dispbuf0-DISPLAY_BUFSIZE
+
+
+* -------------------------------------------------------------
+* The sample playback buffers
+* 
+	.ALIGN 256			; must be aligned to a page boundary
+soundbuffer		.ds 	256
+volumetable		.ds		256
+* 
+
+* -------------------------------------------------------------
+* Title screen
+
+		.tf title0.bin
+		.or $8000
+
+	.BYTE   $00,$0c,$00,$06,$09,$0f,$00,$0c
+	.BYTE   $00,$00,$05,$0c,$0e,$0c,$08,$04
+	.BYTE   $00,$ae,$0c,$0f,$00,$13,$f0,$d2
+	.BYTE   $cf,$fa,$09,$af,$0f,$cc,$88,$44
+
+
+titleerase
+	.BY FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HVST+LITERAL, 0
+	.DA 0
+	.DA tpixelsprite	 
+	.DA 0,0
+	.DA 160*256,102*256
+	.DA 0, 0
+	.BYTE $77
+
+tpixelsprite .hs 02000000
+
+* -------------------------------------------------------------
+* Fonts
+* 
+		.tf plainfont.bin
+		.or 0
+		.in plainfont.fnt
+
+		.tf lilfont.bin
+		.or 0
+		.in lilfont.fnt

@@ -1,0 +1,44 @@
+
+
+
+	The files in this directory are simple examples and test programs
+that can be assembled, downloaded and run on the Handy development system.
+
+	Here is a list of the files in this directory and their contents:
+
+
+README		- this file
+Songs		- a directory containing music files for testhmusic.src
+TestAll		- a script file that when executed builds all the programs
+
+cartdefs.i	- a sample include file showing how to set up the definitions
+		  needed by the cartridge filing system
+
+divide.src	- an example written for the Lynx developers conference,
+		  demonstrates the divide function of the math hardware
+mandel.src	- a Mandelbrot/Julian set explorer, demonstrates the math
+		  hardware
+mult32.src	- an example written for the Lynx developers conference,
+		  shows how to perform multiply by parts
+multiply.src	- written for the Lynx developers conference, demonstrates 
+		  the multiply function of the math hardware
+spritedemo.src	- written for the Lynx developers conference, demonstrates
+		  the capabilities of the "sprites"
+testaudio.src	- demonstrates some simple sound effects on the Lynx
+testcart.hsf	- HandyRom source file to put together cartridge demo example
+		  testcart.src must be assembled first
+testcart.src	- demonstrates the cartridge file system
+testcontrols.src - test program that reads joystick/buttons
+testhmusic.src	- demonstrates the hmusic music system
+testhprint.src	- demonstrates HPRINT text output macros
+testredeye.src	- demonstrates use of redeye (comlynx) communication code
+testsprite.src	- does some simple things with sprites on the screen
+
+
+	Most of the first programs developed started with testsprite.src
+as the base, and then built the code up from there.
+
+
+			Have fun,
+				SHL
+

@@ -1,0 +1,79 @@
+
+* === testcontrols.src ======================================================
+* 
+* Test Controls Macros and Subroutines  --  Handy Software
+* 
+* Confidential and Proprietary
+* Copyright (C) 1988, Epyx, Inc.
+* 
+* Date		Name		Description
+* ---------	--------------	----------------------------------------------
+* 9-Feb-90	SHL		Updated for compatibility with 1.1 release
+* 6 Apr 89	-RJ		Added sys.mac, sys.src, and INITSYS
+* 2 Jan 89	-RJ		Added TAPE_RECORDING definition and examples
+*				of calling tape-recording macros
+* Mid 88	=RJ Mical=	Created this file!
+* 
+* ===========================================================================
+
+
+		.65C02
+
+
+* Define BRK_USER to do debugging.
+BRK_USER	.EQU	1
+
+
+		.IN	6502:include/monitor.i
+		.IN	6502:include/harddefs.i
+
+		;------	Include the system's zpage data declarations 
+		;------	after the include file inclusions and 
+		;------	before any code or data declarations
+		.IN	6502:macros/zpage.mac
+		.IN	6502:src/syszpage.src
+
+		.IN	6502:macros/sys.mac
+		.IN	6502:macros/controls.mac
+
+		.ORG	$2000
+		.RUN	$2000
+
+Start
+* Set up for normal operation
+		INITSYS
+		INITINT	InterruptTable,SafeReturn
+
+		CLI
+		CLD
+		LDX	#$FF
+		TXS
+
+
+Loop
+* We're going to get the JOYSTICK value into A, SWITCHES into Y, 
+* then break so the programmer can see what we've got.  
+		GETSWITCH
+		PHA
+		GETJOY
+		PLY
+
+		HBRK
+		BRK
+		NOP
+		BRA	Loop
+
+
+SafeReturn
+		RTS
+
+
+* ===========================================================================
+
+InterruptTable	.DS	8*2
+
+		.IN	6502:src/sysdata.src
+		.IN	6502:src/sys.src
+
+		.END
+

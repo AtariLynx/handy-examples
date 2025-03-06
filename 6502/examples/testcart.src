@@ -1,0 +1,419 @@
+; Monday 30-Apr-90 22:08:38
+* == testcart.src ==========================================================
+* 
+* Test CART Routines  --  Handy Software
+* 
+* Confidential and Proprietary
+* Copyright (C) 1988, 1989, Epyx, Inc.
+* 
+* Date		Name		Description
+* ---------	--------------	----------------------------------------------
+* 30-Apr-90	SHL		Moved GETDIR_USER definition before includes
+* 7-Mar-90	SHL		Remove DISPLAY_ON call
+* 9-Feb-90	SHL		Updated for compatibility with 1.1 release
+* 30-Apr-89	=RJ Mical=	Created this file!
+* 
+* ===========================================================================
+
+
+
+; Specify that we will be a GETDIR user, mostly because I am lazy right now
+; and can afford the 75 bytes
+GETDIR_USER	.EQU	1
+
+
+
+* Define BRK_USER to do debugging.
+BRK_USER	.EQU	1
+
+
+
+EOF_USER	.EQU	1
+; EOL_USER	.EQU	1
+
+
+HOFFSET_PRESET	.EQU	10
+VOFFSET_PRESET	.EQU	10
+TEXT_X		.EQU	HOFFSET_PRESET+1
+TEXT_Y		.EQU	VOFFSET_PRESET+30
+
+
+
+		.LIST	OFF
+
+		.IN	6502:include/harddefs.i
+		.IN	6502:include/monitor.i
+		.IN	6502:include/sprite.i
+		.IN	6502:include/hprint.i
+		.IN	6502:include/cart.i
+
+		.IN	6502:examples/cartdefs.i
+
+		;------	Include the system's zpage data declarations 
+		;------	after the include file inclusions and 
+		;------	before any code or data declarations
+		.IN	6502:macros/zpage.mac
+		.IN	6502:src/syszpage.src
+
+		.IN	6502:macros/sys.mac
+		.IN	6502:macros/controls.mac
+		.IN	6502:macros/handymath.mac
+		.IN	6502:macros/sprite.mac
+		.IN	6502:macros/display.mac
+		.IN	6502:macros/hprint.mac
+		.IN	6502:macros/cart.mac
+
+		.LIST	ON
+
+
+
+
+; Here we declare the type and height of font we want
+; NOTE:  both of these constants must be declared
+FONT_TYPE	.EQU	HPR_DIGIT+HPR_UPPER+HPR_PUNC
+FONT_HEIGHT	.EQU	7
+
+
+
+TEXT_BUF_WIDTH	.EQU	{20+1}
+
+
+		;------	Make sure all our ASCII is defined in the alternate 
+		;------	character set that will match our font
+		HPR_CHARSET
+
+
+		.ORG	$2000
+		.RUN	Start
+
+Start
+		INITSYS
+		INITINT	InterruptTable,SafeReturn
+
+		CLI
+		CLD
+		LDX	#$FF
+		TXS
+
+		;------	Set up the display, and then turn it on
+		SETDISP_60
+		INITEOF
+		INITSUZY
+		SETDBUF	Buffer1,Buffer2
+		RGB16	TestPalette
+
+		LDA	#HOFFSET_PRESET
+		HOFF8
+		LDA	#VOFFSET_PRESET
+		VOFF8
+
+		INITLIT	TextBuffer,TEXT_BUF_WIDTH
+
+		;------	Turn off all collisions
+		LDA	SPRSYS_RAM
+		ORA	#NO_COLLIDE
+		STA	SPRSYS_RAM
+		STA	SPRSYS
+
+		STZ	FileIndex
+		JSR	LoadFile
+
+TextLoop
+		;------	Load the address of the currently loaded file's 
+		;------	text buffer
+		LDA	#<TEXT_DATA
+		STA	TextPointer
+		LDA	#>TEXT_DATA
+		STA	TextPointer+1
+
+		;------	Print text into our buffer
+		HPRINT	TextPointer,1,TextBuffer
+
+		;------	Display our buffer
+		SPRITES	EraseSprite,0
+		DBUF_DISPLAY
+		WAITEOF
+
+		;------	If either button was pressed, advance file
+		GETJOY
+		AND	#INNER_BUTTON+OUTER_BUTTON
+		BNE	.E0
+		STZ	OldButton
+		BRA	.F0
+
+.E0		LDA	#1
+		BIT	OldButton
+		BNE	.F0
+		STA	OldButton
+
+		;------	Button newly pressed, so advance
+		INC	FileIndex
+		JSR	LoadFile
+
+.F0		JMP	TextLoop
+
+
+LoadFile
+* ----------------------------------------------------------------------------
+* Load the FileIndex file into memory
+
+		;------	Make sure the current file index has a reasonable value
+		LDA	FileIndex
+		AND	#$03
+		STA	FileIndex
+		INC		; File numbers 
+		INC		; start from 2
+
+		;------	Open the file and read it in
+		GETDIR		; Get the cart address of the directory entry
+		OPENFILE	; Open the file and prepare to read it
+		LDA	#0	; Specify that we want load to default address
+		READFILE	; Get the data
+SafeReturn
+		RTS		; and we're done
+
+
+
+* ==========================================================================
+* ===                     ==================================================
+* === System Source Files ==================================================
+* ===                     ==================================================
+* ==========================================================================
+
+		.LIST	OFF
+		.IN	6502:src/sysdata.src
+		.IN	6502:src/sys.src
+		.IN	6502:src/display.src
+		.IN	6502:src/hprint.src
+		.IN	6502:src/cart.src
+
+		;------	Load the plain font
+		HPRFONT	plain
+		.LIST	ON
+
+
+
+* ==========================================================================
+* ===                    ===================================================
+* === Variables and Data ====================================================
+* ===                    ===================================================
+* ==========================================================================
+
+TextBuffer	.DS	{TEXT_BUF_WIDTH*FONT_HEIGHT}+1
+TextPointer	.DS	2
+FileIndex	.DS	1
+OldButton	.DS	1
+InterruptTable	.DS	8*2
+
+
+		.ALIGN	4
+; Align the PC to the next multiple of 4, which is required by the hardware 
+; for the placement of the display buffers
+Buffer1		.DS	DISPLAY_BUFSIZE
+		.ALIGN	4
+Buffer2		.DS	DISPLAY_BUFSIZE
+
+EraseSprite
+; Handy Sprite
+		.BYTE	ONE_PER_PIXEL+BACKNONCOLL_SPRITE	; Control 0
+		.BYTE	RELOAD_HVST+LITERAL		; Control 1
+		.BYTE	$00	; Control 2
+		.WORD	TextDrop1Sprite	; Next sprite's address
+		.WORD	EraseSpriteData
+		.WORD	HOFFSET_PRESET	; HPos
+		.WORD	VOFFSET_PRESET	; VPos
+		.WORD	$A000	; HSize
+		.WORD	$6600	; VSize
+		.WORD	$0000	; Stretch
+		.WORD	$0000	; Tilt
+		.BYTE	$00	; Palette
+
+TextDrop1Sprite
+; Handy Sprite
+		.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE	; Control 0
+		.BYTE	RELOAD_HV+LITERAL			; Control 1
+		.BYTE	$00	; Control 2
+		.WORD	TextDrop2Sprite	; Next sprite's address
+		.WORD	TextBuffer
+		.WORD	TEXT_X-1	; HPos
+		.WORD	TEXT_Y-1	; VPos
+		.WORD	$0100	; HSize
+		.WORD	$0100	; VSize
+		.BYTE	$02	; Palette
+
+TextDrop2Sprite
+; Handy Sprite
+		.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE	; Control 0
+		.BYTE	RELOAD_HV+LITERAL			; Control 1
+		.BYTE	$00	; Control 2
+		.WORD	TextDrop3Sprite	; Next sprite's address
+		.WORD	TextBuffer
+		.WORD	TEXT_X-1	; HPos
+		.WORD	TEXT_Y+1	; VPos
+		.WORD	$0100	; HSize
+		.WORD	$0100	; VSize
+		.BYTE	$02	; Palette
+
+TextDrop3Sprite
+; Handy Sprite
+		.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE	; Control 0
+		.BYTE	RELOAD_HV+LITERAL			; Control 1
+		.BYTE	$00	; Control 2
+		.WORD	TextDrop4Sprite	; Next sprite's address
+		.WORD	TextBuffer
+		.WORD	TEXT_X+1	; HPos
+		.WORD	TEXT_Y-1	; VPos
+		.WORD	$0100	; HSize
+		.WORD	$0100	; VSize
+		.BYTE	$02	; Palette
+
+TextDrop4Sprite
+; Handy Sprite
+		.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE	; Control 0
+		.BYTE	RELOAD_HV+LITERAL			; Control 1
+		.BYTE	$00	; Control 2
+		.WORD	TextSprite	; Next sprite's address
+		.WORD	TextBuffer
+		.WORD	TEXT_X+1	; HPos
+		.WORD	TEXT_Y+1	; VPos
+		.WORD	$0100	; HSize
+		.WORD	$0100	; VSize
+		.BYTE	$02	; Palette
+
+TextSprite
+; Handy Sprite
+		.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE	; Control 0
+		.BYTE	RELOAD_HV+LITERAL			; Control 1
+		.BYTE	$00	; Control 2
+		.WORD	0	; Next sprite's address
+		.WORD	TextBuffer
+		.WORD	TEXT_X	; HPos
+		.WORD	TEXT_Y	; VPos
+		.WORD	$0100	; HSize
+		.WORD	$0100	; VSize
+		.BYTE	$01	; Palette
+
+EraseSpriteData
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+		.BYTE	$02,$00
+		.BYTE	$00
+
+
+TestPalette
+		.BYTE	$00,$0F,$00,$0F,$00,$0F,$00,$0F
+		.BYTE	$01,$03,$05,$07,$09,$0B,$0D,$0F
+		.BYTE	$00,$FF,$0F,$00,$F0,$0F,$FF,$F0
+		.BYTE	$11,$33,$55,$77,$99,$BB,$DD,$FF
+
+
+
+* ==========================================================================
+* ===                                 ======================================
+* === Data to test .TF and CART stuff ======================================
+* ===                                 ======================================
+* ==========================================================================
+
+TEXT_DATA	.EQU	*
+
+* MAX TEXT LENGTH       "123456789*123456789"
+		.TF	testcart1.bin
+		.ORG	TEXT_DATA
+		.ZS	"We're seeing file 1"
+
+		.TF	testcart2.bin
+		.ORG	TEXT_DATA
+		.ZS	"Here's file 2"
+
+		.TF	testcart3.bin
+		.ORG	TEXT_DATA
+		.ZS	"Got a 3 right here"
+
+		.TF	testcart4.bin
+		.ORG	TEXT_DATA
+		.ZS	"4?  File 4?  OK!"
+
+		.TF	testcart0.bin
+		.ORG	$2400
+
+; Handy Color Palette
+; Greens
+	.BYTE	$00,$0c,$00,$06,$09,$0f,$00,$0c
+	.BYTE	$00,$00,$05,$0c,$0e,$0c,$08,$04
+; Blues-Reds
+
+	.BYTE	$00,$ae,$0c,$0f,$00,$13,$f0,$d2
+	.BYTE	$cf,$fa,$09,$af,$0f,$cc,$88,$44
+
+zEraseSprite
+; Handy Sprite
+	.BYTE	ONE_PER_PIXEL+BACKNONCOLL_SPRITE	; Control 0
+	.BYTE	RELOAD_HVST+LITERAL		; Control 1
+	.BYTE	$00	; Control 2
+	.WORD   TestCartSprite	; Next sprite's address
+	.WORD	zEraseSpriteData
+	.WORD	0	; HPos
+	.WORD	0	; VPos
+	.WORD	$A000	; HSize
+	.WORD	$6600	; VSize
+	.WORD	$0000	; Stretch
+	.WORD	$0000	; Tilt
+	.BYTE	$00	; Palette
+
+TestCartSprite
+; Handy Sprite
+	.BYTE	TWO_PER_PIXEL+NONCOLL_SPRITE ; Control 0
+	.BYTE	RELOAD_HVST ; Control 1
+	.BYTE	$00 ; Control 2
+	.WORD	$0000	; Next Sprite
+	.WORD	TestCartData	; ImageData
+	.WORD	80	; HPos
+	.WORD	51	; VPos
+	.WORD	$0100	; HSize
+	.WORD	$0100	; VSize
+	.WORD	$0000	; Stretch
+	.WORD	$0000	; Tilt
+	; Palette
+	.BYTE	$01,$23
+
+
+zEraseSpriteData
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+		.BYTE	$02,$00
+		.BYTE	$00
+
+
+TestCartData
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$0a,$cc,$a0,$01,$15,$ef,$2c,$a0,$72,$80
+	.BYTE	$0a,$d5,$28,$2e,$a3,$bc,$b2,$d2,$87,$28
+	.BYTE	$0a,$f7,$4a,$a4,$bf,$c4,$6d,$d2,$98,$d0
+	.BYTE	$0a,$ef,$d5,$1d,$01,$92,$b1,$f4,$03,$80
+	.BYTE	$09,$c1,$fe,$1e,$30,$9d,$80,$f0,$1e
+	.BYTE	$01
+; Next data is up-right
+	.BYTE	$0a,$ec,$a7,$81,$ad,$7d,$79,$55,$33,$94
+	.BYTE	$0a,$d0,$bf,$40,$43,$7f,$f2,$f2,$f7,$2c
+	.BYTE	$0b,$f8,$2d,$28,$0a,$a7,$e9,$69,$49,$96,$40
+	.BYTE	$09,$10,$34,$80,$51,$05,$44,$15,$00
+	.BYTE	$01
+; Next data is up-left
+	.BYTE	$0b,$f8,$2d,$98,$2b,$5f,$c1,$56,$c1,$6c,$c0
+	.BYTE	$0b,$f9,$2d,$d9,$4a,$c7,$ca,$d6,$f9,$6e,$c0
+	.BYTE	$0b,$f3,$2c,$c2,$d2,$9f,$16,$96,$99,$66,$00
+	.BYTE	$08,$2a,$20,$68,$83,$30,$0a,$80
+	.BYTE	$01
+; Next data is down-left
+	.BYTE	$0a,$ee,$2d,$82,$b5,$7f,$c0,$96,$c1,$6c
+	.BYTE	$0a,$ee,$2d,$82,$d2,$ff,$14,$16,$c1,$6c
+	.BYTE	$09,$fe,$ab,$80,$ab,$41,$9b,$62,$ae
+	.BYTE	$09,$08,$38,$60,$e9,$78,$68,$20,$e0
+	.BYTE	$09,$10,$3c,$60,$f1,$06,$c2,$0f,$00
+	.BYTE	$00
+; 181 total image bytes
+

@@ -1,0 +1,1039 @@
+
+* === spritedemo.src ========================================================
+* 
+* Sprite features demo for HandyCon  --  Handy Software
+* 
+* Confidential and Proprietary
+* Copyright (C) 1989, Epyx, Inc.
+* 
+* Date		Name		Description
+* ---------	--------------	----------------------------------------------
+* 7-Mar-90	SHL		Remove DISPLAY_ON call
+* 9-Feb-90	SHL		Updated for compatibility with 1.1 release
+* Jun 89	SHL		Created this file
+* 
+* ===========================================================================
+
+	.65C02		; Select processor for the HANDY
+
+EOF_USER .EQ 1		; We use EOF macros
+
+BRK_USER .EQ 1		; we wanna have breaks for debugging
+
+FONT_TYPE .EQ HPR_DIGIT+HPR_UPPER+HPR_PUNC	; for HPRINT
+FONT_HEIGHT .EQ	7
+
+;==============================================================================
+
+; Standard HANDY includes and macros
+
+	.IN 6502:include/monitor.i
+	.IN 6502:include/harddefs.i
+	.IN 6502:include/sprite.i
+	.IN 6502:include/hprint.i
+
+	.IN 6502:macros/zpage.mac
+	.IN 6502:src/syszpage.src
+
+	.IN 6502:macros/sys.mac
+	.IN 6502:macros/sprite.mac
+	.IN 6502:macros/display.mac
+	.IN 6502:macros/controls.mac
+	.IN 6502:macros/handymath.mac
+	.IN 6502:macros/hprint.mac
+
+
+;==============================================================================
+
+; Absolute equates
+
+
+;==============================================================================
+
+; useful code macros
+
+	#MACRO STRUCT		; reset PC for structure template definitions
+LTemp	.= *
+	.ORG 0
+	#ENDM
+
+	#MACRO ENDSTRUCT	; restore PC after structure definition
+	.ORG LTemp
+	#ENDM
+
+;==============================================================================
+
+; Zero page variables
+
+
+	BEGIN_ZPAGE
+
+MYZPSTART
+
+ind0		.DS 2	; general indirects
+
+temp0		.DS 1	; general temporaries
+
+whichdigit	.DS 1	; which digit are we modifying?
+
+displayflag	.DS 1	; which display are we showing
+
+hpos		.DS 2	; copies of SCB variables for display and manipulation
+vpos		.DS 2
+hsize		.DS 2
+vsize		.DS 2
+stretch		.DS 2
+tilt		.DS 2
+
+stick		.DS 1	; current reading of joystick
+edgestick	.DS 1	; positive edge transitions of joystick
+switch		.DS 1	; current reading of switches register
+edgeswitch	.DS 1	; positive edge transitions in switches register
+
+MYZPEND
+
+
+	END_ZPAGE
+
+;==============================================================================
+
+	.OR $0200
+
+;==============================================================================
+
+; Absolute address variables
+
+
+	.ALIGN 4
+screen0		.DS DISPLAY_BUFSIZE	; screen buffers
+screen1		.DS DISPLAY_BUFSIZE
+
+
+interrupt_buffer .DS 16			; timer interrupt vectors
+
+textbuffer	.DS 20*FONT_HEIGHT+1	; literal text sprite imagery buffer
+
+
+AbsVarsEnd
+
+;==============================================================================
+
+; Standard handy source include files
+
+	.IN 6502:src/sysdata.src
+	.IN 6502:src/hprint.src
+	.IN 6502:src/sys.src
+	.IN 6502:src/display.src
+
+;==============================================================================
+
+; Handy system character set stuff
+
+	HPRFONT plain
+
+	HPR_CHARSET
+
+;==============================================================================
+
+; Code segment
+
+
+
+start	.RUN
+
+	sei
+	cld
+	ldx #$ff
+	txs
+
+	INITSYS
+
+	INITINT	interrupt_buffer,rts0	; for when we want our own vector
+
+	lda #<$3000		; for Howard board
+	sta $fffa
+	lda #>$3000
+	sta $fffb
+
+	SETDBUF screen0,screen1
+	SETDISP_60
+	INITEOF
+
+	INITSUZY
+
+	lda #0
+	HOFF8
+	VOFF8
+
+	lda SPRSYS_RAM
+	ora #NO_COLLIDE+ACCUMULATE
+	and #<~SIGNMATH
+	sta SPRSYS_RAM
+	sta SPRSYS
+
+	ldx #31			; set up palette
+.0	  lda palette,x
+	  sta GREEN0,x
+	  dex
+	 bpl .0
+
+	INITLIT textbuffer,20
+
+
+restart
+	jsr erasevars
+
+	lda #2
+	sta hsize+1
+	sta vsize+1
+
+	lda #$20
+	sta hpos
+	lda #$3a
+	sta vpos
+
+	lda #HFLIP+VFLIP
+	trb spritescb+SCB_CTRL0
+
+	lda #$ff
+	sta stick
+	sta switch
+
+	lda #<spritesprite
+	sta spritescb+SCB_DATA
+	lda #>spritesprite
+	sta spritescb+SCB_DATA+1
+
+	cli
+
+loop
+	  jsr getinput
+	  jsr doscb
+	  jsr showresult
+
+	  jsr do.dbuf
+	  WAITEOF
+	 bra loop
+
+
+
+do.dbuf
+	DBUF_DISPLAY
+rts0	rts
+
+
+getinput
+	GETJOY
+	tay
+	eor #$ff
+	ora stick
+	eor #$ff
+	sta edgestick
+	tya
+	sta stick
+
+	GETSWITCH
+	tay
+	eor #$ff
+	ora switch
+	eor #$ff
+	sta edgeswitch
+	tya
+	sta switch
+
+	lda edgestick
+	bit #JOY_LEFT
+	beq .00
+	dec whichdigit
+
+.00	bit #JOY_RIGHT
+	beq .10
+	inc whichdigit
+
+.10	bit #JOY_DOWN
+	beq .40
+	lda whichdigit
+	clc
+	adc #8
+	sta whichdigit
+
+.40	lda edgestick
+	bit #JOY_UP
+	beq .50
+	lda whichdigit
+	sec
+	sbc #8
+	sta whichdigit
+
+.50	lda whichdigit
+	bpl .5a
+	clc
+	adc #24
+.5a	cmp #24
+	bcc .5b
+	sbc #24
+.5b	sta whichdigit
+
+.60	lda edgestick
+	bit #OUTER_BUTTON
+	beq .20
+	jsr inc.digit
+
+.20	lda edgestick
+	bit #INNER_BUTTON
+	beq .30
+	jsr dec.digit
+
+.30	lda edgestick
+	bit #OPTION1_BUTTON
+	beq .70
+	lda spritescb+SCB_CTRL0
+	eor #HFLIP
+	sta spritescb+SCB_CTRL0
+
+.70	lda edgestick
+	bit #OPTION2_BUTTON
+	beq .80
+	lda spritescb+SCB_CTRL0
+	eor #VFLIP
+	sta spritescb+SCB_CTRL0
+
+.80	lda edgeswitch
+	bit #PAUSE_SWITCH
+	beq .90
+	lda spritescb+SCB_DATA
+	eor #<{spritesprite^sprite2sprite}
+	sta spritescb+SCB_DATA
+	lda spritescb+SCB_DATA+1
+	eor #>{spritesprite^sprite2sprite}
+	sta spritescb+SCB_DATA+1
+
+.90	lda stick
+	and #OPTION1_BUTTON+OPTION2_BUTTON
+	cmp #OPTION1_BUTTON+OPTION2_BUTTON
+	bne .a0
+	jmp restart
+
+.a0	lda stick
+	and #OPTION1_BUTTON+OUTER_BUTTON
+	cmp #OPTION1_BUTTON+OUTER_BUTTON
+	bne .b0
+	bit edgestick
+	beq .b0
+	lda #$80
+	eor displayflag
+	sta displayflag
+
+.b0
+
+.ff	rts
+
+
+inc.digit
+	ldy whichdigit
+	lda moredigits,y
+	sta temp0
+	ldx digitaddr,y
+	lda #$11
+	and digitmask,y
+	clc
+	adc 0,x
+	sta 0,x
+
+	bcc .1
+.0	  dec temp0
+	  bmi .1
+	  inx
+	  inc 0,x
+	 beq .0
+
+.1	rts
+
+
+dec.digit
+	ldy whichdigit
+	lda moredigits,y
+	sta temp0
+	ldx digitaddr,y
+	lda #$11
+	and digitmask,y
+	eor #$ff
+	sec
+	adc 0,x
+	sta 0,x
+
+	bcs .1
+.0	  dec temp0
+	  bmi .1
+	  inx
+	  dec 0,x
+	  lda 0,x
+	  cmp #$ff
+	 beq .0
+	  
+.1	rts
+
+
+doscb
+	lda hpos
+	sta spritescb+SCB_HPOS
+	lda hpos+1
+	sta spritescb+SCB_HPOS+1
+	lda vpos
+	sta spritescb+SCB_VPOS
+	lda vpos+1
+	sta spritescb+SCB_VPOS+1
+
+	lda hsize
+	sta spritescb+SCB_HSIZE
+	lda hsize+1
+	sta spritescb+SCB_HSIZE+1
+	lda vsize
+	sta spritescb+SCB_VSIZE
+	lda vsize+1
+	sta spritescb+SCB_VSIZE+1
+
+	lda tilt
+	sta spritescb+SCB_TILT
+	lda tilt+1
+	sta spritescb+SCB_TILT+1
+	lda stretch
+	sta spritescb+SCB_STRETCH
+	lda stretch+1
+	sta spritescb+SCB_STRETCH+1
+
+	rts
+
+
+
+
+showresult
+	lda displayflag
+	beq .2
+	jmp showresult2
+
+.2	ldx #<hptxt
+	ldy #>hptxt
+	lda hpos+1
+	jsr putbyte.xy
+	lda hpos
+	jsr putbyte
+
+	ldx #<vptxt
+	ldy #>vptxt
+	lda vpos+1
+	jsr putbyte.xy
+	lda vpos
+	jsr putbyte
+
+	ldx #<hstxt
+	ldy #>hstxt
+	lda hsize+1
+	jsr putbyte.xy
+	lda hsize
+	jsr putbyte
+
+	ldx #<vstxt
+	ldy #>vstxt
+	lda vsize+1
+	jsr putbyte.xy
+	lda vsize
+	jsr putbyte
+
+	ldx #<sttxt
+	ldy #>sttxt
+	lda stretch+1
+	jsr putbyte.xy
+	lda stretch
+	jsr putbyte
+
+	ldx #<titxt
+	ldy #>titxt
+	lda tilt+1
+	jsr putbyte.xy
+	lda tilt
+	jsr putbyte
+
+	ldx #<erasescb
+	ldy #>erasescb
+	jsr showsprites
+
+	ldx #<spritescb
+	ldy #>spritescb
+	jsr reshowsprites
+
+	ldx #<demomessage
+	ldy #>demomessage
+	jsr showmessage
+
+	ldy whichdigit
+	lda digitxpos,y
+	sta boxscb+SCB_HPOS
+	lda digitypos,y
+	sta boxscb+SCB_VPOS
+
+	ldx #<boxscb
+	ldy #>boxscb
+	jsr reshowsprites
+
+	lda spritescb+SCB_CTRL0
+	bit #HFLIP
+	beq .0
+	ldx #<hflipmessage
+	ldy #>hflipmessage
+	jsr showmessage
+
+.0	lda spritescb+SCB_CTRL0
+	bit #VFLIP
+	beq .1
+	ldx #<vflipmessage
+	ldy #>vflipmessage
+	jsr showmessage
+
+.1
+
+	rts
+
+
+showresult2
+	ldx #<erasescb2
+	ldy #>erasescb2
+	jsr showsprites
+
+	stz cloudscb+SCB_HPOS
+.0	  lda #5
+.1	    sta cloudscb+SCB_VPOS
+	    ldx #<cloudscb
+	    ldy #>cloudscb
+	    jsr reshowsprites
+	    clc
+	    lda cloudscb+SCB_VPOS
+	    adc #20
+	    cmp #102
+	   bcc .1
+	  clc
+	  lda cloudscb+SCB_HPOS
+	  adc #40
+	  sta cloudscb+SCB_HPOS
+	  cmp #80
+	  beq .0
+	  cmp #160
+	  lda #15
+	 bcc .1
+
+	ldx #<planescb
+	ldy #>planescb
+	jsr reshowsprites
+
+	rts
+
+
+
+
+myprint
+	pha
+	 stx sysptr
+	 sty sysptr+1
+	 lda #<textbuffer
+	 sta TextPtr
+	 lda #>textbuffer
+	 sta TextPtr+1
+
+	 jsr HandyPrint
+
+	 dec textscb+SCB_HPOS
+	 lda #$0f
+	 sta textscb+SCB_PALETTE-4
+	 jsr showtextsprite
+
+	 inc textscb+SCB_HPOS
+	 dec textscb+SCB_VPOS
+	 jsr showtextsprite
+
+	 inc textscb+SCB_HPOS
+	 inc textscb+SCB_VPOS
+	 jsr showtextsprite
+
+	 dec textscb+SCB_HPOS
+	 inc textscb+SCB_VPOS
+	 jsr showtextsprite
+
+	 dec textscb+SCB_VPOS
+
+	pla
+	sta textscb+SCB_PALETTE-4
+;	jmp showtextsprite	; rts
+
+
+showtextsprite
+	ldx #<textscb
+	ldy #>textscb
+	jmp reshowsprites	; rts
+
+
+showmessage
+	lda #5
+	sta textscb+SCB_HPOS
+	sta textscb+SCB_VPOS
+
+.1a	  lda #$02	; yellow
+	  jsr myprint
+	  clc
+	  lda textscb+SCB_VPOS
+	  adc #10
+	  sta textscb+SCB_VPOS
+	  ldy #1
+	  lda (sysptr),y
+	  bmi .4
+	  ldy sysptr+1
+	  ldx sysptr
+	  inx
+	  bne .1a
+	  iny
+	 bra .1a
+
+.4	rts
+
+
+showsprites
+	lda RenderBuffer
+	sta VIDBASL
+	lda RenderBuffer+1
+	sta VIDBASH
+
+reshowsprites
+	stx SCBNEXTL
+	sty SCBNEXTH
+
+	lda #1
+	sta SPRGO
+	WAITSUZY
+
+	rts
+
+
+putbyte.xy
+	stx ind0
+	sty ind0+1
+
+putbyte
+	pha
+	 lsr a
+	 lsr a
+	 lsr a
+	 lsr a
+	 jsr putdigit
+	pla
+	and #$f
+
+putdigit
+	cmp #10
+	bcc .0
+	clc
+	adc #"A"-"0"-10
+.0	clc
+	adc #"0"
+
+	sta (ind0)
+	inc ind0
+	bne .ff
+	inc ind0+1
+
+.ff	rts
+
+
+erasevars
+	ldx #MYZPSTART
+.0	  stz 0,x
+	  inx
+	  cpx #MYZPEND
+	 bcc .0
+
+	rts
+
+
+
+;==============================================================================
+
+; Data
+
+	#MACRO PALDEF
+	.BY $?0/256,$?1/256,$?2/256,$?3/256,$?4/256,$?5/256,$?6/256,$?7/256
+	.BY $?8/256,$?9/256,$?a/256,$?b/256,$?c/256,$?d/256,$?e/256,$?f/256
+	.BY <$?0,<$?1,<$?2,<$?3,<$?4,<$?5,<$?6,<$?7
+	.BY <$?8,<$?9,<$?a,<$?b,<$?c,<$?d,<$?e,<$?f
+	#ENDM
+
+palette
+	PALDEF 0c0,00f,d5e,ffd,dfb,df0,934,9f0,060,3c0,bf0,fff,aba,575,232,000
+
+;	PALDEF 0c0,00f,d5e,60d,408,94f,934,9f0,060,3c0,bf0,fff,aba,575,232,000
+
+
+;	    "----+----1----+----"
+demomessage
+	.ZS ""
+	.AS "POSITION: "
+hptxt	.AS           "xxxx,"
+vptxt	.ZS                "xxxx"
+	.AS "SCALE:    "
+hstxt	.AS           "xxxx,"
+vstxt	.ZS                "xxxx"
+	.AS "STRETCH:  "
+sttxt	.ZS           "xxxx"
+	.AS "TILT:          "
+titxt	.ZS                "xxxx"
+
+	.BY $ff
+
+
+hflipmessage
+	.ZS "   HFLIP"
+	.BY $ff
+
+
+vflipmessage
+	.ZS "           VFLIP"
+	.BY $ff
+
+
+erasescb
+	.BY FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.DA 0
+	.DA erasesprite
+	.DA 0, 0
+	.DA 160*256, 102*256
+	.HS 00
+
+erasescb2
+	.BY FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.DA 0
+	.DA erasesprite
+	.DA 0, 0
+	.DA 160*256, 102*256
+	.HS 55
+
+erasesprite
+	.HS 020000
+
+textscb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.DA 0
+	.DA textbuffer
+	.DA 0, 0
+	.DA $100, $100
+	.HS 20
+
+
+boxscb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_HV, 0
+	.DA 0
+	.DA boxsprite
+	.DA 0, 0
+	.DA $100, $100
+	.HS 01
+
+boxsprite
+	.BYTE	$02,$3c
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$02,$3c
+	.BYTE	$00
+
+
+spritescb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_HVST, 0
+	.DA 0
+	.DA spritesprite
+	.DA 0, 0
+	.DA $100, $100
+	.DA 0, 0
+	.HS b1
+
+
+spritesprite
+	.BYTE	$05,$7d,$f7,$cb,$00
+	.BYTE	$05,$7d,$f7,$cb,$00
+	.BYTE	$05,$7d,$f7,$cb,$00
+	.BYTE	$05,$7d,$f7,$cb,$00
+	.BYTE	$0a,$27,$a1,$81,$94,$2f,$80,$c0,$98,$38
+	.BYTE	$0b,$1f,$a6,$66,$7f,$33,$cf,$fa,$59,$83,$80
+	.BYTE	$0a,$ef,$8f,$9f,$cc,$cf,$f9,$f9,$e1,$e0
+	.BYTE	$0a,$27,$c3,$c1,$c8,$27,$a7,$e7,$8c,$58
+	.BYTE	$0a,$34,$4f,$67,$e4,$27,$e7,$e7,$87,$80
+	.BYTE	$0a,$ff,$99,$9f,$fc,$cf,$0b,$f9,$e6,$78
+	.BYTE	$0a,$d7,$c3,$f8,$78,$e7,$e0,$70,$cc,$1c
+	.BYTE	$05,$7d,$f7,$cb,$00
+	.BYTE	$05,$7d,$f7,$cb,$00
+	.BYTE	$05,$7d,$f7,$cb,$00
+	.BYTE	$05,$7d,$f7,$cb,$00
+	.BYTE	$00
+
+
+sprite2sprite
+	.BYTE	$06,$f7,$cf,$04,$c4,$24
+	.BYTE	$06,$e7,$cf,$15,$08,$d0
+	.BYTE	$07,$27,$67,$99,$ff,$cc,$f0
+	.BYTE	$06,$cb,$86,$61,$65,$0e
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$01
+	.BYTE	$06,$e7,$cf,$1b,$a9,$e0
+	.BYTE	$07,$e7,$4b,$3f,$9f,$98,$38
+	.BYTE	$06,$cb,$02,$61,$a3,$12
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$01
+	.BYTE	$07,$e4,$f3,$3f,$99,$f0,$38
+	.BYTE	$07,$e4,$f3,$3f,$99,$98,$38
+	.BYTE	$07,$20,$52,$bb,$81,$81,$20
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$01
+	.BYTE	$07,$dc,$f8,$7d,$c1,$e0,$90
+	.BYTE	$07,$cc,$f9,$f9,$f9,$83,$40
+	.BYTE	$07,$e4,$f3,$0b,$e9,$99,$e0
+	.BYTE	$07,$d8,$27,$7c,$f0,$c0,$90
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$04,$7d,$d0,$c0
+	.BYTE	$00
+
+
+planescb
+	.BY THREE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_HV, 0
+	.DA 0
+	.DA planesprite
+	.DA 80, 51
+	.DA $100, $100
+	.HS 0289acdf
+
+planesprite
+	.BYTE	$08,$12,$bf,$49,$26,$d0,$b9,$90
+	.BYTE	$08,$c2,$fd,$24,$da,$1f,$42,$00
+	.BYTE	$07,$87,$12,$13,$1f,$52,$00
+	.BYTE	$06,$12,$0b,$27,$62,$00
+	.BYTE	$07,$9a,$6d,$1b,$c0,$29,$00
+	.BYTE	$06,$0b,$3f,$10,$52,$00
+	.BYTE	$05,$47,$28,$42,$00
+	.BYTE	$07,$1f,$9a,$fd,$1c,$1d,$00
+	.BYTE	$06,$17,$92,$4d,$40,$c8
+	.BYTE	$06,$af,$49,$26,$b0,$54
+	.BYTE	$06,$22,$83,$68,$12,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$04,$22,$83,$00
+	.BYTE	$05,$22,$9b,$1b,$80
+	.BYTE	$04,$2a,$96,$dc
+	.BYTE	$04,$22,$1f,$00
+	.BYTE	$05,$2a,$0e,$17,$00
+	.BYTE	$05,$1a,$1e,$87,$00
+	.BYTE	$05,$90,$48,$9a,$1c
+	.BYTE	$04,$80,$2e,$00
+	.BYTE	$03,$16,$00
+	.BYTE	$03,$86,$00
+	.BYTE	$01
+	.BYTE	$09,$db,$49,$74,$92,$6d,$0b,$91,$00
+	.BYTE	$08,$aa,$69,$2e,$44,$16,$2e,$34
+	.BYTE	$08,$ba,$4d,$a5,$f8,$d1,$7c,$10
+	.BYTE	$08,$1a,$bb,$49,$74,$b8,$90,$f8
+	.BYTE	$09,$22,$bb,$69,$75,$d9,$14,$7a,$00
+	.BYTE	$0a,$83,$1a,$f7,$4d,$2f,$db,$5d,$96,$80
+	.BYTE	$0a,$9a,$69,$89,$73,$b6,$bf,$6f,$92,$78
+	.BYTE	$0a,$a7,$4d,$31,$ad,$76,$97,$5d,$b7,$c0
+	.BYTE	$08,$17,$ca,$4d,$24,$bf,$65,$e0
+	.BYTE	$08,$27,$e2,$69,$a5,$d2,$5f,$a0
+	.BYTE	$07,$2f,$aa,$69,$ae,$55,$0e
+	.BYTE	$08,$3f,$db,$6b,$b4,$bb,$2d,$00
+	.BYTE	$08,$37,$e2,$01,$f6,$df,$24,$f0
+	.BYTE	$07,$37,$20,$bf,$4f,$b6,$f8
+	.BYTE	$06,$2f,$28,$1a,$17,$00
+	.BYTE	$05,$27,$38,$1a,$00
+	.BYTE	$06,$1f,$83,$38,$2a,$00
+	.BYTE	$06,$17,$8a,$68,$04,$40
+	.BYTE	$06,$17,$8a,$68,$04,$40
+	.BYTE	$06,$a7,$e9,$34,$82,$20
+	.BYTE	$06,$a7,$49,$34,$82,$20
+	.BYTE	$06,$1a,$83,$50,$22,$00
+	.BYTE	$06,$1a,$83,$50,$22,$00
+	.BYTE	$06,$1a,$83,$58,$1a,$00
+	.BYTE	$06,$1a,$83,$58,$22,$00
+	.BYTE	$06,$1a,$83,$60,$1a,$00
+	.BYTE	$06,$1a,$83,$68,$1a,$00
+	.BYTE	$06,$1a,$83,$70,$12,$00
+	.BYTE	$06,$1a,$83,$78,$0a,$00
+	.BYTE	$06,$1a,$83,$78,$88,$40
+	.BYTE	$04,$1a,$83,$00
+	.BYTE	$04,$a8,$49,$3c
+	.BYTE	$05,$b0,$c9,$3d,$c0
+	.BYTE	$05,$b8,$d9,$3d,$f0
+	.BYTE	$05,$a8,$1b,$3c,$2e
+	.BYTE	$05,$10,$86,$17,$00
+	.BYTE	$04,$20,$8e,$e0
+	.BYTE	$04,$28,$87,$00
+	.BYTE	$01
+	.BYTE	$05,$83,$22,$8b,$40
+	.BYTE	$04,$22,$93,$48
+	.BYTE	$05,$12,$0b,$12,$00
+	.BYTE	$04,$92,$4c,$68
+	.BYTE	$04,$0b,$22,$00
+	.BYTE	$03,$32,$00
+	.BYTE	$03,$32,$00
+	.BYTE	$04,$87,$22,$00
+	.BYTE	$04,$87,$22,$00
+	.BYTE	$04,$87,$22,$00
+	.BYTE	$04,$0f,$1a,$00
+	.BYTE	$04,$0f,$12,$00
+	.BYTE	$04,$0f,$12,$00
+	.BYTE	$04,$17,$0a,$00
+	.BYTE	$04,$17,$0a,$00
+	.BYTE	$04,$17,$82,$00
+	.BYTE	$03,$1f,$00
+	.BYTE	$03,$1f,$00
+	.BYTE	$04,$1f,$82,$00
+	.BYTE	$04,$1f,$82,$00
+	.BYTE	$03,$27,$00
+	.BYTE	$03,$1f,$00
+	.BYTE	$03,$97,$e8
+	.BYTE	$04,$aa,$40,$0c
+	.BYTE	$04,$aa,$5f,$ec
+	.BYTE	$04,$92,$40,$58
+	.BYTE	$04,$a2,$5b,$70
+	.BYTE	$04,$a2,$58,$70
+	.BYTE	$03,$8a,$c0
+	.BYTE	$03,$82,$00
+	.BYTE	$01
+	.BYTE	$05,$8a,$64,$41,$60
+	.BYTE	$06,$c2,$4d,$a4,$93,$00
+	.BYTE	$05,$1a,$ab,$69,$26
+	.BYTE	$06,$87,$1a,$0b,$1a,$00
+	.BYTE	$06,$92,$fc,$68,$2c,$48
+	.BYTE	$07,$9b,$5f,$8d,$05,$89,$00
+	.BYTE	$07,$ab,$69,$7e,$34,$16,$14
+	.BYTE	$08,$b7,$ed,$2f,$c6,$82,$c2,$80
+	.BYTE	$07,$1f,$0a,$17,$1a,$13,$00
+	.BYTE	$07,$87,$2a,$17,$1a,$13,$00
+	.BYTE	$07,$0f,$2a,$17,$1a,$13,$00
+	.BYTE	$08,$82,$17,$22,$1f,$1a,$0b,$00
+	.BYTE	$08,$12,$0f,$22,$1f,$1a,$0e,$00
+	.BYTE	$08,$1a,$0f,$22,$27,$92,$58,$54
+	.BYTE	$08,$22,$17,$22,$1f,$aa,$db,$5a
+	.BYTE	$08,$32,$0f,$22,$1f,$aa,$db,$5a
+	.BYTE	$09,$3a,$17,$1a,$17,$82,$1e,$0d,$00
+	.BYTE	$0a,$3a,$80,$17,$1a,$17,$82,$1e,$0d,$00
+	.BYTE	$0a,$32,$18,$f2,$fd,$25,$ff,$5b,$6b,$40
+	.BYTE	$09,$32,$28,$0f,$1a,$bf,$eb,$6d,$68
+	.BYTE	$09,$2a,$38,$ea,$fd,$25,$fa,$db,$56
+	.BYTE	$08,$2a,$50,$d7,$e9,$2f,$d6,$cc
+	.BYTE	$08,$2a,$58,$17,$ba,$5f,$f4,$98
+	.BYTE	$08,$22,$70,$cf,$e9,$7f,$d2,$60
+	.BYTE	$07,$22,$78,$17,$92,$fc,$48
+	.BYTE	$08,$1a,$78,$90,$08,$9e,$49,$30
+	.BYTE	$07,$1a,$78,$18,$27,$0a,$00
+	.BYTE	$08,$1a,$78,$20,$b2,$ff,$a4,$c0
+	.BYTE	$07,$12,$78,$38,$a2,$fd,$30
+	.BYTE	$06,$12,$78,$48,$97,$4c
+	.BYTE	$03,$12,$00
+	.BYTE	$03,$0a,$00
+	.BYTE	$03,$0a,$00
+	.BYTE	$03,$82,$00
+	.BYTE	$03,$82,$00
+	.BYTE	$03,$82,$00
+	.BYTE	$02,$00
+	.BYTE	$02,$00
+	.BYTE	$02,$00
+	.BYTE	$02,$00
+	.BYTE	$03,$96,$1c
+	.BYTE	$04,$9e,$df,$00
+	.BYTE	$04,$80,$16,$00
+	.BYTE	$04,$0f,$16,$00
+	.BYTE	$00
+
+
+cloudscb
+	.BY TWO_PER_PIXEL+NONCOLL_SPRITE, RELOAD_HV, 0
+	.DA 0
+	.DA cloudsprite
+	.DA 0, 0
+	.DA $100, $100
+	.HS 5340
+
+cloudsprite
+	.BYTE	$05,$40,$59,$e0,$c0
+	.BYTE	$06,$38,$44,$53,$c1,$00
+	.BYTE	$07,$30,$66,$f4,$02,$cc,$00
+	.BYTE	$07,$30,$64,$51,$59,$4a,$80
+	.BYTE	$0a,$e8,$12,$ad,$2b,$0d,$4d,$62,$28,$80
+	.BYTE	$05,$6d,$05,$32,$40
+	.BYTE	$05,$58,$59,$c0,$40
+	.BYTE	$00
+
+
+
+digitxpos
+	.BY 84,92,100,108,124,132,140,148
+	.BY 84,92,100,108,124,132,140,148
+	.BY 84,92,100,108,124,132,140,148
+
+digitypos
+	.BY 14,14,14,14,14,14,14,14
+	.BY 24,24,24,24,24,24,24,24
+	.BY 34,34,34,34
+	.BY 44,44,44,44
+
+digitaddr
+	.BY hpos+1, hpos+1, hpos, hpos, vpos+1, vpos+1, vpos, vpos
+	.BY hsize+1, hsize+1, hsize, hsize, vsize+1, vsize+1, vsize, vsize
+	.BY stretch+1, stretch+1, stretch, stretch, tilt+1, tilt+1, tilt, tilt
+
+moredigits
+	.BY 0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1
+
+digitmask
+	.HS f00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00f
+
+digitinvmask
+	.HS 0ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff0
+
+
+
+
+
+;==============================================================================
+
+
+
+
+

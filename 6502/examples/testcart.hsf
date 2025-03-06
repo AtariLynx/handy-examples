@@ -1,0 +1,27 @@
+* Test file for HandyROM
+* Created by RJ Mical
+* 26 April 1989
+
+
+	.IN 6502:examples/cartdefs.i
+
+
+	FILE 0
+	BIN testcart0.bin
+
+	FILE 1
+	BIN testcart.bin
+
+	FILE TEST_1_FILE
+	BIN testcart1.bin
+
+	FILE TEST_2_FILE
+	BIN testcart2.bin
+
+	FILE TEST_3_FILE
+	BIN testcart3.bin
+
+	FILE TEST_4_FILE
+	BIN testcart4.bin
+
+

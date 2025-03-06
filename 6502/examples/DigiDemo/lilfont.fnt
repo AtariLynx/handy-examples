@@ -1,0 +1,536 @@
+
+	.by 48		; num chars
+	.by 2		; offset to next line
+	.by 5		; length of one char
+	.by 4		; font width
+
+spacesprite
+	.by  0
+	.by  0
+	.by  0
+	.by  0
+	.by  0
+
+zerosprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$e0
+; 11 total image bytes
+
+
+onesprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$40
+; 11 total image bytes
+
+twosprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$20
+	.BYTE	$e0
+	.BYTE	$80
+	.BYTE	$e0
+; 11 total image bytes
+
+threesprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$20
+	.BYTE	$e0
+	.BYTE	$20
+	.BYTE	$e0
+; 11 total image bytes
+
+foursprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$e0
+	.BYTE	$20
+	.BYTE	$20
+; 11 total image bytes
+
+fivesprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$80
+	.BYTE	$e0
+	.BYTE	$20
+	.BYTE	$e0
+; 11 total image bytes
+
+sixsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$80
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$e0
+; 11 total image bytes
+
+sevensprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$20
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$40
+; 11 total image bytes
+
+eightsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$e0
+; 11 total image bytes
+
+ninesprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$e0
+	.BYTE	$20
+	.BYTE	$20
+; 11 total image bytes
+
+
+asprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$40
+	.BYTE	$a0
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$a0
+; 11 total image bytes
+
+bsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$c0
+	.BYTE	$a0
+	.BYTE	$c0
+	.BYTE	$a0
+	.BYTE	$c0
+; 11 total image bytes
+
+csprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$60
+	.BYTE	$80
+	.BYTE	$80
+	.BYTE	$80
+	.BYTE	$60
+; 11 total image bytes
+
+dsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$c0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$c0
+; 11 total image bytes
+
+esprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$80
+	.BYTE	$c0
+	.BYTE	$80
+	.BYTE	$e0
+; 11 total image bytes
+
+fsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$80
+	.BYTE	$c0
+	.BYTE	$80
+	.BYTE	$80
+; 11 total image bytes
+
+gsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$60
+	.BYTE	$80
+	.BYTE	$80
+	.BYTE	$a0
+	.BYTE	$60
+; 11 total image bytes
+
+hsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$a0
+; 11 total image bytes
+
+isprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$e0
+; 11 total image bytes
+
+jsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$20
+	.BYTE	$20
+	.BYTE	$20
+	.BYTE	$a0
+	.BYTE	$40
+; 11 total image bytes
+
+ksprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$c0
+	.BYTE	$c0
+	.BYTE	$a0
+	.BYTE	$a0
+; 11 total image bytes
+
+lsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$80
+	.BYTE	$80
+	.BYTE	$80
+	.BYTE	$80
+	.BYTE	$e0
+; 11 total image bytes
+
+msprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$a0
+; 11 total image bytes
+
+nsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$e0
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$a0
+; 11 total image bytes
+
+osprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$e0
+; 11 total image bytes
+
+psprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$c0
+	.BYTE	$a0
+	.BYTE	$c0
+	.BYTE	$80
+	.BYTE	$80
+; 11 total image bytes
+
+qsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$e0
+	.BYTE	$20
+; 11 total image bytes
+
+rsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$c0
+	.BYTE	$a0
+	.BYTE	$c0
+	.BYTE	$a0
+	.BYTE	$a0
+; 11 total image bytes
+
+ssprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$60
+	.BYTE	$80
+	.BYTE	$40
+	.BYTE	$20
+	.BYTE	$c0
+; 11 total image bytes
+
+tsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$40
+; 11 total image bytes
+
+usprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$40
+; 11 total image bytes
+
+vsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$40
+	.BYTE	$40
+; 11 total image bytes
+
+wsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$e0
+	.BYTE	$a0
+; 11 total image bytes
+
+xsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$40
+	.BYTE	$a0
+	.BYTE	$a0
+; 11 total image bytes
+
+ysprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$40
+; 11 total image bytes
+
+zsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$e0
+	.BYTE	$20
+	.BYTE	$40
+	.BYTE	$80
+	.BYTE	$e0
+; 11 total image bytes
+
+
+exclsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$00
+	.BYTE	$40
+; 11 total image bytes
+
+dquotesprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$a0
+	.BYTE	$a0
+	.BYTE	$00
+	.BYTE	$00
+	.BYTE	$00
+; 11 total image bytes
+
+squotesprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$00
+	.BYTE	$00
+	.BYTE	$00
+; 11 total image bytes
+
+oparensprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$40
+	.BYTE	$80
+	.BYTE	$80
+	.BYTE	$80
+	.BYTE	$40
+; 11 total image bytes
+
+cparensprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$80
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$40
+	.BYTE	$80
+; 11 total image bytes
+
+commasprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$00
+	.BYTE	$00
+	.BYTE	$00
+	.BYTE	$40
+	.BYTE	$80
+; 11 total image bytes
+
+
+dashsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$00
+	.BYTE	$00
+	.BYTE	$e0
+	.BYTE	$00
+	.BYTE	$00
+; 11 total image bytes
+
+
+periodsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$00
+	.BYTE	$00
+	.BYTE	$00
+	.BYTE	$00
+	.BYTE	$40
+; 11 total image bytes
+
+
+colonsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$00
+	.BYTE	$40
+	.BYTE	$00
+	.BYTE	$40
+	.BYTE	$00
+; 11 total image bytes
+
+scolonsprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$00
+	.BYTE	$40
+	.BYTE	$00
+	.BYTE	$40
+	.BYTE	$80
+; 11 total image bytes
+
+qmarksprite
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$c0
+	.BYTE	$20
+	.BYTE	$40
+	.BYTE	$00
+	.BYTE	$40
+; 11 total image bytes
+

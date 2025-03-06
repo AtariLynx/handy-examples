@@ -1,0 +1,155 @@
+
+* === testhmusic.src ========================================================
+* 
+* Test Handy Music Example Program  --  Handy Software
+* 
+* Confidential and Proprietary
+* Copyright (C) 1989, Epyx, Inc.
+* 
+* Date		Name		Description
+* ---------	--------------	----------------------------------------------
+* 9-Feb-90	SHL		Updated for compatibility with 1.1 release
+* 18 Apr 89	-RJ		Added initialization code
+* 11 Apr 89	-RJ		Made many necessary modifications to run with 
+*				current pre-release hmusic driver
+* 6 Apr 89	-RJ		Added sys.mac, sys.src, and INITSYS
+* 21 Mar 89	=RJ Mical=	Created this file!
+* 
+* ===========================================================================
+
+
+
+* Define BRK_USER to do debugging.
+BRK_USER	.EQU	1
+
+
+SONG_COUNT	.EQU	4
+
+* For a goo dtime, define these constants and change them to make the music 
+* run faster or slower.  
+; AUDIO_CLOCK_MASK	.EQU	6  ; Normally 6
+; AUDIO_PRELOAD		.EQU	16 ; Normally 64
+
+
+; These definitions cause the various bits of HMUSIC code to be included.  
+;???STARTVOICE_USER		.EQU	1
+STOPMUSIC_USER	.EQU	1
+;???STOPVOICE_USER	.EQU	1
+;???USERCALLS_USER	.EQU	1
+;???HMUSIC_USERCOUNT	.EQU	4	; If USERCALLS_USER, define max args
+
+
+* If you like, you can define HMUSIC_CHANNELCOUNT to a number smaller than 4
+* to define the maximum number of music channels.  A smaller number will 
+* result in slightly smaller code and data, and slightly better performance.  
+;HMUSIC_CHANNELCOUNT	.EQU	2
+
+
+;SEPARATE_HMUSIC_HSFX
+
+
+		.IN	6502:include/harddefs.i
+		.IN	6502:include/monitor.i
+		.IN	6502:include/hsfx.i
+		.IN	6502:include/hmusic.i
+
+		;------	We promise RJ to include these two files in this order
+		.IN	6502:macros/zpage.mac
+		.IN	6502:src/syszpage.src
+
+		.IN	6502:macros/sys.mac
+		.IN	6502:macros/hsfx.mac
+		.IN	6502:macros/hmusic.mac
+
+
+	BEGIN_ZPAGE
+songptr		.DS	2
+songptr2	.DS	2
+SongSelect	.BYTE	SONG_COUNT
+	END_ZPAGE
+
+
+
+		.ORG	$0800
+
+		.RUN	Start
+Start
+		INITSYS
+		INITINT	InterruptTable,SafeReturn
+
+		CLD
+		CLI
+		LDX	#$DD
+		TXS
+
+		;------	Initialize the audio drivers.  Note that use of 
+		;------	INITMUSIC replaces INIHSFX when creating music
+		INITHMUSIC
+
+testMusicLoop
+		;------	Play the next song
+		LDX	SongSelect
+		INX
+		CPX	#SONG_COUNT
+		BLT	.10
+		LDX	#0
+.10		STX	SongSelect
+
+		LDA	SongsLow,X
+		PHA
+		LDA	SongsHigh,X
+		TAX
+		PLA
+
+		PLAYMUSIC
+
+.30		;------	Loop until all notes are done
+		LDA	VoiceInUse
+		ORA	VoiceInUse+1
+		ORA	VoiceInUse+2
+		ORA	VoiceInUse+3
+		BNE	.30
+
+		;------ Slow the clock by a tick, just for fun
+		LDA	audioPreload
+		BNE	.40
+		DEC	audioClock
+.40		DEC
+		STA	audioPreload
+		LDX	audioClock
+		SET_AUDIO_CLOCK
+
+		BRA	testMusicLoop
+
+
+SafeReturn
+		RTS
+
+
+
+SongsLow	.BYTE	<song1,<song2,<song3,<song4
+SongsHigh	.BYTE	>song1,>song2,>song3,>song4
+InterruptTable	.DS	8*2
+
+
+song1		.pc 6502:examples/songs/Sink2.dnl	; Music data file 
+song2		.pc 6502:examples/songs/Summer.dnl	; Music data file 
+song3		.pc 6502:examples/songs/roadrace.dnl	; Music data file 
+song4		.pc 6502:examples/songs/Liberty.dnl	; Music data file 
+
+
+audioClock	.BYTE	AUDIO_CLOCK_MASK
+audioPreload	.BYTE	AUDIO_PRELOAD
+
+
+		.IN	6502:src/sysdata.src
+		.IN	6502:src/sys.src
+		.IN	6502:src/hsfx.src
+		.IN	6502:src/hmusic.src
+
+		.IN 6502:src/hsfx.var
+		.IN 6502:src/hmusic.var
+
+
+
+

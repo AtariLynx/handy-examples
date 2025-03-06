@@ -1,0 +1,590 @@
+
+* === multiply.src ==========================================================
+* 
+* 16x16 MULTIPLY demo for HandyCon  --  Handy Software
+* 
+* Confidential and Proprietary
+* Copyright (C) 1989, Epyx, Inc.
+* 
+* Date		Name		Description
+* ---------	--------------	----------------------------------------------
+* 7-Mar-90	SHL		Remove DISPLAY_ON call
+* 9-Feb-90	SHL		Updated for compatibility with 1.1 release
+* Jun 89	SHL		Created this file
+* 
+* ===========================================================================
+
+	.65C02		; Select processor for the HANDY
+
+EOF_USER .EQ 1		; We use EOF macros
+
+BRK_USER .EQ 1		; we wanna have breaks for debugging
+
+FONT_TYPE .EQ HPR_DIGIT+HPR_UPPER+HPR_PUNC	; for HPRINT
+FONT_HEIGHT .EQ	7
+
+;==============================================================================
+
+; Standard HANDY includes and macros
+
+	.IN 6502:include/monitor.i
+	.IN 6502:include/harddefs.i
+	.IN 6502:include/sprite.i
+	.IN 6502:include/hprint.i
+
+	.IN 6502:macros/zpage.mac
+	.IN 6502:src/syszpage.src
+
+	.IN 6502:macros/sys.mac
+	.IN 6502:macros/sprite.mac
+	.IN 6502:macros/display.mac
+	.IN 6502:macros/controls.mac
+	.IN 6502:macros/handymath.mac
+	.IN 6502:macros/hprint.mac
+
+
+;==============================================================================
+
+; Absolute equates
+
+
+;==============================================================================
+
+; useful code macros
+
+	#MACRO STRUCT		; reset PC for structure template definitions
+LTemp	.= *
+	.ORG 0
+	#ENDM
+
+	#MACRO ENDSTRUCT	; restore PC after structure definition
+	.ORG LTemp
+	#ENDM
+
+;==============================================================================
+
+; Zero page variables
+
+
+	BEGIN_ZPAGE
+
+MYZPSTART
+
+ind0		.DS 2	; general indirects
+
+temp0		.DS 1	; general temporaries
+
+whichdigit	.DS 1	; which digit are we modifying?
+
+factor1		.DS 2	; variables for multiply demo
+factor2		.DS 2
+product		.DS 4
+
+stick		.DS 1	; current reading of joystick
+edgestick	.DS 1	; positive edge transitions of joystick
+
+MYZPEND
+
+
+	END_ZPAGE
+
+;==============================================================================
+
+	.OR $0200
+
+;==============================================================================
+
+; Absolute address variables
+
+
+	.ALIGN 4
+screen0		.DS DISPLAY_BUFSIZE	; screen buffers
+screen1		.DS DISPLAY_BUFSIZE
+
+
+interrupt_buffer .DS 16			; timer interrupt vectors
+
+textbuffer	.DS 20*FONT_HEIGHT+1	; literal text sprite imagery buffer
+
+
+AbsVarsEnd
+
+;==============================================================================
+
+; Standard handy source include files
+
+	.IN 6502:src/sysdata.src
+	.IN 6502:src/hprint.src
+	.IN 6502:src/sys.src
+	.IN 6502:src/display.src
+
+;==============================================================================
+
+; Handy system character set stuff
+
+	HPRFONT plain
+
+	HPR_CHARSET
+
+;==============================================================================
+
+; Code segment
+
+
+
+start	.RUN
+
+	sei
+	cld
+	ldx #$ff
+	txs
+
+	INITSYS
+
+	INITINT	interrupt_buffer,rts0	; for when we want our own vector
+
+	lda #<$3000		; for Howard board
+	sta $fffa
+	lda #>$3000
+	sta $fffb
+
+	SETDBUF screen0,screen1
+	SETDISP_60
+	INITEOF
+
+	INITSUZY
+
+	lda #0
+	HOFF8
+	VOFF8
+
+	lda SPRSYS_RAM
+	ora #NO_COLLIDE+ACCUMULATE
+	and #<~SIGNMATH
+	sta SPRSYS_RAM
+	sta SPRSYS
+
+	ldx #31			; set up palette
+.0	  lda palette,x
+	  sta GREEN0,x
+	  dex
+	 bpl .0
+
+	INITLIT textbuffer,20
+
+	cli
+
+loop
+	  jsr getinput
+	  jsr domultiply
+	  jsr showresult
+
+	  jsr do.dbuf
+	  WAITEOF
+	 bra loop
+
+
+
+do.dbuf
+	DBUF_DISPLAY
+rts0	rts
+
+
+getinput
+	GETJOY
+	tay
+	eor #$ff
+	ora stick
+	eor #$ff
+	sta edgestick
+	tya
+	sta stick
+
+	lda edgestick
+	bit #JOY_LEFT
+	beq .00
+	dec whichdigit
+
+.00	bit #JOY_RIGHT
+	beq .10
+	inc whichdigit
+
+.10	bit #JOY_UP|JOY_DOWN
+	beq .40
+	lda whichdigit
+	eor #4
+	sta whichdigit
+
+.40	lda whichdigit
+	and #8-1
+	sta whichdigit
+
+	lda edgestick
+	bit #OUTER_BUTTON
+	beq .20
+	jsr inc.digit
+
+.20	lda edgestick
+	bit #INNER_BUTTON
+	beq .30
+	jsr dec.digit
+
+.30	lda edgestick
+	bit #OPTION1_BUTTON
+	beq .50
+	lda SPRSYS_RAM
+	eor #SIGNMATH
+	sta SPRSYS_RAM
+	sta SPRSYS
+
+.50
+
+.ff	rts
+
+
+inc.digit
+	ldy whichdigit
+	lda moredigits,y
+	sta temp0
+	ldx digitaddr,y
+	lda #$11
+	and digitmask,y
+	clc
+	adc 0,x
+	sta 0,x
+
+	bcc .1
+.0	  dec temp0
+	  bmi .1
+	  inx
+	  inc 0,x
+	 beq .0
+
+.1	rts
+
+
+dec.digit
+	ldy whichdigit
+	lda moredigits,y
+	sta temp0
+	ldx digitaddr,y
+	lda #$11
+	and digitmask,y
+	eor #$ff
+	sec
+	adc 0,x
+	sta 0,x
+
+	bcs .1
+.0	  dec temp0
+	  bmi .1
+	  inx
+	  dec 0,x
+	  lda 0,x
+	  cmp #$ff
+	 beq .0
+	  
+.1	rts
+
+
+domultiply
+	lda factor1	; multiply factor1*factor2
+	sta MATHD
+	lda factor1+1
+	sta MATHC
+
+	lda factor2
+	sta MATHB
+	lda factor2+1
+	sta MATHA	; MULTIPLY
+
+	WAITMATH
+
+	lda MATHH	; get result and put in product
+	sta product
+	lda MATHG
+	sta product+1
+	lda MATHF
+	sta product+2
+	lda MATHE
+	sta product+3
+
+	rts
+
+
+showresult
+	ldx #<f1txt
+	ldy #>f1txt
+	lda factor1+1
+	jsr putbyte.xy
+	lda factor1
+	jsr putbyte
+
+	ldx #<f2txt
+	ldy #>f2txt
+	lda factor2+1
+	jsr putbyte.xy
+	lda factor2
+	jsr putbyte
+
+	ldx #<ptxt
+	ldy #>ptxt
+	lda product+3
+	jsr putbyte.xy
+	lda product+2
+	jsr putbyte
+	lda product+1
+	jsr putbyte
+	lda product
+	jsr putbyte
+
+	ldx #"U"
+	ldy #"N"
+	lda SPRSYS_RAM
+	bit #SIGNMATH
+	beq .0
+	ldx #" "
+	ldy #" "
+.0	stx stxt
+	sty stxt+1
+
+	ldx #<erasescb
+	ldy #>erasescb
+	jsr showsprites
+
+	lda #5
+	sta textscb+SCB_HPOS
+	sta textscb+SCB_VPOS
+
+	ldx #<multmessage
+	ldy #>multmessage
+	jsr showmessage
+
+	ldy whichdigit
+	lda digitxpos,y
+	sta boxscb+SCB_HPOS
+	lda digitypos,y
+	sta boxscb+SCB_VPOS
+
+	ldx #<boxscb
+	ldy #>boxscb
+	jsr reshowsprites
+
+	rts
+
+
+
+myprint
+	pha
+	 stx sysptr
+	 sty sysptr+1
+	 lda #<textbuffer
+	 sta TextPtr
+	 lda #>textbuffer
+	 sta TextPtr+1
+
+	 jsr HandyPrint
+
+	 dec textscb+SCB_HPOS
+	 lda #$0f
+	 sta textscb+SCB_PALETTE-4
+	 jsr showtextsprite
+
+	 inc textscb+SCB_HPOS
+	 dec textscb+SCB_VPOS
+	 jsr showtextsprite
+
+	 inc textscb+SCB_HPOS
+	 inc textscb+SCB_VPOS
+	 jsr showtextsprite
+
+	 dec textscb+SCB_HPOS
+	 inc textscb+SCB_VPOS
+	 jsr showtextsprite
+
+	 dec textscb+SCB_VPOS
+
+	pla
+	sta textscb+SCB_PALETTE-4
+;	jmp showtextsprite	; rts
+
+
+showtextsprite
+	ldx #<textscb
+	ldy #>textscb
+	jmp reshowsprites	; rts
+
+
+showmessage
+.1a	  lda #$02	; yellow
+	  jsr myprint
+	  clc
+	  lda textscb+SCB_VPOS
+	  adc #10
+	  sta textscb+SCB_VPOS
+	  ldy #1
+	  lda (sysptr),y
+	  bmi .4
+	  ldy sysptr+1
+	  ldx sysptr
+	  inx
+	  bne .1a
+	  iny
+	 bra .1a
+
+.4	rts
+
+
+showsprites
+	lda RenderBuffer
+	sta VIDBASL
+	lda RenderBuffer+1
+	sta VIDBASH
+
+reshowsprites
+	stx SCBNEXTL
+	sty SCBNEXTH
+
+	lda #1
+	sta SPRGO
+	WAITSUZY
+
+	rts
+
+
+putbyte.xy
+	stx ind0
+	sty ind0+1
+
+putbyte
+	pha
+	 lsr a
+	 lsr a
+	 lsr a
+	 lsr a
+	 jsr putdigit
+	pla
+	and #$f
+
+putdigit
+	cmp #10
+	bcc .0
+	clc
+	adc #"A"-"0"-10
+.0	clc
+	adc #"0"
+
+	sta (ind0)
+	inc ind0
+	bne .ff
+	inc ind0+1
+
+.ff	rts
+
+
+
+;==============================================================================
+
+; Data
+
+	#MACRO PALDEF
+	.BY $?0/256,$?1/256,$?2/256,$?3/256,$?4/256,$?5/256,$?6/256,$?7/256
+	.BY $?8/256,$?9/256,$?a/256,$?b/256,$?c/256,$?d/256,$?e/256,$?f/256
+	.BY <$?0,<$?1,<$?2,<$?3,<$?4,<$?5,<$?6,<$?7
+	.BY <$?8,<$?9,<$?a,<$?b,<$?c,<$?d,<$?e,<$?f
+	#ENDM
+
+palette
+	PALDEF 0c0,00f,d5e,60d,408,94f,934,9f0,060,3c0,bf0,fff,aba,575,232,000
+
+
+;	    "----+----1----+----"
+multmessage
+	.ZS "     HANDY DEMO"
+	.AS " "
+stxt	.AS  "xx"
+	.ZS    "SIGNED MULTIPLY"
+	.ZS ""
+	.AS "          "
+f1txt	.ZS           "xxxx"
+	.AS "        X "
+f2txt	.ZS           "xxxx"
+	.ZS "      --------"
+	.AS "      "
+ptxt	.ZS       "xxxxxxxx"
+	.BY $ff
+
+
+erasescb
+	.BY FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.DA 0
+	.DA erasesprite
+	.DA 0, 0
+	.DA 160*256, 102*256
+	.HS 00
+
+erasesprite
+	.HS 020000
+
+textscb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.DA 0
+	.DA textbuffer
+	.DA 0, 0
+	.DA $100, $100
+	.HS 20
+
+
+boxscb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_HV, 0
+	.DA 0
+	.DA boxsprite
+	.DA 0, 0
+	.DA $100, $100
+	.HS 01
+
+boxsprite
+	.BYTE	$02,$3c
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$03,$bc,$08
+	.BYTE	$02,$3c
+	.BYTE	$00
+
+
+digitxpos
+	.BY 84,92,100,108
+	.BY 84,92,100,108
+
+digitypos
+	.BY 34,34,34,34
+	.BY 44,44,44,44
+
+digitaddr
+	.BY factor1+1,factor1+1,factor1,factor1
+	.BY factor2+1,factor2+1,factor2,factor2
+
+digitmask
+	.HS f00ff00ff00ff00f
+
+digitinvmask
+	.HS 0ff00ff00ff00ff0
+
+moredigits
+	.BY 0,0,1,1,0,0,1,1
+
+
+
+
+
+;==============================================================================
+
+
+
+
+

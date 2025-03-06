@@ -1,0 +1,987 @@
+; Thu Oct 18 11:51:44 1990
+* == testredeye.src =========================================================
+*
+* Redeye test program  --  Handy Software
+*
+* Confidential and Proprietary
+* Copyright (c) 1990 Epyx, Inc.
+*
+* Date		Name	Description
+* ---------	------	-----------------------------------------------------
+* 15-Oct-90	SHL	Added SPLIT_SEND_RECEIVE switch
+* 11-Oct-90	SHL	Added REDEYE_SLOWNESS constant
+* 28-Mar-90	SHL	Split out glue code into file redeye_glue.src
+* 22-Mar-90	SHL	Added AUTO_TIMEOUT_USER support, resetting
+*			timeout on input from anyone
+* 20-Mar-90	SHL	Cleaned up getinput routine, added RESET
+*			support if communication goes down
+* 14-Mar-90	SHL	Working with new version of Redeye
+*
+* Jan-90	SHL	Created this file to work with Gauntlet's
+*			version of Redeye
+*
+* ===========================================================================
+
+* System required equates
+
+EOF_USER	.EQ 1	; enable use of WAITEOF macros
+BRK_USER	.EQ 1	; enable for debugging on Mandy/Pinky systems
+
+AUTO_TIMEOUT_USER .EQ 1	; enables power-off timeout routine
+
+SERIALPORT_USER	.EQ 1	; we use the serial port (redeye)
+
+*-----------------------------------------------------------------------------
+* Currently defined Redeye game IDs:
+*	0 - test programs
+*	1 - Gauntlet the Third Encounter
+*	2 - Zarlor Mercenary
+*	3 - California Games
+*	4 - Xenophobe
+*	5 - Slime World
+*	$ffff - test programs
+*-----------------------------------------------------------------------------
+
+* Redeye constants
+
+REDEYE_SLOWNESS .EQ 0	; set to 0,1,2,3 for 62500,31250,15625, or 7812.5 baud
+
+GAME_ID		.EQ -1	; change this to be your unique redeye game #
+MAX_PLAYERS	.EQ 16	; maximum number of players for this game
+
+PLAYER_DATA_SIZE .EQ 2	; maximum size of player message data fields
+
+VAR_SIZE_DATA	.EQ 1	; switch enables variable length data packets
+
+;SPLIT_SEND_RECEIVE .EQ 1 ; enable switch if splitting send/receive functions
+
+*-----------------------------------------------------------------------------
+
+* Required system equates and macros
+
+		.IN 6502:include/harddefs.i
+		.IN 6502:include/monitor.i
+
+		.IN 6502:include/msgmgr.i
+		.IN 6502:include/sprite.i
+
+		.IN 6502:macros/zpage.mac
+		.IN 6502:src/syszpage.src
+		.IN 6502:macros/display.mac
+		.IN 6502:macros/sprite.mac
+		.IN 6502:macros/sys.mac
+		.IN 6502:macros/msgmgr.mac
+
+		.IN 6502:macros/controls.mac
+		.IN 6502:macros/handymath.mac
+
+*-----------------------------------------------------------------------------
+
+* Other constants
+
+LEFTEDGE	.EQ 128-80	; left edge of screen (centered at 128,128)
+TOPEDGE		.EQ 128-51	; top edge of screen
+
+*-----------------------------------------------------------------------------
+
+		BEGIN_ZPAGE
+ZSTART
+
+* Required by Redeye
+NumberOfPlayers	.DS 1	; number of players in this game
+PlayerNumber	.DS 1	; resident player number in multi-player game
+
+* Required by the glue code
+restartflag	.DS 1
+restartcount	.DS 1
+
+oldjoystick	.DS MAX_PLAYERS
+joystick	.DS MAX_PLAYERS
+oldswitch	.DS MAX_PLAYERS
+switch		.DS MAX_PLAYERS
+
+* Other zero page usage
+ind0		.DS 2
+ind1		.DS 2
+ind2		.DS 2
+
+temp0		.DS 1
+temp1		.DS 1
+temp2		.DS 1
+temp3		.DS 1
+temp4		.DS 1
+temp5		.DS 1
+
+direction	.DS MAX_PLAYERS
+xpos		.DS MAX_PLAYERS
+ypos		.DS MAX_PLAYERS
+transitions	.DS MAX_PLAYERS
+
+
+* Only used when debugging redeye system code
+ #IFDEF REDEYE_ERROR_COUNTS
+resendreqs	.DS 2	; if slave, how many resend reqs have I sent
+			; if master, how many resend reqs have I received
+sendreqs	.DS 2	; if slave, how many send reqs have I received
+			; if master, how many send reqs have I sent
+rxfailures	.DS 2	; how many low level errors received
+badmessages	.DS 2	; how many undecipherable "good" messages received
+lockouts	.DS 2	; how many received messages dropped when locked out
+ #ENDIF
+
+
+ZEND
+		END_ZPAGE
+
+*-----------------------------------------------------------------------------
+
+	.OR $200
+	.RU
+
+start
+	cld
+	ldx #$ff
+	txs
+	INITSYS		; should only be done once!
+
+restart			; restart label needed by glue code - RESET comes here
+	sei
+	jsr erasezpage	; erase all of my variables (garantee known state)
+
+	INITINT	MyIntTable	; set up IRQ handler
+
+	SETDBUF buffer1,buffer2	; initialize system pointers to screens
+
+	SETDISP_60	; initialize display to 60hz
+	INITEOF		; start EOF handler
+
+	INITSUZY	; initialize SUZY
+
+	lda #LEFTEDGE	; set world coordinate for upper-left screen corner
+	HOFF8
+	lda #TOPEDGE
+	VOFF8
+
+	cli		; let the IRQs roll
+
+	lda SPRSYS_RAM
+	and #<~SIGNMATH	; set all math to unsigned
+	ora #NO_COLLIDE	; and globally disable hardware collisions
+	sta SPRSYS_RAM
+	sta SPRSYS
+
+	jsr setpalette	; initialize palette
+	jsr erasescreen	; initialize screen
+	jsr dodbuf	; make sure display is showing
+
+	WAITEOF		; make sure DBUF takes hold
+
+	jsr do_logon	; call glue routine logon handler
+
+	ldx #MAX_PLAYERS-1	; initialize all players & their positions
+.20	  lda #$80
+	  sta xpos,x
+	  sta ypos,x
+	  txa
+	  and #7
+	  sta direction,x
+	  dex
+	 bpl .20
+
+	jsr do_start_comlink	; call glue routine redeye initialization
+
+dogame
+	  jsr do_comlink_joysticks	; call glue routine redeye interface
+
+	  jsr processplayers		; do a game frame
+
+ #IFDEF SPLIT_SEND_RECEIVE
+	  jsr preparejoysticks		; send new joystick data
+ #ENDIF ;DEF SPLIT_SEND_RECEIVE
+
+	  jsr showscreen		; show the screen
+	  jsr dodbuf
+	  WAITEOF
+	 bra dogame			; do it all again
+
+
+processplayers
+	ldx #0
+.00	  ldy direction,x
+	  lda joystick,x
+	  bit #JOY_RIGHT
+	  beq .01
+	  iny
+.01	  bit #JOY_LEFT
+	  beq .02
+	  dey
+.02	  tya
+	  and #$07
+	  tay
+	  sta direction,x
+	  clc
+	  lda xvel,y
+	  adc xpos,x
+	  sta xpos,x
+	  clc
+	  lda yvel,y
+	  adc ypos,x
+	  sta ypos,x
+	  cpx NumberOfPlayers
+	  inx
+	 bcc .00
+
+	rts
+
+
+showscreen
+	jsr erasescreen
+
+	lda #LEFTEDGE+10
+	sta hidigitscb+SCB_HPOS
+	lda #LEFTEDGE+20
+	sta lodigitscb+SCB_HPOS
+
+	ldx #0
+.00	  cpx #8
+	  bne .02
+	  lda #LEFTEDGE+40
+	  sta hidigitscb+SCB_HPOS
+	  lda #LEFTEDGE+50
+	  sta lodigitscb+SCB_HPOS
+.02	  lda oldjoystick,x
+	  eor #$ff
+	  and joystick,x
+	  beq .01
+	  inc transitions,x
+.01	  ldy direction,x
+	  lda shipspriteslo,y
+	  sta shipscb+SCB_DATA
+	  lda shipspriteshi,y
+	  sta shipscb+SCB_DATA+1
+	  lda shipscb+SCB_CTRL0
+	  and #~{HFLIP|VFLIP}
+	  ora shipflips,y
+	  sta shipscb+SCB_CTRL0
+	  lda xpos,x
+	  sta shipscb+SCB_HPOS
+	  lda ypos,x
+	  sta shipscb+SCB_VPOS
+	  lda playercolors,x
+	  sta shipscb+SCB_PALETTE-4
+	  sta hidigitscb+SCB_PALETTE-8
+	  lda transitionrows,x
+	  sta hidigitscb+SCB_VPOS
+	  sta lodigitscb+SCB_VPOS
+	  lda playercolors,x
+	  lda transitions,x
+	  jsr showhex
+	  phx
+	   ldx #<shipscb
+	   ldy #>shipscb
+	   jsr reshowsprites
+	  plx
+	  inx
+	  cpx NumberOfPlayers
+	 bcc .00
+	 beq .00
+
+ #IFDEF REDEYE_ERROR_COUNTS
+	lda #$0d			; this section only used when
+	sta hidigitscb+SCB_PALETTE-8	;  debugging redeye system code
+
+	ldx #8
+.10	  txa 
+	  lsr a
+	  tay
+	  lda transitionrows,y
+	  sta hidigitscb+SCB_VPOS
+	  sta lodigitscb+SCB_VPOS
+	  lda #LEFTEDGE+110
+	  sta hidigitscb+SCB_HPOS
+	  lda #LEFTEDGE+120
+	  sta lodigitscb+SCB_HPOS
+	  lda resendreqs+1,x
+	  jsr showhex
+	  phx
+	   ldx #<hidigitscb
+	   ldy #>hidigitscb
+	   jsr reshowsprites
+	  plx
+	  lda #LEFTEDGE+130
+	  sta hidigitscb+SCB_HPOS
+	  lda #LEFTEDGE+140
+	  sta lodigitscb+SCB_HPOS
+	  lda resendreqs,x
+	  jsr showhex
+	  phx
+	   ldx #<hidigitscb
+	   ldy #>hidigitscb
+	   jsr reshowsprites
+	  plx
+	  dex
+	  dex
+	 bpl .10
+ #ENDIF
+
+	rts
+
+
+showhex			; set up sprites to display a hex number
+	 pha
+	  lsr a
+	  lsr a
+	  lsr a
+	  lsr a
+	  tay
+	  lda digitslo,y
+	  sta hidigitscb+SCB_DATA
+	  lda digitshi,y
+	  sta hidigitscb+SCB_DATA+1
+	 pla
+	and #$f
+	tay
+	lda digitslo,y
+	sta lodigitscb+SCB_DATA
+	lda digitshi,y
+	sta lodigitscb+SCB_DATA+1
+
+	rts
+
+
+
+showlogonscreen			; show a screen during logon
+	jsr erasescreen		;  glue code calls showlogonscreen
+
+	ldx NumberOfPlayers
+	lda digitslo,x
+	sta totalscb+SCB_DATA
+	lda digitshi,x
+	sta totalscb+SCB_DATA+1
+
+	ldx PlayerNumber
+	lda digitslo,x
+	sta whoamiscb+SCB_DATA
+	lda digitshi,x
+	sta whoamiscb+SCB_DATA+1
+
+	ldx #<logonscb
+	ldy #>logonscb
+	jsr reshowsprites
+;	jmp dodbuf		; fall through
+
+dodbuf
+	DBUF_DISPLAY
+
+	rts
+
+
+erasescreen
+	ldx #<erasescb
+	ldy #>erasescb
+;	jmp showsprites		; fall through
+
+showsprites
+	lda RenderBuffer
+	sta VIDBASL
+	lda RenderBuffer+1
+	sta VIDBASH
+;	bra reshowsprites	; fall through
+
+reshowsprites
+	stx SCBNEXTL
+	sty SCBNEXTH
+	lda #1
+	sta SPRGO
+	WAITSUZY
+
+	rts
+
+
+setpalette
+	ldx #31
+.0	  lda palette,x
+	  sta GREEN0,x
+	  dex
+	 bpl .0
+
+	rts
+
+
+erasezpage
+	ldx #ZSTART
+.0	  stz 0,x
+	  inx
+	  cpx #ZEND
+	 bne .0
+
+	rts
+
+
+*-----------------------------------------------------------------------------
+
+	.in 6502:examples/redeye_glue.src
+
+*-----------------------------------------------------------------------------
+
+* Required system source files
+
+	.IN 6502:src/sysdata.src
+	.IN 6502:src/display.src
+	.IN 6502:src/sys.src
+
+comlink_start_address
+	.IN 6502:src/comlink.src
+	.IN 6502:src/msgmgr.src
+comlink_end_address
+
+logon_start_address
+	.IN 6502:src/comlink_logon.src
+logon_end_address
+
+*-----------------------------------------------------------------------------
+
+playercolors
+	.BY $02, $04, $06, $08, $0a, $0c, $0e, $0f
+	.BY $0f, $0e, $0c, $0a, $08, $06, $04, $02
+
+transitionrows
+	.BY TOPEDGE+04, TOPEDGE+16, TOPEDGE+28, TOPEDGE+40
+	.BY TOPEDGE+52, TOPEDGE+64, TOPEDGE+76, TOPEDGE+88
+	.BY TOPEDGE+04, TOPEDGE+16, TOPEDGE+28, TOPEDGE+40
+	.BY TOPEDGE+52, TOPEDGE+64, TOPEDGE+76, TOPEDGE+88
+
+
+shipflips
+	.BY 0, 0, 0, VFLIP, VFLIP, VFLIP|HFLIP, HFLIP, HFLIP
+
+xvel	.BY  0,  1,  2,  1,  0, -1, -2, -1
+yvel	.BY -2, -1,  0,  1,  2,  1,  0, -1
+
+shipspriteslo
+	.BY <ship1_data, <ship2_data, <ship3_data, <ship2_data
+	.BY <ship1_data, <ship2_data, <ship3_data, <ship2_data
+
+shipspriteshi
+	.BY >ship1_data, >ship2_data, >ship3_data, >ship2_data
+	.BY >ship1_data, >ship2_data, >ship3_data, >ship2_data
+
+digitslo
+	.BY <digit0_data, <digit1_data, <digit2_data, <digit3_data
+	.BY <digit4_data, <digit5_data, <digit6_data, <digit7_data
+	.BY <digit8_data, <digit9_data, <digita_data, <digitb_data
+	.BY <digitc_data, <digitd_data, <digite_data, <digitf_data
+
+digitshi
+	.BY >digit0_data, >digit1_data, >digit2_data, >digit3_data
+	.BY >digit4_data, >digit5_data, >digit6_data, >digit7_data
+	.BY >digit8_data, >digit9_data, >digita_data, >digitb_data
+	.BY >digitc_data, >digitd_data, >digite_data, >digitf_data
+
+erasescb
+	.BY FOUR_PER_PIXEL+BACKNONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.DA 0			; Next scb
+	.DA erasesprite		; Sprite data
+	.DA LEFTEDGE, TOPEDGE	; HPOS, VPOS
+	.DA 160*256, 102*256	; HSIZE, VSIZE
+	.HS 00			; Palette
+
+logonscb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_HV+LITERAL+DRAW_LEFT, 0
+	.DA whoamiscb		; Next scb
+	.DA logonbrush_data	; Sprite data
+	.DA LEFTEDGE+80, TOPEDGE+28 ; HPOS, VPOS
+	.DA 1*256, 1*256	; HSIZE, VSIZE
+	.HS 01			; Palette
+
+shipscb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_HV+LITERAL, 0
+	.DA hidigitscb		; Next scb
+	.DA 0			; Sprite data
+	.DA 0, 0		; HPOS, VPOS
+	.DA 1*256, 1*256	; HSIZE, VSIZE
+	.HS 02			; Palette
+
+whoamiscb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_NONE+LITERAL, 0
+	.DA totalscb		; Next scb
+	.DA 0			; Sprite data
+	.DA LEFTEDGE+10, TOPEDGE+80 ; HPOS, VPOS
+	.HS 03			; Palette
+
+totalscb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_NONE+LITERAL, 0
+	.DA 0			; Next scb
+	.DA 0			; Sprite data
+	.DA LEFTEDGE+25, TOPEDGE+80 ; HPOS, VPOS
+	.HS 05			; Palette
+
+
+hidigitscb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_NONE+LITERAL, 0
+	.DA lodigitscb		; Next scb
+	.DA 0			; Sprite data
+	.DA LEFTEDGE+10, 0	; HPOS, VPOS
+	.HS 03			; Palette
+
+lodigitscb
+	.BY ONE_PER_PIXEL+NONCOLL_SPRITE, RELOAD_NONE+LITERAL+REUSE_PALETTE, 0
+	.DA 0			; Next scb
+	.DA 0			; Sprite data
+	.DA LEFTEDGE+20, 0	; HPOS, VPOS
+
+
+erasesprite
+	.HS 020000
+
+ship1_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$f0
+	.BY $02,$f8
+	.BY $02,$c0
+	.BY $02,$e0
+	.BY $01	; Next data is up-right
+	.BY $02,$e0
+	.BY $02,$c0
+	.BY $02,$80
+	.BY $01	; Next data is up-left
+	.BY $02,$c0
+	.BY $02,$80
+	.BY $01	; Next data is down-left
+	.BY $02,$e0
+	.BY $02,$f0
+	.BY $02,$80
+	.BY $02,$c0
+	.BY $00	; 30 total image bytes
+
+ship2_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$f0
+	.BY $02,$f0
+	.BY $02,$b0
+	.BY $02,$10
+	.BY $01	; Next data is up-right
+	.BY $02,$f0
+	.BY $02,$f0
+	.BY $02,$f0
+	.BY $01	; Next data is up-left
+	.BY $02,$80
+	.BY $02,$c0
+	.BY $02,$e0
+	.BY $01	; Next data is down-left
+	.BY $02,$c0
+	.BY $02,$80
+	.BY $00	; 28 total image bytes
+
+ship3_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$f0
+	.BY $02,$e0
+	.BY $02,$c0
+	.BY $02,$80
+	.BY $01	; Next data is up-right
+	.BY $02,$e0
+	.BY $02,$c0
+	.BY $02,$80
+	.BY $01	; Next data is up-left
+	.BY $02,$e0
+	.BY $02,$a0
+	.BY $02,$80
+	.BY $02,$80
+	.BY $01	; Next data is down-left
+	.BY $02,$e0
+	.BY $02,$e0
+	.BY $02,$a0
+	.BY $02,$80
+	.BY $02,$80
+	.BY $00	; 36 total image bytes
+
+digit0_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$1c
+	.BY $02,$2e
+	.BY $03,$47,$00
+	.BY $03,$83,$80
+	.BY $03,$81,$80
+	.BY $03,$80,$80
+	.BY $03,$c0,$80
+	.BY $03,$e0,$80
+	.BY $03,$71,$00
+	.BY $02,$3a
+	.BY $02,$1c
+	.BY $00	; 30 total image bytes
+
+digit1_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$04
+	.BY $02,$0c
+	.BY $02,$1c
+	.BY $02,$2c
+	.BY $02,$0c
+	.BY $02,$0c
+	.BY $02,$0c
+	.BY $02,$0c
+	.BY $02,$1c
+	.BY $02,$0e
+	.BY $02,$04
+	.BY $00	; 23 total image bytes
+
+digit2_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$18
+	.BY $02,$3c
+	.BY $02,$62
+	.BY $03,$43,$00
+	.BY $03,$07,$00
+	.BY $02,$0e
+	.BY $02,$18
+	.BY $02,$20
+	.BY $03,$60,$80
+	.BY $03,$f3,$00
+	.BY $02,$8e
+	.BY $00	; 27 total image bytes
+
+digit3_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$18
+	.BY $02,$3c
+	.BY $02,$62
+	.BY $03,$83,$00
+	.BY $03,$03,$00
+	.BY $02,$1c
+	.BY $03,$03,$00
+	.BY $03,$83,$00
+	.BY $02,$62
+	.BY $02,$3c
+	.BY $02,$18
+	.BY $00	; 27 total image bytes
+
+digit4_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$02
+	.BY $02,$06
+	.BY $02,$0e
+	.BY $02,$16
+	.BY $02,$26
+	.BY $02,$46
+	.BY $03,$ff,$00
+	.BY $03,$06,$80
+	.BY $02,$0e
+	.BY $03,$07,$00
+	.BY $02,$02
+	.BY $00	; 26 total image bytes
+
+digit5_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$7e
+	.BY $02,$7c
+	.BY $02,$40
+	.BY $02,$4e
+	.BY $03,$53,$00
+	.BY $03,$63,$00
+	.BY $03,$03,$00
+	.BY $03,$83,$00
+	.BY $02,$62
+	.BY $02,$3c
+	.BY $02,$18
+	.BY $00	; 27 total image bytes
+
+digit6_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$08
+	.BY $03,$1d,$00
+	.BY $02,$2e
+	.BY $02,$40
+	.BY $02,$dc
+	.BY $02,$e2
+	.BY $03,$c3,$00
+	.BY $03,$c3,$00
+	.BY $02,$42
+	.BY $02,$3c
+	.BY $02,$18
+	.BY $00	; 26 total image bytes
+
+digit7_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $03,$7f,$80
+	.BY $03,$ff,$00
+	.BY $03,$01,$00
+	.BY $02,$02
+	.BY $02,$04
+	.BY $02,$08
+	.BY $02,$18
+	.BY $02,$18
+	.BY $02,$18
+	.BY $02,$18
+	.BY $02,$10
+	.BY $00	; 26 total image bytes
+
+digit8_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$18
+	.BY $02,$24
+	.BY $02,$46
+	.BY $02,$66
+	.BY $02,$34
+	.BY $02,$18
+	.BY $02,$2c
+	.BY $02,$66
+	.BY $02,$62
+	.BY $02,$24
+	.BY $02,$18
+	.BY $00	; 23 total image bytes
+
+digit9_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$18
+	.BY $02,$3c
+	.BY $02,$42
+	.BY $03,$c3,$00
+	.BY $03,$c7,$00
+	.BY $03,$4b,$00
+	.BY $03,$33,$00
+	.BY $02,$02
+	.BY $02,$74
+	.BY $02,$b8
+	.BY $02,$10
+	.BY $00	; 27 total image bytes
+
+digita_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$7a
+	.BY $02,$9c
+	.BY $02,$4c
+	.BY $02,$2c
+	.BY $02,$dc
+	.BY $02,$cc
+	.BY $03,$f5,$00
+	.BY $02,$42
+	.BY $00
+; 24 total image bytes
+
+digitb_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$10
+	.BY $02,$a0
+	.BY $02,$60
+	.BY $02,$64
+	.BY $02,$6e
+	.BY $02,$76
+	.BY $02,$66
+	.BY $02,$66
+	.BY $02,$ee
+	.BY $02,$70
+	.BY $02,$20
+	.BY $00	; 23 total image bytes
+
+digitc_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$18
+	.BY $02,$3e
+	.BY $02,$74
+	.BY $02,$30
+	.BY $02,$30
+	.BY $02,$72
+	.BY $02,$3c
+	.BY $02,$18
+	.BY $00	; 23 total image bytes
+
+digitd_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$e0
+	.BY $02,$70
+	.BY $02,$38
+	.BY $03,$3d,$00
+	.BY $02,$6e
+	.BY $02,$66
+	.BY $02,$66
+	.BY $02,$66
+	.BY $02,$ee
+	.BY $02,$70
+	.BY $02,$20
+	.BY $00	; 24 total image bytes
+
+digite_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$30
+	.BY $02,$7c
+	.BY $02,$e6
+	.BY $02,$6c
+	.BY $02,$70
+	.BY $02,$e4
+	.BY $02,$78
+	.BY $02,$30
+	.BY $00	; 23 total image bytes
+
+digitf_data
+; Handy Sprite Image Data ; Bits per Pixel = 1 ; Next data is down-right
+	.BY $03,$0d,$00
+	.BY $02,$16
+	.BY $02,$30
+	.BY $02,$fc
+	.BY $02,$30
+	.BY $02,$30
+	.BY $02,$30
+	.BY $02,$30
+	.BY $02,$74
+	.BY $02,$38
+	.BY $02,$10
+	.BY $00	; 24 total image bytes
+
+
+logonbrush_data
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-left
+	.BY $06,$20,$0e,$40,$13,$f0
+	.BY $06,$90,$1f,$21,$39,$f8
+	.BY $06,$48,$38,$90,$f4,$8c
+	.BY $06,$64,$70,$c8,$62,$42
+	.BY $06,$76,$e0,$ec,$01,$20
+	.BY $06,$66,$c0,$cc,$01,$b0
+	.BY $06,$e6,$c0,$cc,$01,$b0
+	.BY $06,$66,$40,$58,$01,$90
+	.BY $06,$2c,$20,$70,$40,$80
+	.BY $06,$f8,$1f,$e0,$3f,$f0
+	.BY $06,$f0,$0f,$c0,$1e,$08
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $03,$0f,$c0
+	.BY $03,$a7,$e0
+	.BY $03,$52,$30
+	.BY $03,$09,$08
+	.BY $03,$04,$c0
+	.BY $03,$06,$f0
+	.BY $03,$06,$c8
+	.BY $03,$06,$40
+	.BY $02,$02
+	.BY $03,$81,$f0
+	.BY $03,$40,$88
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $08,$01,$20,$0e,$40,$9f,$83,$88
+	.BY $08,$23,$90,$1f,$21,$cf,$c6,$4c
+	.BY $08,$1f,$48,$38,$91,$a4,$66,$2e
+	.BY $08,$8e,$64,$70,$c9,$92,$16,$1c
+	.BY $08,$04,$76,$e0,$ec,$89,$06,$0c
+	.BY $08,$02,$66,$c0,$cc,$4d,$86,$1c
+	.BY $09,$3f,$e6,$c0,$cc,$3d,$82,$3f,$00
+	.BY $09,$30,$66,$40,$58,$cc,$81,$6c,$80
+	.BY $09,$10,$2c,$20,$71,$84,$00,$cc,$40
+	.BY $09,$0f,$f8,$1f,$e1,$8f,$c0,$0c,$80
+	.BY $08,$07,$f0,$0f,$c0,$9e,$20,$0c
+	.BY $08,$00,$00,$00,$00,$00,$00,$94
+	.BY $08,$00,$00,$00,$00,$00,$00,$62
+	.BY $01
+; Next data is down-right
+	.BY $06,$80,$13,$80,$c0,$60
+	.BY $06,$c4,$27,$c1,$e0,$f0
+	.BY $06,$f8,$48,$e2,$70,$7c
+	.BY $06,$70,$98,$70,$70,$58
+	.BY $06,$21,$b8,$38,$58,$40
+	.BY $06,$41,$98,$18,$4c,$40
+	.BY $06,$fd,$98,$18,$46,$40
+	.BY $06,$0c,$d0,$10,$43,$40
+	.BY $06,$08,$70,$20,$f1,$c0
+	.BY $06,$f0,$3f,$c1,$3d,$c0
+	.BY $06,$e0,$1f,$82,$18,$c0
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $03,$c0,$60
+	.BY $03,$e0,$f0
+	.BY $03,$70,$7c
+	.BY $03,$70,$58
+	.BY $03,$58,$40
+	.BY $03,$4c,$40
+	.BY $03,$46,$40
+	.BY $03,$43,$40
+	.BY $03,$f1,$c0
+	.BY $03,$3d,$c0
+	.BY $03,$18,$c0
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $02,$00
+	.BY $09,$3f,$20,$fc,$80,$38,$20,$70,$40
+	.BY $09,$7e,$71,$f9,$c8,$5f,$c0,$bf,$80
+	.BY $09,$c4,$b3,$12,$f0,$c7,$81,$8f,$00
+	.BY $08,$09,$34,$24,$60,$70,$00,$e0
+	.BY $08,$12,$20,$48,$40,$1e,$00,$3c
+	.BY $09,$36,$40,$d8,$80,$07,$80,$0f,$00
+	.BY $09,$37,$80,$df,$e0,$e1,$c1,$c3,$80
+	.BY $09,$26,$60,$98,$01,$f8,$83,$f1,$00
+	.BY $08,$04,$30,$10,$22,$1f,$04,$3e
+	.BY $08,$7e,$30,$ff,$c2,$06,$04,$0c
+	.BY $08,$8f,$21,$07,$81,$20,$02,$40
+	.BY $08,$00,$00,$00,$00,$c0,$01,$80
+	.BY $00
+; 453 total image bytes
+
+
+;	     0 1 2 3 4 5 6 7 8 9 a b c d e f
+palette
+	.HS 000c0006090f000c0000050c0e0c0804
+	.HS 00ae0c0f0013f0d2cffa09af0fcc8844
+
+
+*-----------------------------------------------------------------------------
+
+start_of_redeye_variables
+	.IN 6502:src/comlink_variables.src
+	.IN 6502:src/msgmgrRAM.src
+end_of_redeye_variables
+
+*-----------------------------------------------------------------------------
+
+MyIntTable
+	.DS 16
+
+	.AL 4
+buffer1	.DS DISPLAY_BUFSIZE
+buffer2	.DS DISPLAY_BUFSIZE
+
+*-----------------------------------------------------------------------------
+
+* Calculate and print some statistics during assembly so we can tell how well
+* we're doing
+
+comlink_size	.EQ comlink_end_address-comlink_start_address
+logon_size	.EQ logon_end_address-logon_start_address
+variable_size	.EQ end_of_redeye_variables-start_of_redeye_variables
+total_size	.EQ variable_size+logon_size+comlink_size
+glue_size	.EQ glue_end_address-glue_start_address
+with_glue_size	.EQ total_size+glue_size
+nologon_size	.EQ comlink_size+variable_size
+nologon_and_glue .EQ nologon_size+glue_size
+
+	ECHO_VALUE comlink_size
+	ECHO_VALUE logon_size
+	ECHO_VALUE variable_size
+	ECHO_VALUE total_size
+	ECHO_VALUE glue_size
+	ECHO_VALUE with_glue_size
+	ECHO_VALUE nologon_size
+	ECHO_VALUE nologon_and_glue
+
+
