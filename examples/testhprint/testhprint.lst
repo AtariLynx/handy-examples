@@ -1,5 +1,5 @@
-Epyx HandyAsm 1.12      testhprint.src                  14-Apr-12521:22:35 Page    1
-                                                        21:22:35  
+Epyx HandyAsm 1.12      testhprint                      15-Apr-12514:00:43 Page    1
+                                                        14:00:43  
 
     1                   
     2                   * === testhprint.src =================================
@@ -59,8 +59,8 @@
    75                   
    76                   
    77                   		;------	Make sure all our ASCII is defined in the al
-Epyx HandyAsm 1.12      testhprint.src                  14-Apr-12521:22:35 Page    2
-                                                        21:22:35  
+Epyx HandyAsm 1.12      testhprint                      15-Apr-12514:00:43 Page    2
+                                                        14:00:43  
 
    78                   		;------	character set that will match our font
    79                   		HPR_CHARSET
@@ -121,8 +121,8 @@
    10 2036:CA         + 		  DEX
    11 2037:A9 **      + 		  LDA #<IntReturn
    12 2039:9D ** **   + 		  STA InterruptTable,X
-Epyx HandyAsm 1.12      testhprint.src                  14-Apr-12521:22:35 Page    3
-                        testhprint.src                  21:22:35  
+Epyx HandyAsm 1.12      testhprint                      15-Apr-12514:00:43 Page    3
+                        testhprint.src                  14:00:43  
 
    13 203C:CA         + 		  DEX
    14 203D:10 F2      + 		 BPL INITINT.0005
@@ -183,8 +183,8 @@
     6 208D:8D ** **   + 		STA	DisplayBuffer
     7 2090:A9 **      + 		LDA	#>Buffer2
     8 2092:8D ** **   + 		STA	DisplayBuffer+1
-Epyx HandyAsm 1.12      testhprint.src                  14-Apr-12521:22:35 Page    4
-                        testhprint.src                  21:22:35  
+Epyx HandyAsm 1.12      testhprint                      15-Apr-12514:00:43 Page    4
+                        testhprint.src                  14:00:43  
 
     9 2095:9C ** **   + 		STZ	DisplayFlags
    10                 + 
@@ -245,8 +245,8 @@
   120 20E9:BD ** **     .00		LDA	TextsLow,X
   121 20EC:8D ** **     		STA	TextPointer
   122 20EF:BD ** **     		LDA	TextsHigh,X
-Epyx HandyAsm 1.12      testhprint.src                  14-Apr-12521:22:35 Page    5
-                                                        21:22:35  
+Epyx HandyAsm 1.12      testhprint                      15-Apr-12514:00:43 Page    5
+                                                        14:00:43  
 
   123 20F2:8D ** **     		STA	TextPointer+1
   124                   
@@ -307,8 +307,8 @@
     7 2150:AD ** **   + 		LDA	RenderBuffer+1
     8 2153:AE ** **   + 		ldx	DisplayBuffer+1
     9 2156:8D ** **   + 		STA	DisplayBuffer+1
-Epyx HandyAsm 1.12      testhprint.src                  14-Apr-12521:22:35 Page    6
-                        testhprint.src                  21:22:35  
+Epyx HandyAsm 1.12      testhprint                      15-Apr-12514:00:43 Page    6
+                        testhprint.src                  14:00:43  
 
    10 2159:8E ** **   + 		stx	RenderBuffer+1
    11 215C:28         + 		PLP
@@ -369,8 +369,8 @@
   169      1C 1D 1E 00  
   169                   
   170 240F:1F 20 21 22  HelloWorld2	.ZS	"TUVWXYZ 0123456789"
-Epyx HandyAsm 1.12      testhprint.src                  14-Apr-12521:22:35 Page    7
-                                                        21:22:35  
+Epyx HandyAsm 1.12      testhprint                      15-Apr-12514:00:43 Page    7
+                                                        14:00:43  
 
   170      23 24 25 01  
   170      02 03 04 05  
@@ -431,8 +431,8 @@
   220 64C1:29 00        		.WORD	TEXT_Y+1	; VPos
   221 64C3:00 01        		.WORD	$0100	; HSize
   222 64C5:00 01        		.WORD	$0100	; VSize
-Epyx HandyAsm 1.12      testhprint.src                  14-Apr-12521:22:35 Page    8
-                                                        21:22:35  
+Epyx HandyAsm 1.12      testhprint                      15-Apr-12514:00:43 Page    8
+                                                        14:00:43  
 
   223 64C7:02           		.BYTE	$02	; Palette
   224                   
@@ -493,8 +493,8 @@
   275 650B:00 FF 0F 00  		.BYTE	$00,$FF,$0F,$00,$F0,$0F,$FF,$F0
   275      F0 0F FF F0  
   275                   
-Epyx HandyAsm 1.12      testhprint.src                  14-Apr-12521:22:35 Page    9
-                                                        21:22:35  
+Epyx HandyAsm 1.12      testhprint                      15-Apr-12514:00:43 Page    9
+                                                        14:00:43  
 
   276 6513:11 33 55 77  		.BYTE	$11,$33,$55,$77,$99,$BB,$DD,$FF
   276      99 BB DD FF  
@@ -502,8 +502,8 @@
   277                   
   278                   
   279                   		.END
-Epyx HandyAsm 1.12      Symbols                         14-Apr-12521:22:35 Page   10
-                                                        21:22:35  
+Epyx HandyAsm 1.12      Symbols                         15-Apr-12514:00:43 Page   10
+                                                        14:00:43  
 
 $0040 ACCUMULATE                        $0040 ALGO_3
 $0000 ASM.EQUSYMS                       $010C ASM.VERSION
@@ -563,8 +563,8 @@ $0080 ENABLE_INT                        $0020 ENABLE_INTEGRATE
 $0010 ENABLE_RELOAD                     MACRO END_ALLOCATE_ZEROPAGE
 $0000 END_OF_FILE                       MACRO END_ZPAGE
 $0001 EOF_USER                          $0004 EVER_ON
-Epyx HandyAsm 1.12      Symbols                         14-Apr-12521:22:35 Page   11
-                                                        21:22:35  
+Epyx HandyAsm 1.12      Symbols                         15-Apr-12514:00:43 Page   11
+                                                        14:00:43  
 
 $0001 EXTERNAL_POWER                    $6494 EraseSprite
 $64F8 EraseSpriteData                   $0080 FEEDBACK_7
@@ -625,8 +625,8 @@ $FC55 MATHA                             $FC54 MATHB
 $FC53 MATHC                             $0020 MATHCARRY
 $FC52 MATHD                             $FC63 MATHE
 $FC62 MATHF                             $FC61 MATHG
-Epyx HandyAsm 1.12      Symbols                         14-Apr-12521:22:35 Page   12
-                                                        21:22:35  
+Epyx HandyAsm 1.12      Symbols                         15-Apr-12514:00:43 Page   12
+                                                        14:00:43  
 
 $FC60 MATHH                             $FC6F MATHJ
 $FC6E MATHK                             $FC6D MATHL
@@ -687,8 +687,8 @@ $0080 SIGNMATH                          $0004 SKIP_SPRITE
 $0004 SLAVE_REQUEST                     $FC82 SPRCOLL
 $FC80 SPRCTL0                           $FC81 SPRCTL1
 $FC13 SPRDLINEH                         $FC12 SPRDLINEL
-Epyx HandyAsm 1.12      Symbols                         14-Apr-12521:22:35 Page   13
-                                                        21:22:35  
+Epyx HandyAsm 1.12      Symbols                         15-Apr-12514:00:43 Page   13
+                                                        14:00:43  
 
 $FC21 SPRDOFFH                          $FC20 SPRDOFFL
 $FC91 SPRGO                             $FC19 SPRHSIZH
@@ -749,8 +749,8 @@ $0010 VSTRETCH                          $0010 VSTRETCHING
 MACRO WAITEOF                           MACRO WAITEOL
 MACRO WAITMATH                          $224A WAITMATH.001B0
 MACRO WAITNEOF                          MACRO WAITNEOL
-Epyx HandyAsm 1.12      Symbols                         14-Apr-12521:22:35 Page   14
-                                                        21:22:35  
+Epyx HandyAsm 1.12      Symbols                         15-Apr-12514:00:43 Page   14
+                                                        14:00:43  
 
 MACRO WAITSUZY                          $212E WAITSUZY.00111
 $0006 XOR_SHADOW_SPRITE                 $0006 XOR_SPRITE

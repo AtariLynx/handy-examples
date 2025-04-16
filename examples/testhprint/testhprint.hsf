@@ -2,12 +2,10 @@
 * Created by RJ Mical
 * 26 April 1989
 
+	.IN cartdefs.i
 
-	.IN 6502:examples/cartdefs.i
-
-
-	FILE 0
+	FILE TITLE_FILE
 	BIN title.bin
 
-	FILE 1
+	FILE MAIN_FILE
 	BIN testhprint.bin
