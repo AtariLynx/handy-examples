@@ -3,7 +3,7 @@
 * 26 April 1989
 
 
-	.IN 6502:examples/cartdefs.i
+	.IN cartdefs.i
 
 
 	FILE 0

@@ -1,0 +1,972 @@
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page    1
+                                                        14:20:07  
+
+    1                   ; Monday 30-Apr-90 22:08:38
+    2                   * == testcart.src ====================================
+    3                   * 
+    4                   * Test CART Routines  --  Handy Software
+    5                   * 
+    6                   * Confidential and Proprietary
+    7                   * Copyright (C) 1988, 1989, Epyx, Inc.
+    8                   * 
+    9                   * Date		Name		Description
+   10                   * ---------	--------------	---------------------------
+   11                   * 30-Apr-90	SHL		Moved GETDIR_USER definition before i
+   12                   * 7-Mar-90	SHL		Remove DISPLAY_ON call
+   13                   * 9-Feb-90	SHL		Updated for compatibility with 1.1 rel
+   14                   * 30-Apr-89	=RJ Mical=	Created this file!
+   15                   * 
+   16                   * ====================================================
+   17                   
+   18                   
+   19                   
+   20                   ; Specify that we will be a GETDIR user, mostly becaus
+   21                   ; and can afford the 75 bytes
+   22      0001         GETDIR_USER	.EQU	1
+   23                   
+   24                   
+   25                   
+   26                   * Define BRK_USER to do debugging.
+   27      0001         BRK_USER	.EQU	1
+   28                   
+   29                   
+   30                   
+   31      0001         EOF_USER	.EQU	1
+   32                   ; EOL_USER	.EQU	1
+   33                   
+   34                   
+   35      000A         HOFFSET_PRESET	.EQU	10
+   36      000A         VOFFSET_PRESET	.EQU	10
+   37      000B         TEXT_X		.EQU	HOFFSET_PRESET+1
+   38      0028         TEXT_Y		.EQU	VOFFSET_PRESET+30
+   39                   
+   40                   
+   41                   
+   42                   		.LIST	OFF
+   66                   		.LIST	ON
+   67                   
+   68                   
+   69                   
+   70                   
+   71                   ; Here we declare the type and height of font we want
+   72                   ; NOTE:  both of these constants must be declared
+   73      000B         FONT_TYPE	.EQU	HPR_DIGIT+HPR_UPPER+HPR_PUNC
+   74      0007         FONT_HEIGHT	.EQU	7
+   75                   
+   76                   
+   77                   
+   78      0015         TEXT_BUF_WIDTH	.EQU	{20+1}
+   79                   
+   80                   
+   81                   		;------	Make sure all our ASCII is defined in the al
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page    2
+                                                        14:20:07  
+
+   82                   		;------	character set that will match our font
+   83                   		HPR_CHARSET
+    1      FALSE        	  #IF {FONT_TYPE&HPR_OTHER} != 0
+   63                 + 	  #ELSE 
+   64      TRUE       + 	    #IF {FONT_TYPE&HPR_PUNC} != 0
+   65      FALSE        	      #IF {FONT_TYPE&HPR_LOWER} != 0
+   79                 + 	      #ELSE
+   80      TRUE       + 	        #IF {FONT_TYPE&HPR_UPPER} != 0
+   81      TRUE       + 	          #IF {FONT_TYPE&HPR_DIGIT} != 0
+   82                 + 	            .CS 6502:fonts/cset_0b.src
+   83                   	          #ELSE
+   85                 + 	          #ENDIF
+   86                   	        #ELSE
+   92                 + 	        #ENDIF
+   93                 + 	      #ENDIF
+   94                   	    #ELSE
+  126                 + 	    #ENDIF
+  127                 + 	  #ENDIF
+  128                 + 
+   84                   
+   85                   
+   86 FFFE:             		.ORG	$2000
+   87                   		.RUN	Start
+   88                   
+   89 2000:             Start
+   90                   		INITSYS
+    1 2000:A9 0D      + 	LDA #DISP_COLOR+DISP_FOURBIT+DMA_ENABLE
+    2 2002:8D ** **   + 	STA DISPCTL_RAM
+    3 2005:A9 08      + 	LDA #LEFTHAND		
+    4 2007:8D ** **   + 	STA SPRSYS_RAM
+    5 200A:8D 92 FC   + 	STA SPRSYS
+    6 200D:A9 08      + 	LDA #VECTOR_SPACE	
+    7 200F:8D F9 FF   + 	STA MAPCTL
+    8      FALSE         #IFDEF RAMCART_USER
+   10                 +  #ELSE
+   11 2012:A9 0A      + 	LDA #CART_ADDR_DATA+RESTLESS
+   12                 +  #ENDIF
+   13 2014:8D ** **   + 	STA IODAT_RAM
+   14 2017:8D 8B FD   + 	STA IODAT
+   15 201A:8D ** **   + 	STA IODIR_RAM
+   16 201D:8D 8A FD   + 	STA IODIR
+   17 2020:A9 04      + 	LDA #TXOPEN	
+   18 2022:8D 8C FD   + 	STA SERCTL	
+   19      FALSE        	  #IFDEF AUTO_TIMEOUT_USER
+   22                 + 	  #ENDIF
+   23                 + 
+   91                   		INITINT	InterruptTable,SafeReturn
+    1      ****       + sysIntTable	.EQ InterruptTable
+    2 2025:A9 **      + 		LDA #<UserIntHandler
+    3 2027:8D FE FF   + 		STA CPU_IRQ
+    4 202A:A9 **      + 		LDA #>UserIntHandler
+    5 202C:8D FF FF   + 		STA CPU_IRQ+1
+    6 202F:A2 0F      + 		LDX #8*2-1
+    7      2031       + INITINT.0005	.= *
+    8 2031:A9 **      + 		  LDA #>IntReturn
+    9 2033:9D ** **   + 		  STA InterruptTable,X
+   10 2036:CA         + 		  DEX
+   11 2037:A9 **      + 		  LDA #<IntReturn
+   12 2039:9D ** **   + 		  STA InterruptTable,X
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page    3
+                        testcart.src                    14:20:07  
+
+   13 203C:CA         + 		  DEX
+   14 203D:10 F2      + 		 BPL INITINT.0005
+   15      TRUE       + 	  #IFDEF BRK_USER
+   16 203F:AD FA FF   + 		LDA CPU_NMI
+   17 2042:8D ** **   + 		STA BRK_vector+2
+   18 2045:AD FB FF   + 		LDA CPU_NMI+1
+   19 2048:8D ** **   + 		STA BRK_vector+3
+   20                 + 	  #ENDIF 
+   21      FALSE        	  #IFDEF SERIALPORT_USER
+   26                 + 	  #ENDIF
+   27                 + 
+   92                   
+   93 204B:58           		CLI
+   94 204C:D8           		CLD
+   95 204D:A2 FF        		LDX	#$FF
+   96 204F:9A           		TXS
+   97                   
+   98                   		;------	Set up the display, and then turn it on
+   99                   		SETDISP_60
+    1                   		SETDISP	$9E,$98,$68,$9F,$29
+    1 2050:A9 9E      + 		LDA	#$9E
+    2 2052:8D 00 FD   + 		STA	HCOUNT+TIM_BACKUP
+    3      FALSE        	#IFDEF EOL_USER
+    5                 + 	#ELSE
+    6 2055:A9 18      + 		lda #$98&%01111111
+    7                 + 	#ENDIF
+    8 2057:8D 01 FD   + 		STA	HCOUNT+TIM_CONTROLA
+    9 205A:A9 68      + 		LDA	#$68
+   10 205C:8D 08 FD   + 		STA	VCOUNT+TIM_BACKUP
+   11 205F:A9 9F      + 		lda #$9F|%10000000
+   12 2061:8D 09 FD   + 		STA	VCOUNT+TIM_CONTROLA
+   13 2064:A9 29      + 		LDA	#$29
+   14 2066:8D 93 FD   + 		STA	PBKUP
+   15      FALSE        	#IFNDEF	EOF_USER
+   17                 + 	#ENDIF
+   18                 + 
+    2                 + 
+  100                   		INITEOF
+    1 2069:20 ** **   + 		JSR	InitEOF
+    2                 + 
+  101                   		INITSUZY
+    1 206C:A9 F3      + 		LDA	#$F3
+    2 206E:8D 83 FC   + 		STA	SPRINIT
+    3 2071:A9 7F      + 		LDA	#$7F
+    4 2073:8D 28 FC   + 		STA	HSIZOFFL
+    5 2076:8D 2A FC   + 		STA	VSIZOFFL
+    6 2079:A9 01      + 		LDA	#$01
+    7 207B:8D 90 FC   + 		STA	SUZYBUSEN
+    8 207E:9C 90 FD   + 		STZ	SDONEACK
+    9                 + 
+  102                   		SETDBUF	Buffer1,Buffer2
+    1 2081:A9 **      + 		LDA	#<Buffer1
+    2 2083:8D ** **   + 		STA	RenderBuffer
+    3 2086:A9 **      + 		LDA	#>Buffer1
+    4 2088:8D ** **   + 		STA	RenderBuffer+1
+    5 208B:A9 **      + 		LDA	#<Buffer2
+    6 208D:8D ** **   + 		STA	DisplayBuffer
+    7 2090:A9 **      + 		LDA	#>Buffer2
+    8 2092:8D ** **   + 		STA	DisplayBuffer+1
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page    4
+                        testcart.src                    14:20:07  
+
+    9 2095:9C ** **   + 		STZ	DisplayFlags
+   10                 + 
+  103                   		RGB16	TestPalette
+    1 2098:A9 **      + 		LDA	#<TestPalette
+    2 209A:85 00      + 		STA	sysptr
+    3 209C:A9 **      + 		LDA	#>TestPalette
+    4 209E:85 01      + 		STA	sysptr+1
+    5 20A0:A0 1F      + 		LDY	#31
+    6 20A2:B1 00      + 		LDA	(sysptr),Y
+    7 20A4:99 A0 FD   + 		STA	GREEN0,Y
+    8 20A7:88         + 		DEY
+    9 20A8:10 F8      + 		BPL	*-6
+   10                 + 
+  104                   
+  105 20AA:A9 0A        		LDA	#HOFFSET_PRESET
+  106                   		HOFF8
+    1 20AC:8D 04 FC   + 		STA	HOFFL
+    2                 + 
+  107 20AF:A9 0A        		LDA	#VOFFSET_PRESET
+  108                   		VOFF8
+    1 20B1:8D 06 FC   + 		STA	VOFFL
+    2                 + 
+  109                   
+  110                   		INITLIT	TextBuffer,TEXT_BUF_WIDTH
+    1 20B4:A9 **      + 	LDA #<TextBuffer
+    2 20B6:A2 **      + 	LDX #>TextBuffer
+    3 20B8:85 00      + 	STA sysptr
+    4 20BA:86 01      + 	STX sysptr+1
+    5 20BC:A2 07      + 	LDX #FONT_HEIGHT
+    6      20BE       + INITLIT.000E	.= *
+    7 20BE:A9 15      + 	  lda #TEXT_BUF_WIDTH
+    8 20C0:92 00      + 	  STA (sysptr)
+    9 20C2:18         + 	  CLC
+   10 20C3:65 00      + 	  ADC sysptr
+   11 20C5:85 00      + 	  STA sysptr
+   12 20C7:90 **      + 	  bcc INITLIT.000E1
+   13 20C9:E6 01      + 	  inc sysptr+1
+   14      20CB       + INITLIT.000E1	.= *
+   15 20CB:CA         + 	  DEX
+   16 20CC:D0 F0      + 	 BNE INITLIT.000E
+   17 20CE:A9 00      + 	LDA #0
+   18 20D0:92 00      + 	STA (sysptr)
+   19                 + 
+  111                   
+  112                   		;------	Turn off all collisions
+  113 20D2:AD ** **     		LDA	SPRSYS_RAM
+  114 20D5:09 20        		ORA	#NO_COLLIDE
+  115 20D7:8D ** **     		STA	SPRSYS_RAM
+  116 20DA:8D 92 FC     		STA	SPRSYS
+  117                   
+  118 20DD:9C ** **     		STZ	FileIndex
+  119 20E0:20 ** **     		JSR	LoadFile
+  120                   
+  121 20E3:             TextLoop
+  122                   		;------	Load the address of the currently loaded fil
+  123                   		;------	text buffer
+  124 20E3:A9 **        		LDA	#<TEXT_DATA
+  125 20E5:8D ** **     		STA	TextPointer
+  126 20E8:A9 **        		LDA	#>TEXT_DATA
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page    5
+                                                        14:20:07  
+
+  127 20EA:8D ** **     		STA	TextPointer+1
+  128                   
+  129                   		;------	Print text into our buffer
+  130                   		HPRINT	TextPointer,1,TextBuffer
+    1      TRUE       + 	  #IF	1 = 1
+    2 20ED:AD ** **   + 	    LDA TextPointer
+    3 20F0:85 00      + 	    STA	sysptr
+    4 20F2:AD ** **   + 	    LDA TextPointer+1
+    5 20F5:85 01      + 	    STA sysptr+1
+    6                   	  #ELSE
+   11                 + 	  #ENDIF
+   12 20F7:A9 **      + 	  LDA #<TextBuffer
+   13 20F9:8D ** **   + 	  STA TextPtr
+   14 20FC:A9 **      + 	  LDA #>TextBuffer
+   15 20FE:8D ** **   + 	  STA TextPtr+1
+   16 2101:20 ** **   + 	  JSR HandyPrint
+   17                 + 
+  131                   
+  132                   		;------	Display our buffer
+  133                   		SPRITES	EraseSprite,0
+    1      FALSE        		#IF	0 <> 0
+    6                 + 		#ELSE
+    7 2104:A9 **      + 		  LDA	#<EraseSprite
+    8 2106:8D 10 FC   + 		  STA	SCBNEXTL
+    9 2109:A9 **      + 		  LDA	#>EraseSprite
+   10 210B:8D 11 FC   + 		  STA	SCBNEXTH
+   11                 + 		#ENDIF
+   12 210E:AD ** **   + 		LDA	RenderBuffer
+   13 2111:8D 08 FC   + 		STA	VIDBASL
+   14 2114:AD ** **   + 		LDA	RenderBuffer+1
+   15 2117:8D 09 FC   + 		STA	VIDBASH
+   16 211A:9C 90 FD   + 		STZ	SDONEACK
+   17 211D:A9 01      + 		LDA	#$01
+   18 211F:8D 91 FC   + 		STA	SPRGO
+   19                   		WAITSUZY
+    1      2122       + WAITSUZY.00111	.= *
+    2 2122:A9 01      + 		lda #SUZY_SPACE
+    3 2124:0C F9 FF   + 		tsb MAPCTL		
+    4 2127:9C 91 FD   + 		STZ	CPUSLEEP
+    5 212A:1C F9 FF   + 		trb MAPCTL		
+    6 212D:AD 92 FC   + 		LDA	SPRSYS		
+    7 2130:4A         + 		LSR	A		
+    8 2131:B0 EF      + 		BCS	WAITSUZY.00111		
+    9 2133:9C 90 FD   + 		STZ	SDONEACK
+   10                 + 
+   20                 + 
+  134                   		DBUF_DISPLAY
+    1 2136:08         + 		PHP
+    2 2137:78         + 		SEI
+    3 2138:AD ** **   + 		LDA	RenderBuffer
+    4 213B:AE ** **   + 		ldx	DisplayBuffer
+    5 213E:8D ** **   + 		STA	DisplayBuffer
+    6 2141:8E ** **   + 		stx	RenderBuffer
+    7 2144:AD ** **   + 		LDA	RenderBuffer+1
+    8 2147:AE ** **   + 		ldx	DisplayBuffer+1
+    9 214A:8D ** **   + 		STA	DisplayBuffer+1
+   10 214D:8E ** **   + 		stx	RenderBuffer+1
+   11 2150:28         + 		PLP
+   12                 + 
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page    6
+                                                        14:20:07  
+
+  135                   		WAITEOF
+    1 2151:A9 **      + 		LDA	#DISPLAY_EOFFLAG
+    2 2153:1C ** **   + 		TRB	DisplayFlags
+    3      2156       + systemp		.=	*
+    4 2156:2C ** **   + 		BIT	DisplayFlags
+    5 2159:F0 FB      + 		BEQ	systemp
+    6                 + 
+  136                   
+  137                   		;------	If either button was pressed, advance file
+  138                   		GETJOY
+    1 215B:AD B0 FC   + 	  LDA JOYSTICK
+    2                 + 
+  139 215E:29 03        		AND	#INNER_BUTTON+OUTER_BUTTON
+  140 2160:D0 **        		BNE	.E0
+  141 2162:9C ** **     		STZ	OldButton
+  142 2165:80 **        		BRA	.F0
+  143                   
+  144 2167:A9 01        .E0		LDA	#1
+  145 2169:2C ** **     		BIT	OldButton
+  146 216C:D0 **        		BNE	.F0
+  147 216E:8D ** **     		STA	OldButton
+  148                   
+  149                   		;------	Button newly pressed, so advance
+  150 2171:EE ** **     		INC	FileIndex
+  151 2174:20 ** **     		JSR	LoadFile
+  152                   
+  153 2177:4C E3 20     .F0		JMP	TextLoop
+  154                   
+  155                   
+  156 217A:             LoadFile
+  157                   * ----------------------------------------------------
+  158                   * Load the FileIndex file into memory
+  159                   
+  160                   		;------	Make sure the current file index has a reaso
+  161 217A:AD ** **     		LDA	FileIndex
+  162 217D:29 03        		AND	#$03
+  163 217F:8D ** **     		STA	FileIndex
+  164 2182:1A           		INC		; File numbers 
+  165 2183:1A           		INC		; start from 2
+  166                   
+  167                   		;------	Open the file and read it in
+  168                   		GETDIR		; Get the cart address of the directory entr
+    1 2184:20 ** **   + 		JSR GetDirAddress
+    2                 + 
+  169                   		OPENFILE	; Open the file and prepare to read it
+    1 2187:20 ** **   + 		JSR	OpenFile0
+    2                 + 
+  170 218A:A9 00        		LDA	#0	; Specify that we want load to default addres
+  171                   		READFILE	; Get the data
+    1 218C:20 ** **   + 		JSR	ReadFile0
+    2                 + 
+  172 218F:             SafeReturn
+  173 218F:60           		RTS		; and we're done
+  174                   
+  175                   
+  176                   
+  177                   * ====================================================
+  178                   * ===                     ============================
+  179                   * === System Source Files ============================
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page    7
+                                                        14:20:07  
+
+  180                   * ===                     ============================
+  181                   * ====================================================
+  182                   
+  183                   		.LIST	OFF
+  192                   		.LIST	ON
+  193                   
+  194                   
+  195                   
+  196                   * ====================================================
+  197                   * ===                    =============================
+  198                   * === Variables and Data =============================
+  199                   * ===                    =============================
+  200                   * ====================================================
+  201                   
+  202 2502:             TextBuffer	.DS	{TEXT_BUF_WIDTH*FONT_HEIGHT}+1
+  203 2596:             TextPointer	.DS	2
+  204 2598:             FileIndex	.DS	1
+  205 2599:             OldButton	.DS	1
+  206 259A:             InterruptTable	.DS	8*2
+  207                   
+  208                   
+  209 25AA:             		.ALIGN	4
+  210                   ; Align the PC to the next multiple of 4, which is req
+  211                   ; for the placement of the display buffers
+  212 25AC:             Buffer1		.DS	DISPLAY_BUFSIZE
+  213 458C:             		.ALIGN	4
+  214 458C:             Buffer2		.DS	DISPLAY_BUFSIZE
+  215                   
+  216 656C:             EraseSprite
+  217                   ; Handy Sprite
+  218 656C:01           		.BYTE	ONE_PER_PIXEL+BACKNONCOLL_SPRITE	; Control 0
+  219 656D:B0           		.BYTE	RELOAD_HVST+LITERAL		; Control 1
+  220 656E:00           		.BYTE	$00	; Control 2
+  221 656F:00 **        		.WORD	TextDrop1Sprite	; Next sprite's address
+  222 6571:00 **        		.WORD	EraseSpriteData
+  223 6573:0A 00        		.WORD	HOFFSET_PRESET	; HPos
+  224 6575:0A 00        		.WORD	VOFFSET_PRESET	; VPos
+  225 6577:00 A0        		.WORD	$A000	; HSize
+  226 6579:00 66        		.WORD	$6600	; VSize
+  227 657B:00 00        		.WORD	$0000	; Stretch
+  228 657D:00 00        		.WORD	$0000	; Tilt
+  229 657F:00           		.BYTE	$00	; Palette
+  230                   
+  231 6580:             TextDrop1Sprite
+  232                   ; Handy Sprite
+  233 6580:05           		.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE	; Control 0
+  234 6581:90           		.BYTE	RELOAD_HV+LITERAL			; Control 1
+  235 6582:00           		.BYTE	$00	; Control 2
+  236 6583:00 **        		.WORD	TextDrop2Sprite	; Next sprite's address
+  237 6585:02 25        		.WORD	TextBuffer
+  238 6587:0A 00        		.WORD	TEXT_X-1	; HPos
+  239 6589:27 00        		.WORD	TEXT_Y-1	; VPos
+  240 658B:00 01        		.WORD	$0100	; HSize
+  241 658D:00 01        		.WORD	$0100	; VSize
+  242 658F:02           		.BYTE	$02	; Palette
+  243                   
+  244 6590:             TextDrop2Sprite
+  245                   ; Handy Sprite
+  246 6590:05           		.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE	; Control 0
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page    8
+                                                        14:20:07  
+
+  247 6591:90           		.BYTE	RELOAD_HV+LITERAL			; Control 1
+  248 6592:00           		.BYTE	$00	; Control 2
+  249 6593:00 **        		.WORD	TextDrop3Sprite	; Next sprite's address
+  250 6595:02 25        		.WORD	TextBuffer
+  251 6597:0A 00        		.WORD	TEXT_X-1	; HPos
+  252 6599:29 00        		.WORD	TEXT_Y+1	; VPos
+  253 659B:00 01        		.WORD	$0100	; HSize
+  254 659D:00 01        		.WORD	$0100	; VSize
+  255 659F:02           		.BYTE	$02	; Palette
+  256                   
+  257 65A0:             TextDrop3Sprite
+  258                   ; Handy Sprite
+  259 65A0:05           		.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE	; Control 0
+  260 65A1:90           		.BYTE	RELOAD_HV+LITERAL			; Control 1
+  261 65A2:00           		.BYTE	$00	; Control 2
+  262 65A3:00 **        		.WORD	TextDrop4Sprite	; Next sprite's address
+  263 65A5:02 25        		.WORD	TextBuffer
+  264 65A7:0C 00        		.WORD	TEXT_X+1	; HPos
+  265 65A9:27 00        		.WORD	TEXT_Y-1	; VPos
+  266 65AB:00 01        		.WORD	$0100	; HSize
+  267 65AD:00 01        		.WORD	$0100	; VSize
+  268 65AF:02           		.BYTE	$02	; Palette
+  269                   
+  270 65B0:             TextDrop4Sprite
+  271                   ; Handy Sprite
+  272 65B0:05           		.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE	; Control 0
+  273 65B1:90           		.BYTE	RELOAD_HV+LITERAL			; Control 1
+  274 65B2:00           		.BYTE	$00	; Control 2
+  275 65B3:00 **        		.WORD	TextSprite	; Next sprite's address
+  276 65B5:02 25        		.WORD	TextBuffer
+  277 65B7:0C 00        		.WORD	TEXT_X+1	; HPos
+  278 65B9:29 00        		.WORD	TEXT_Y+1	; VPos
+  279 65BB:00 01        		.WORD	$0100	; HSize
+  280 65BD:00 01        		.WORD	$0100	; VSize
+  281 65BF:02           		.BYTE	$02	; Palette
+  282                   
+  283 65C0:             TextSprite
+  284                   ; Handy Sprite
+  285 65C0:05           		.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE	; Control 0
+  286 65C1:90           		.BYTE	RELOAD_HV+LITERAL			; Control 1
+  287 65C2:00           		.BYTE	$00	; Control 2
+  288 65C3:00 00        		.WORD	0	; Next sprite's address
+  289 65C5:02 25        		.WORD	TextBuffer
+  290 65C7:0B 00        		.WORD	TEXT_X	; HPos
+  291 65C9:28 00        		.WORD	TEXT_Y	; VPos
+  292 65CB:00 01        		.WORD	$0100	; HSize
+  293 65CD:00 01        		.WORD	$0100	; VSize
+  294 65CF:01           		.BYTE	$01	; Palette
+  295                   
+  296 65D0:             EraseSpriteData
+  297                   ; Handy Sprite Image Data
+  298                   ; Bits per Pixel = 1
+  299                   ; Next data is down-right
+  300 65D0:02 00        		.BYTE	$02,$00
+  301 65D2:00           		.BYTE	$00
+  302                   
+  303                   
+  304 65D3:             TestPalette
+  305 65D3:00 0F 00 0F  		.BYTE	$00,$0F,$00,$0F,$00,$0F,$00,$0F
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page    9
+                                                        14:20:07  
+
+  305      00 0F 00 0F  
+  305                   
+  306 65DB:01 03 05 07  		.BYTE	$01,$03,$05,$07,$09,$0B,$0D,$0F
+  306      09 0B 0D 0F  
+  306                   
+  307 65E3:00 FF 0F 00  		.BYTE	$00,$FF,$0F,$00,$F0,$0F,$FF,$F0
+  307      F0 0F FF F0  
+  307                   
+  308 65EB:11 33 55 77  		.BYTE	$11,$33,$55,$77,$99,$BB,$DD,$FF
+  308      99 BB DD FF  
+  308                   
+  309                   
+  310                   
+  311                   
+  312                   * ====================================================
+  313                   * ===                                 ================
+  314                   * === Data to test .TF and CART stuff ================
+  315                   * ===                                 ================
+  316                   * ====================================================
+  317                   
+  318      65F3         TEXT_DATA	.EQU	*
+  319                   
+  320                   * MAX TEXT LENGTH       "123456789*123456789"
+  321                   		.TF	testcart1.bin
+  322 65F3:             		.ORG	TEXT_DATA
+  323 65F3:22 10 28 1D  		.ZS	"We're seeing file 1"
+  323      10 01 1E 10  
+  323      10 14 19 12  
+  323      01 11 14 17  
+  323      10 01 03 00  
+  323                   
+  324                   
+  325                   		.TF	testcart2.bin
+  326 6607:             		.ORG	TEXT_DATA
+  327 65F3:13 10 1D 10  		.ZS	"Here's file 2"
+  327      28 1E 01 11  
+  327      14 17 10 01  
+  327      04 00        
+  328                   
+  329                   		.TF	testcart3.bin
+  330 6601:             		.ORG	TEXT_DATA
+  331 65F3:12 1A 1F 01  		.ZS	"Got a 3 right here"
+  331      0C 01 05 01  
+  331      1D 14 12 13  
+  331      1F 01 13 10  
+  331      1D 10 00     
+  332                   
+  333                   		.TF	testcart4.bin
+  334 6606:             		.ORG	TEXT_DATA
+  335 65F3:06 30 01 01  		.ZS	"4?  File 4?  OK!"
+  335      11 14 17 10  
+  335      01 06 30 01  
+  335      01 1A 16 26  
+  335      00           
+  336                   
+  337                   		.TF	testcart0.bin
+  338 6604:             		.ORG	$2400
+  339                   
+  340                   ; Handy Color Palette
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page   10
+                                                        14:20:07  
+
+  341                   ; Greens
+  342 2400:00 0C 00 06  	.BYTE	$00,$0c,$00,$06,$09,$0f,$00,$0c
+  342      09 0F 00 0C  
+  342                   
+  343 2408:00 00 05 0C  	.BYTE	$00,$00,$05,$0c,$0e,$0c,$08,$04
+  343      0E 0C 08 04  
+  343                   
+  344                   ; Blues-Reds
+  345                   
+  346 2410:00 AE 0C 0F  	.BYTE	$00,$ae,$0c,$0f,$00,$13,$f0,$d2
+  346      00 13 F0 D2  
+  346                   
+  347 2418:CF FA 09 AF  	.BYTE	$cf,$fa,$09,$af,$0f,$cc,$88,$44
+  347      0F CC 88 44  
+  347                   
+  348                   
+  349 2420:             zEraseSprite
+  350                   ; Handy Sprite
+  351 2420:01           	.BYTE	ONE_PER_PIXEL+BACKNONCOLL_SPRITE	; Control 0
+  352 2421:B0           	.BYTE	RELOAD_HVST+LITERAL		; Control 1
+  353 2422:00           	.BYTE	$00	; Control 2
+  354 2423:00 **        	.WORD   TestCartSprite	; Next sprite's address
+  355 2425:00 **        	.WORD	zEraseSpriteData
+  356 2427:00 00        	.WORD	0	; HPos
+  357 2429:00 00        	.WORD	0	; VPos
+  358 242B:00 A0        	.WORD	$A000	; HSize
+  359 242D:00 66        	.WORD	$6600	; VSize
+  360 242F:00 00        	.WORD	$0000	; Stretch
+  361 2431:00 00        	.WORD	$0000	; Tilt
+  362 2433:00           	.BYTE	$00	; Palette
+  363                   
+  364 2434:             TestCartSprite
+  365                   ; Handy Sprite
+  366 2434:45           	.BYTE	TWO_PER_PIXEL+NONCOLL_SPRITE ; Control 0
+  367 2435:30           	.BYTE	RELOAD_HVST ; Control 1
+  368 2436:00           	.BYTE	$00 ; Control 2
+  369 2437:00 00        	.WORD	$0000	; Next Sprite
+  370 2439:00 **        	.WORD	TestCartData	; ImageData
+  371 243B:50 00        	.WORD	80	; HPos
+  372 243D:33 00        	.WORD	51	; VPos
+  373 243F:00 01        	.WORD	$0100	; HSize
+  374 2441:00 01        	.WORD	$0100	; VSize
+  375 2443:00 00        	.WORD	$0000	; Stretch
+  376 2445:00 00        	.WORD	$0000	; Tilt
+  377                   	; Palette
+  378 2447:01 23        	.BYTE	$01,$23
+  379                   
+  380                   
+  381 2449:             zEraseSpriteData
+  382                   ; Handy Sprite Image Data
+  383                   ; Bits per Pixel = 1
+  384                   ; Next data is down-right
+  385 2449:02 00        		.BYTE	$02,$00
+  386 244B:00           		.BYTE	$00
+  387                   
+  388                   
+  389 244C:             TestCartData
+  390                   ; Handy Sprite Image Data
+  391                   ; Bits per Pixel = 2
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page   11
+                                                        14:20:07  
+
+  392                   ; Next data is down-right
+  393 244C:0A CC A0 01  	.BYTE	$0a,$cc,$a0,$01,$15,$ef,$2c,$a0,$72,$80
+  393      15 EF 2C A0  
+  393      72 80        
+  394 2456:0A D5 28 2E  	.BYTE	$0a,$d5,$28,$2e,$a3,$bc,$b2,$d2,$87,$28
+  394      A3 BC B2 D2  
+  394      87 28        
+  395 2460:0A F7 4A A4  	.BYTE	$0a,$f7,$4a,$a4,$bf,$c4,$6d,$d2,$98,$d0
+  395      BF C4 6D D2  
+  395      98 D0        
+  396 246A:0A EF D5 1D  	.BYTE	$0a,$ef,$d5,$1d,$01,$92,$b1,$f4,$03,$80
+  396      01 92 B1 F4  
+  396      03 80        
+  397 2474:09 C1 FE 1E  	.BYTE	$09,$c1,$fe,$1e,$30,$9d,$80,$f0,$1e
+  397      30 9D 80 F0  
+  397      1E           
+  398 247D:01           	.BYTE	$01
+  399                   ; Next data is up-right
+  400 247E:0A EC A7 81  	.BYTE	$0a,$ec,$a7,$81,$ad,$7d,$79,$55,$33,$94
+  400      AD 7D 79 55  
+  400      33 94        
+  401 2488:0A D0 BF 40  	.BYTE	$0a,$d0,$bf,$40,$43,$7f,$f2,$f2,$f7,$2c
+  401      43 7F F2 F2  
+  401      F7 2C        
+  402 2492:0B F8 2D 28  	.BYTE	$0b,$f8,$2d,$28,$0a,$a7,$e9,$69,$49,$96,$40
+  402      0A A7 E9 69  
+  402      49 96 40     
+  403 249D:09 10 34 80  	.BYTE	$09,$10,$34,$80,$51,$05,$44,$15,$00
+  403      51 05 44 15  
+  403      00           
+  404 24A6:01           	.BYTE	$01
+  405                   ; Next data is up-left
+  406 24A7:0B F8 2D 98  	.BYTE	$0b,$f8,$2d,$98,$2b,$5f,$c1,$56,$c1,$6c,$c0
+  406      2B 5F C1 56  
+  406      C1 6C C0     
+  407 24B2:0B F9 2D D9  	.BYTE	$0b,$f9,$2d,$d9,$4a,$c7,$ca,$d6,$f9,$6e,$c0
+  407      4A C7 CA D6  
+  407      F9 6E C0     
+  408 24BD:0B F3 2C C2  	.BYTE	$0b,$f3,$2c,$c2,$d2,$9f,$16,$96,$99,$66,$00
+  408      D2 9F 16 96  
+  408      99 66 00     
+  409 24C8:08 2A 20 68  	.BYTE	$08,$2a,$20,$68,$83,$30,$0a,$80
+  409      83 30 0A 80  
+  409                   
+  410 24D0:01           	.BYTE	$01
+  411                   ; Next data is down-left
+  412 24D1:0A EE 2D 82  	.BYTE	$0a,$ee,$2d,$82,$b5,$7f,$c0,$96,$c1,$6c
+  412      B5 7F C0 96  
+  412      C1 6C        
+  413 24DB:0A EE 2D 82  	.BYTE	$0a,$ee,$2d,$82,$d2,$ff,$14,$16,$c1,$6c
+  413      D2 FF 14 16  
+  413      C1 6C        
+  414 24E5:09 FE AB 80  	.BYTE	$09,$fe,$ab,$80,$ab,$41,$9b,$62,$ae
+  414      AB 41 9B 62  
+  414      AE           
+  415 24EE:09 08 38 60  	.BYTE	$09,$08,$38,$60,$e9,$78,$68,$20,$e0
+  415      E9 78 68 20  
+  415      E0           
+  416 24F7:09 10 3C 60  	.BYTE	$09,$10,$3c,$60,$f1,$06,$c2,$0f,$00
+Epyx HandyAsm 1.12      testcart.src                    15-Apr-12514:20:07 Page   12
+                                                        14:20:07  
+
+  416      F1 06 C2 0F  
+  416      00           
+  417 2500:00           	.BYTE	$00
+  418                   ; 181 total image bytes
+  419                   
+  420                   
+Epyx HandyAsm 1.12      Symbols                         15-Apr-12514:20:07 Page   13
+                                                        14:20:07  
+
+$0040 ACCUMULATE                        $0040 ALGO_3
+$0000 ASM.EQUSYMS                       $010C ASM.VERSION
+$FD40 ATTENREG0                         $FD41 ATTENREG1
+$FD42 ATTENREG2                         $FD43 ATTENREG3
+$FD86 AUDIN                             $0010 AUDIN_BIT
+$FD20 AUDIO0                            $FD28 AUDIO1
+$FD30 AUDIO2                            $FD38 AUDIO3
+$0000 AUD_1                             $0004 AUD_16
+$0001 AUD_2                             $0005 AUD_32
+$0002 AUD_4                             $0006 AUD_64
+$0003 AUD_8                             $0004 AUD_BACKUP
+$0007 AUD_CLOCK_MASK                    $0005 AUD_CONTROL
+$0006 AUD_COUNTER                       $0001 AUD_FEEDBACK
+$0007 AUD_LINKING                       $0007 AUD_OTHER
+$0002 AUD_OUTPUT                        $0003 AUD_SHIFT
+$0000 AUD_VOLCNTRL                      $0001 A_BUTTON
+$0000 A_OFFSET                          $0000 BACKGROUND_SPRITE
+$0001 BACKNONCOLL_SPRITE                $0000 BACK_SHADOW_SPRITE
+MACRO BEGIN_ALLOCATE_ZEROPAGE           MACRO BEGIN_ZPAGE
+$00C0 BITS_MASK                         $FDB0 BLUERED0
+$FDB1 BLUERED1                          $FDB2 BLUERED2
+$FDB3 BLUERED3                          $FDB4 BLUERED4
+$FDB5 BLUERED5                          $FDB6 BLUERED6
+$FDB7 BLUERED7                          $FDB8 BLUERED8
+$FDB9 BLUERED9                          $FDBA BLUEREDA
+$FDBB BLUEREDB                          $FDBC BLUEREDC
+$FDBD BLUEREDD                          $FDBE BLUEREDE
+$FDBF BLUEREDF                          $0002 BORROW_IN
+$0001 BORROW_OUT                        $0003 BOUNDARY_SPRITE
+$0015 BREAK_CONTROLS                    $0001 BRK_USER
+$21C6 BRK_vector                        $0002 BSHADOW_SPRITE
+$0013 BUS_MONITOR                       $0002 B_BUTTON
+$25AC Buffer1                           $458C Buffer2
+$0002 CART0_IO_INACTIVE                 $0004 CART1_IO_INACTIVE
+$0002 CART_ADDR_DATA                    $0001 CART_ADDR_STROBE
+$0002 CART_POWER_OFF                    MACRO CLEARACCUM
+$FC0F COLLADRH                          $FC0E COLLADRL
+$FC0B COLLBASH                          $FC0A COLLBASL
+$FC25 COLLOFFH                          $FC24 COLLOFFL
+$0003 CONTINUE_REQUEST                  $FD91 CPUSLEEP
+$FFFE CPU_IRQ                           $FFFA CPU_NMI
+$FFFC CPU_RESET                         $22A3 CartDirectory
+$22A1 CartIOCount                       $229F CartOffsetHigh
+$229E CartOffsetLow                     $22A0 CartPage
+$0002 DATA                              MACRO DBUF_DISPLAY
+$FD95 DISPADRH                          $FD94 DISPADRL
+$FD92 DISPCTL                           $2191 DISPCTL_RAM
+MACRO DISPLAY                           $2207 DISPLAY.001A
+$220D DISPLAY.001A2                     $1FE0 DISPLAY_BUFSIZE
+$0080 DISPLAY_EOFFLAG                   $0040 DISPLAY_EOLFLAG
+MACRO DISP_AX                           MACRO DISP_AY
+$0008 DISP_COLOR                        $0002 DISP_FLIP
+$0004 DISP_FOURBIT                      $0001 DMA_ENABLE
+$0001 DOWNLOAD_REQUEST                  $0001 DRAW_LEFT
+$0002 DRAW_UP                           $2196 DisplayBuffer
+$2199 DisplayFlags                      MACRO ECHO_VALUE
+$0008 ENABLE_COUNT                      $0080 ENABLE_INT
+$0020 ENABLE_INTEGRATE                  $0010 ENABLE_RELOAD
+Epyx HandyAsm 1.12      Symbols                         15-Apr-12514:20:07 Page   14
+                                                        14:20:07  
+
+MACRO END_ALLOCATE_ZEROPAGE             $0000 END_OF_FILE
+MACRO END_ZPAGE                         $0001 EOF_USER
+$0004 EVER_ON                           $0001 EXTERNAL_POWER
+$656C EraseSprite                       $65D0 EraseSpriteData
+$0080 FEEDBACK_7                        $0011 FILL_MEM
+MACRO FLIP                              $0004 FLIP_BUTTON
+$0007 FONT_HEIGHT                       $000B FONT_TYPE
+$00C0 FOUR_PER_PIXEL                    $0004 FRAMERR
+$2598 FileIndex                         $23AB FontBase
+$21E1 FrameEnd                          $221F FrameEndExit
+MACRO GETDIR                            MACRO GETDIRFAST
+$0001 GETDIR_USER                       MACRO GETJOY
+MACRO GETSWITCH                         $0005 GO_REQUEST
+$FDA0 GREEN0                            $FDA1 GREEN1
+$FDA2 GREEN2                            $FDA3 GREEN3
+$FDA4 GREEN4                            $FDA5 GREEN5
+$FDA6 GREEN6                            $FDA7 GREEN7
+$FDA8 GREEN8                            $FDA9 GREEN9
+$FDAA GREENA                            $FDAB GREENB
+$FDAC GREENC                            $FDAD GREEND
+$FDAE GREENE                            $FDAF GREENF
+$238C GetDirAddress                     $FC00 HARDWARE_START
+MACRO HBRK                              $FD00 HCOUNT
+$0020 HFLIP                             $0007 HIDE_HOWARD_REQUEST
+MACRO HOFF16                            MACRO HOFF8
+$FC05 HOFFH                             $FC04 HOFFL
+$000A HOFFSET_PRESET                    $0001 HORIZONTAL_INT
+$0016 HOWARD_ABUS                       $0017 HOWARD_BBUS
+$0018 HOWARD_CBUS                       $0019 HOWARD_DBUS
+$FCC4 HOWIE                             $FC15 HPOSSTRTH
+$FC14 HPOSSTRTL                         MACRO HPRFONT
+MACRO HPRINT                            $001F HPR_ALL
+$0006 HPR_ALPHA                         $000B HPR_BASIC
+MACRO HPR_CHARSET                       $0001 HPR_DIGIT
+$0004 HPR_LOWER                         $0010 HPR_OTHER
+$0008 HPR_PUNC                          $0002 HPR_UPPER
+$FC29 HSIZOFFH                          $FC28 HSIZOFFL
+$2226 HandyPrint                        $226C HprFontHi
+$2265 HprFontLo                         MACRO INITEOF
+MACRO INITINT                           $2031 INITINT.0005
+MACRO INITLIT                           $20BE INITLIT.000E
+$20CB INITLIT.000E1                     MACRO INITSUZY
+MACRO INITSYS                           $0002 INNER_BUTTON
+$FD80 INTRST                            $FD81 INTSET
+$2198 INTSET_RAM                        $FD8B IODAT
+$2192 IODAT_RAM                         $FD8A IODIR
+$2193 IODIR_RAM                         $FCC3 IOData
+$FCC2 IOStatus                          $21CA InitEOF
+$21BB IntReturn                         $FBF0 IntTable
+$259A InterruptTable                    $FCB0 JOYSTICK
+$0080 JOY_DOWN                          $0010 JOY_LEFT
+$0020 JOY_RIGHT                         $0040 JOY_UP
+$0012 LARGE_DATA                        $0004 LAST_CLOCK
+$FCC0 LEDS                              $0010 LEFT0_SELECT
+$0020 LEFT1_SELECT                      $0040 LEFT2_SELECT
+$0080 LEFT3_SELECT                      $0008 LEFTHAND
+$0008 LEFTHANDED                        $00F0 LEFT_ATTENMASK
+$0080 LITERAL                           $217A LoadFile
+$FFF9 MAPCTL                            $FC55 MATHA
+Epyx HandyAsm 1.12      Symbols                         15-Apr-12514:20:07 Page   15
+                                                        14:20:07  
+
+$FC54 MATHB                             $FC53 MATHC
+$0020 MATHCARRY                         $FC52 MATHD
+$FC63 MATHE                             $FC62 MATHF
+$FC61 MATHG                             $FC60 MATHH
+$FC6F MATHJ                             $FC6E MATHK
+$FC6D MATHL                             $FC6C MATHM
+$FC57 MATHN                             $FC56 MATHP
+$0040 MATHWARNING                       $0080 MATHWORKING
+$FD88 MIKEYHREV                         $FD89 MIKEYSREV
+$FD00 MIKEY_BASE                        $0002 MIKEY_SPACE
+$0010 MONITOR_BYTECOUNT                 $0001 MONITOR_I
+$F900 MONITOR_RAM_RESERVED              $00F8 MONITOR_ZP_RESERVED
+$FD44 MPAN                              $FD50 MSTEREO
+$FD9C MTEST0                            $FD9D MTEST1
+$FD9E MTEST2                            $0006 NEXTZPG
+$0004 NOEXP                             $0005 NONCOLL_SPRITE
+$0000 NOP_REQUEST                       $0004 NORMAL_SPRITE
+$0020 NO_COLLIDE                        $0000 ONE_PER_PIXEL
+MACRO OPENFILE                          $0008 OPTION1_BUTTON
+$0004 OPTION2_BUTTON                    $0001 ORIGIN
+$0001 OUTER_BUTTON                      $0008 OVERRUN
+$2599 OldButton                         $22AB OpenFile0
+$0001 PARBIT                            $0010 PAREN
+$0010 PARERR                            $0001 PAREVEN
+$0001 PAUSE_SWITCH                      $FD93 PBKUP
+$0004 PC_OFFSET                         $0002 POWERON
+$FC2F PROCADRH                          $FC2E PROCADRL
+$0006 P_OFFSET                          $FCB2 RCART_0
+$FCB3 RCART_1                           MACRO READCART
+MACRO READFILE                          $0010 READ_ENABLE
+$0010 REGISTER                          $0007 REGISTER_BYTECOUNT
+$0010 RELOAD_HV                         $0020 RELOAD_HVS
+$0030 RELOAD_HVST                       $0030 RELOAD_MASK
+$0000 RELOAD_NONE                       $0008 RESETERR
+$0040 RESET_DONE                        MACRO RESET_TIMEOUT
+MACRO RESPRITE                          $0008 RESTART_BUTTON
+$0008 RESTLESS                          MACRO RESTORE_CART
+$0008 REUSE_PALETTE                     MACRO RGB16
+MACRO RGB16_I                           MACRO RGB_AXY
+$0001 RIGHT0_SELECT                     $0002 RIGHT1_SELECT
+$0004 RIGHT2_SELECT                     $0008 RIGHT3_SELECT
+$000F RIGHT_ATTENMASK                   $001A ROM
+$0004 ROMDIR_DEST                       $0008 ROMDIR_ENTRY_SIZE
+$019A ROMDIR_FILE0_OFFSET               $0000 ROMDIR_FILE0_PAGE
+$01A2 ROMDIR_FILE1_LOC                  $01A2 ROMDIR_FILE1_OFFSET
+$0000 ROMDIR_FILE1_PAGE                 $0003 ROMDIR_FLAG
+$0001 ROMDIR_OFFSET                     $0000 ROMDIR_PAGE
+$0006 ROMDIR_SIZE                       $0001 ROMFILE_ALIGN
+$0100 ROMPAGECOUNT                      $0200 ROMPAGESIZE
+$0000 ROMSIZE                           $019A ROM_HEADER_SIZE
+$00F3 ROM_SCREENBLANK_VALUE             $0004 ROM_SPACE
+$0003 RUN_ADDRESS                       $0002 RXBRK
+$0040 RXINTEN                           $0040 RXRDY
+$22F7 ReadFile0                         $2194 RenderBuffer
+$22EB RestoreReturn                     $FC2D SCBADRH
+$FC2C SCBADRL                           $FC11 SCBNEXTH
+$FC10 SCBNEXTL                          $0000 SCB_CTRL0
+$0001 SCB_CTRL1                         $0002 SCB_CTRL2
+$0005 SCB_DATA                          $0007 SCB_HPOS
+Epyx HandyAsm 1.12      Symbols                         15-Apr-12514:20:07 Page   16
+                                                        14:20:07  
+
+$000B SCB_HSIZE                         $0003 SCB_NEXT
+$0013 SCB_PALETTE                       $001B SCB_SIZEOF
+$000F SCB_STRETCH                       $0011 SCB_TILT
+$0009 SCB_VPOS                          $000D SCB_VSIZE
+$FC23 SCVPOSH                           $FC22 SCVPOSL
+$FD90 SDONEACK                          $0006 SEE_HOWARD_REQUEST
+$FD8C SERCTL                            $FD8D SERDAT
+$FD10 SERIALRATE                        $0010 SERIAL_INT
+MACRO SETCARTADDR                       MACRO SETCARTPAGE
+MACRO SETCOLL                           MACRO SETDBUF
+MACRO SETDISP                           MACRO SETDISP_50
+MACRO SETDISP_60                        MACRO SETDISP_75
+MACRO SET_BRK                           MACRO SET_TO_READ_CART
+$0007 SHADOW_SPRITE                     $0080 SIGNMATH
+$0004 SKIP_SPRITE                       $0004 SLAVE_REQUEST
+$FC82 SPRCOLL                           $FC80 SPRCTL0
+$FC81 SPRCTL1                           $FC13 SPRDLINEH
+$FC12 SPRDLINEL                         $FC21 SPRDOFFH
+$FC20 SPRDOFFL                          $FC91 SPRGO
+$FC19 SPRHSIZH                          $FC18 SPRHSIZL
+$FC83 SPRINIT                           MACRO SPRITES
+$0002 SPRITESTOP                        $0002 SPRITETOSTOP
+$0001 SPRITEWORKING                     $0001 SPRITE_GO
+$FC92 SPRSYS                            $2190 SPRSYS_RAM
+$FC1B SPRVSIZH                          $FC1A SPRVSIZL
+$FC1D STRETCHH                          $FC1C STRETCHL
+$FC90 SUZYBUSEN                         $FC88 SUZYHREV
+$FC89 SUZYSREV                          $FC00 SUZY_BASE
+$0001 SUZY_SPACE                        $FCB1 SWITCHES
+$FD87 SYSCTL1                           $0003 S_OFFSET
+$218F SafeReturn                        $22CC SetCartAddress
+$22D8 SetCartOffset                     $2365 SetCartPage
+$2000 Start                             $FFFE TEMPORG
+$0001 TESTCART2_FILE                    $0000 TESTCART_FILE
+$0002 TEST_1_FILE                       $0003 TEST_2_FILE
+$0004 TEST_3_FILE                       $0005 TEST_4_FILE
+$0015 TEXT_BUF_WIDTH                    $65F3 TEXT_DATA
+$000B TEXT_X                            $0028 TEXT_Y
+$0080 THREE_PER_PIXEL                   $FC03 TILTACUMH
+$FC02 TILTACUML                         $FC1F TILTH
+$FC1E TILTL                             MACRO TIMEOUT
+$FD00 TIMER0                            $0001 TIMER0_INT
+$FD04 TIMER1                            $0002 TIMER1_INT
+$FD08 TIMER2                            $0004 TIMER2_INT
+$FD0C TIMER3                            $0008 TIMER3_INT
+$FD10 TIMER4                            $FD14 TIMER5
+$0020 TIMER5_INT                        $FD18 TIMER6
+$0040 TIMER6_INT                        $FD1C TIMER7
+$0080 TIMER7_INT                        $0008 TIMER_DONE
+$0000 TIM_BACKUP                        $0001 TIM_CONTROLA
+$0003 TIM_CONTROLB                      $0002 TIM_COUNT
+$FC01 TMPADRH                           $FC00 TMPADRL
+$0014 TRACE                             $0080 TURBO_DISABLE
+$0040 TWO_PER_PIXEL                     $0002 TXBRK
+$0020 TXEMPTY                           $0080 TXINTEN
+$0004 TXOPEN                            $0080 TXRDY
+$244C TestCartData                      $2434 TestCartSprite
+$65D3 TestPalette                       $2502 TextBuffer
+$6580 TextDrop1Sprite                   $6590 TextDrop2Sprite
+Epyx HandyAsm 1.12      Symbols                         15-Apr-12514:20:07 Page   17
+                                                        14:20:07  
+
+$65A0 TextDrop3Sprite                   $65B0 TextDrop4Sprite
+$20E3 TextLoop                          $2596 TextPointer
+$2222 TextPtr                           $2225 TextRemaining
+$65C0 TextSprite                        $2224 TextWidth
+$0004 UNSAFEACCESS                      $0004 UNSAFEACCESSRST
+$0002 UPLOAD_REQUEST                    $0002 UP_CURRENT_PAGE
+$0005 UP_HAHDATA                        $0004 UP_MEMWATCH
+$0003 UP_REGISTERS                      $0001 UP_THIS_PAGE
+$219A UserIntHandler                    $FD08 VCOUNT
+$0008 VECTOR_SPACE                      $0004 VERTICAL_INT
+$0010 VFLIP                             $FC0D VIDADRH
+$FC0C VIDADRL                           $FC09 VIDBASH
+$FC08 VIDBASL                           MACRO VOFF16
+MACRO VOFF8                             $FC07 VOFFH
+$FC06 VOFFL                             $000A VOFFSET_PRESET
+$FC17 VPOSSTRTH                         $FC16 VPOSSTRTL
+$FC27 VSIZACUMH                         $FC26 VSIZACUML
+$FC2B VSIZOFFH                          $FC2A VSIZOFFL
+$0010 VSTRETCH                          $0010 VSTRETCHING
+MACRO WAITEOF                           MACRO WAITEOL
+MACRO WAITMATH                          $225B WAITMATH.001C0
+MACRO WAITNEOF                          MACRO WAITNEOL
+MACRO WAITSUZY                          $2122 WAITSUZY.00111
+$0006 XOR_SHADOW_SPRITE                 $0006 XOR_SPRITE
+$0001 X_OFFSET                          $0002 Y_OFFSET
+$21C4 brkInt                            $21A7 hardInt
+$2283 hprintCharLoop                    $2239 hprintLoop
+$21BE jumpIntTable                      $2313 readCart0Grunt
+$259A sysIntTable                       $0000 sysptr
+$0002 sysptr2                           $0004 sysptr3
+$2156 systemp                           $2420 zEraseSprite
+$2449 zEraseSpriteData                  
