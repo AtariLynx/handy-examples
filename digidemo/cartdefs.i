@@ -37,7 +37,7 @@ ROMFILE_ALIGN       .EQU    1
 
 
 * Edit this value as needed to declare the size of your ROM.  
-ROMSIZE         .EQU    $100*512
+ROMSIZE         .EQU    $100*1024
 
 
 * If you don't want a file directory in your ROM and you aren't going to be 

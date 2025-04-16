@@ -2,7 +2,7 @@
 	.in cartdefs.i
 
 	FILE 0
-	BIN title0.bin
+	BIN title.bin
 
 	FILE 1
 	BIN digidemo.bin
@@ -20,20 +20,20 @@
 
 	FILE FIRST_SOUND_FILE+0
 	ALIGN ROMPAGESIZE
-	RAW 6502:Examples/DigiSounds/Gentlemen.raw
+	RAW sounds/Gentlemen.raw
 
 	FILE FIRST_SOUND_FILE+1
 	ALIGN ROMPAGESIZE
-	RAW 6502:Examples/DigiSounds/vidpwr4000.raw
+	RAW sounds/vidpwr4000.raw
 
 	FILE FIRST_SOUND_FILE+2
 	ALIGN ROMPAGESIZE
-	BIN 6502:Examples/DigiSounds/aww.bin
+	BIN sounds/aww.bin
 
 	FILE FIRST_SOUND_FILE+3
 	ALIGN ROMPAGESIZE
-	BIN 6502:Examples/DigiSounds/oooh.bin
+	BIN sounds/oooh.bin
 
 	FILE FIRST_SOUND_FILE+4
 	ALIGN ROMPAGESIZE
-	BIN 6502:Examples/DigiSounds/yeah.bin
+	BIN sounds/yeah.bin
