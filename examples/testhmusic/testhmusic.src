@@ -132,10 +132,10 @@ SongsHigh	.BYTE	>song1,>song2,>song3,>song4
 InterruptTable	.DS	8*2
 
 
-song1		.pc 6502:examples/songs/Sink2.dnl	; Music data file 
-song2		.pc 6502:examples/songs/Summer.dnl	; Music data file 
-song3		.pc 6502:examples/songs/roadrace.dnl	; Music data file 
-song4		.pc 6502:examples/songs/Liberty.dnl	; Music data file 
+song1		.pc songs/Sink2.dnl	; Music data file 
+song2		.pc songs/Summer.dnl	; Music data file 
+song3		.pc songs/roadrace.dnl	; Music data file 
+song4		.pc songs/Liberty.dnl	; Music data file 
 
 
 audioClock	.BYTE	AUDIO_CLOCK_MASK
