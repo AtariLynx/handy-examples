@@ -1,0 +1,39 @@
+; DRUMS 
+; Calgames bmx handy
+; translated from the original c64 source
+; These macro bodies could be rewritten to use CallSFX's instead of notes.
+
+;BD	.EQ A.M 
+#macro BD ?1
+	a.0 ?1
+#endm
+
+;SD	.EQ B.1 
+#macro SD ?1
+	b.1 ?1
+#endm	
+
+SLP	
+   ;IVB 0 0 NOISE*16 $02 $C7 
+    LTR 0 
+    AGD 3 
+    SLP2
+	 BD 2 
+	 BD 2 
+	 SD 2 
+	 BD 2 
+	 BD 2 
+	 BD 2 
+	 SD 2 
+	 BD 2 
+    LOP2 12
+LOP 4
+
+; End
+AGD 6 
+BD 2 
+REST 6 
+REST 8+16 
+EMS 
+	.end
+

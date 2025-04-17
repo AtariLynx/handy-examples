@@ -1,0 +1,11 @@
+; LxShell.src
+; As modified by Chris Grigg
+; 4/13/89
+		.pd vdk:LxFast.bin	;drivers & shell .bin file
+		.or $2000
+		.pc vdk:LX.dnl		;music data file
+
+		.en
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

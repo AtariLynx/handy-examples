@@ -1,0 +1,50 @@
+	.ORG	$203
+	.BYTE	127
+	.WORD	SoundEffect1
+	.BYTE	0
+	.WORD	0
+	.BYTE	0
+	.WORD	0
+	.BYTE	0
+	.WORD	0
+
+	.ORG	$2000
+SoundEffect1
+; HSFX Table for SFX_1 sound effect
+	;------ Next Frame
+	.WORD	0	; Frame number
+	.WORD	$0fb8	; Flags
+	.WORD	$0000	; Freq accum
+	.WORD	$ffff	; Shifter accum
+	.WORD	$4000	; Feedback accum
+	.WORD	$7800	; Volume accum
+	.WORD	$0001	; Freq interp
+	.WORD	$010a	; Feedback interp
+	.WORD	$ff6e	; Volume interp
+	;------ Next Frame
+	.WORD	70	; Frame number
+	.WORD	$0fb0	; Flags
+	.WORD	$0048	; Freq accum
+	.WORD	$feff	; Shifter accum
+	.WORD	$8900	; Feedback accum
+	.WORD	$5000	; Volume accum
+	.WORD	$0004	; Freq interp
+	.WORD	$fff7	; Feedback interp
+	.WORD	$0012	; Volume interp
+	;------ Next Frame
+	.WORD	300	; Frame number
+	.WORD	$0fb8	; Flags
+	.WORD	$04b4	; Freq accum
+	.WORD	$fc0f	; Shifter accum
+	.WORD	$80e0	; Feedback accum
+	.WORD	$6100	; Volume accum
+	.WORD	$fffe	; Freq interp
+	.WORD	$ffda	; Feedback interp
+	.WORD	$ffc6	; Volume interp
+	;------ Next Frame
+	.WORD	721	; Frame number
+	.WORD	$0001	; Flags
+
+	.END
+
+; if you must, then eat this line

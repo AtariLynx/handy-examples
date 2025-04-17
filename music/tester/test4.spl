@@ -1,0 +1,139 @@
+PRI 196
+DFV
+ADSR 6,110,6,78,12
+ASD 3
+TPO 4
+
+;===========This then would be a test of the sustain parameter=====================
+
+SLP
+
+ADSR 6,20,6,0,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+;========================dramatic volume change here
+ADSR 6,20,6,10,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+ADSR 6,20,6,20,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+;==================perceived pitch becomes a few cents flat
+;==================and it's not continuous
+ADSR 6,20,6,30,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+ADSR 6,20,6,40,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+;====================continues to lose a few cents here on out
+ADSR 6,20,6,50,22
+
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+ADSR 6,20,6,60,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+ADSR 6,20,6,70,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+ADSR 6,20,6,80,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+
+;========== pretty compressed past this point
+ADSR 6,20,6,90,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+ADSR 6,20,6,100,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+ADSR 6,20,6,110,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+ADSR 6,20,6,120,22
+	c.3	24
+	f.3	24
+	gs3	12
+	f.3	12
+	gs3	6
+	c.4	6
+	as4	6
+	gs3	6
+LOP 0
+
+EMS
+
+.end

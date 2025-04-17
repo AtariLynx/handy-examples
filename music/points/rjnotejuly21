@@ -1,0 +1,48 @@
+
+
+
+
+Dear RJ:
+
+	This then would be yet another of my rambling missives to yerself.
+
+H-MUZAK...JUST WHEN YOU THOUGHT IT WAS SAFE TO RELEASE A DEVELOPMENT SYSTEM:
+
+The envelope generator still doesn't werk as advertised...seems to calculate 
+strange stuff with different agd/asd values-for what it's worth, the only difference 
+a too short agd should make is a truncation of the existing structure-not interact
+with the structure...percussive voices continue to be a problem-if i set up
+an attack of say, 2 going to an initial peak of 90 and decaying at a rate of 3
+to a sustain of 5 (followed by a releaseof 15 after the agd/asd has played
+ out) i should hear something along the lines of a plucked guitar string...
+
+NIGHTMARE ON HSFX STREET-part XIII: "Where's The Money For Drugs?"
+
+Plesas to grunterstand thet we in 0ddio wish not to stir trubble or deviate
+other of programmer persons from their rather scary and integral dooties, but we 
+really should have functional cut n' paste on hsfx.  in addition, we need a
+werking buffer window, and a gadget to allow bi/tri/quad-phonic audition 
+of hsfx zoundz would give a lotta bang fer thee buckx...In udder matterz-
+when hsfx are created and saved, the default format should be a .src file.
+...Larry abel suggested considering the hsfxfiles more like IFF files-rather than
+disposing of the currently unused header, implementing tools into it that
+would handle different applications...I know, I know, I know-an impossible
+task with no payoff, but wait...properly implemented would speed up several
+applications...
+
+...stay tuned-same bat time, same bat channel...
+
+
+
+
+
+
+                                   0  
+
+				X     X
+                                 X   X
+                                  X X
+                                   X
+                                  X X
+                                 X   X
+                                X     X

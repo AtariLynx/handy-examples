@@ -1,0 +1,29 @@
+; HSPL Music File
+; (Minimum duration used to create this file:  1)
+
+;=====this is a default voice meant to be played with test1.spl
+;=====for the purpose of determining tambour shifts with FB value changes
+
+
+
+PRI 196
+DFV
+ADSR 6,110,6,78,12
+ASD 3
+TPO 4
+
+
+SLP
+	c.3	96
+	rest	96
+	c.3	96
+	rest	96
+
+LOP 0
+	
+	EMS
+
+
+	.end
+
+

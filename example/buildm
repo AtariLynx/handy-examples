@@ -1,0 +1,3 @@
+asm intro
+asm multi +R +H30000
+handyrom multi.hsf

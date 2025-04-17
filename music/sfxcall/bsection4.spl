@@ -1,0 +1,104 @@
+; === bsection4.spl ==========================================================
+; HSPL Music File
+; Conversion of KCS file bsection.all
+; Metronome:  161
+; (Minimum duration used to create this file:  1)
+
+DFV
+PRI 32
+ADSR 4,56,6,20,22
+AGD 10
+TPO 3
+LTR 25
+FB $FFDD
+
+; Track 4:  BsecDrum ===pasted first beat to end
+; Bar 1
+	SLP
+	b.0	2+10
+	d.5	2+10
+	b.0	2+10
+	fs3	2+10
+	b.0	2+10
+	d.5	2+10
+	fs3	2+10
+; Bar 2
+	b.0	6+6
+	b.0	2+10
+	d.5	2+10
+	b.0	2+10
+	fs3	2+10
+	b.0	2+10
+	d.5	2+10
+	fs3	2+10
+; Bar 3
+	b.0	6+6
+	b.0	2+10
+	d.5	2+10
+	b.0	2+10
+	fs3	2+10
+	b.0	2+10
+	d.5	2+10
+	fs3	2+10
+; Bar 4
+ADSR 4,66,6,20,12
+
+	b.5	6+6
+	b.4	2+10
+	d.5	2+10
+	b.3	2+10
+ADSR 4,70,6,20,17
+
+	fs3	6
+	fs3	6
+	b.2	6
+	b.2	6
+	d.1	6
+	d.1	6
+ADSR 1,106,6,70,2
+	fs0	6
+	fs0	6
+ADSR 4,56,6,20,22
+
+; Bar 5
+	b.0	6+6
+	b.0	2+10
+	d.5	2+10
+	b.0	2+10
+	fs3	2+10
+	b.0	2+10
+	d.5	2+10
+	fs3	2+10
+; Bar 6
+	b.0	6+6
+	b.0	2+10
+	d.5	2+10
+	b.0	2+10
+	fs3	2+10
+	b.0	2+10
+	d.5	2+10
+	fs3	2+10
+; Bar 7
+	b.0	6+6
+	b.0	2+10
+	d.5	2+10
+	b.0	2+10
+	fs3	2+10
+	b.0	2+10
+	d.5	2+10
+	fs3	2+10
+; Bar 8
+	b.0	6+6
+	b.0	2+10
+	d.5	2+10
+	b.0	2+10
+	fs3	2+10
+	b.0	2+10
+	d.5	2+10
+	fs3	12
+	b.0	3+9
+
+	LOP 4
+	EMS
+
+	.end

@@ -1,0 +1,124 @@
+; === endtile.spl ===========================================================
+; HSPL Music File
+; Conversion of KCS file endtile.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+
+PRI 232
+DFV
+ASD 5
+ADSR 7,105,12,55,12
+TPO 4
+GTR -32
+
+; === Track 1:  EndOfWav ===
+; Bar 1
+	g.5	12
+	d.6	12
+	ds6	12
+	as5	12
+	g.5	12
+	d.6	12
+	a.5	12
+	d.5	12
+; Bar 2
+	as5	12
+	g.5	12
+	as5	12
+	a.5	12
+	fs5	12
+	g.5	12
+	a.5	12
+	as5	12
+; Bar 3
+	d.5	12
+	g.5	12
+	d.5	12
+	ds5	12
+	d.5	12
+	a.4	12
+	a.4	12
+	d.4	12
+; Bar 4
+	as4	12
+	g.4	12
+	a.4	12
+	fs4	12
+	d.4	12
+	g.4	12
+	d.4	12
+	g.4	14
+; Bar 5 (crossed by last note)
+	rest	10
+	EMS
+
+
+; === Track 2:  End 2 ===
+; Bar 1
+	rest	13
+	as5	30
+	rest	18
+	a.5	30
+	rest	18
+; Bar 2 (crossed by last note)
+	cs5	12
+	rest	12
+	c.5	13
+	rest	11
+	as4	12
+	d.5	12
+	g.5	12
+; Bar 3 (crossed by last note)
+	rest	12
+	d.4	25
+	rest	71
+; Bar 4 (crossed by last note)
+	cs4	24
+	c.4	24
+	as3	12
+	a.3	12
+	as3	18
+; Bar 5 (crossed by last note)
+	rest	5
+	EMS
+
+
+; === Track 3:  End 3 ===
+; Bar 1
+	rest	14
+	g.5	24
+	f.6	12
+	ds6	12
+	fs5	30
+	rest	18
+; Bar 2 (crossed by last note)
+	ds4	24
+	d.4	12
+	a.3	12
+	g.3	12
+	d.3	12
+	as2	21
+; Bar 3 (crossed by last note)
+	rest	3
+	g.3	24
+	g.3	12
+	f.3	12
+	ds4	12
+	d.4	12
+	c.4	12
+; Bar 4 (crossed by last note)
+	as3	12
+	a.3	24
+	d.3	12
+	a.2	12
+	g.2	12
+	d.2	12
+	g.2	18
+; Bar 5 (crossed by last note)
+	rest	4
+	EMS
+
+
+	.end
+
+

@@ -1,0 +1,20 @@
+; DRUMS 
+; Calgames bmx handy
+TPO 6
+PRI 20
+AGD 1
+;==============================start
+;=================
+			SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			LOP 0
+
+		EMS
+
+.end

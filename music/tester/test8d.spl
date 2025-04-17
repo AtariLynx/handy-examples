@@ -1,0 +1,137 @@
+; test tone for tambours
+; HSPL Music File
+; (Minimum duration used to create this file:  1)
+
+
+PRI 196
+DFV
+ASD 100 
+TPO 4
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;===This is a weird little thing-rather than being dependent on the ADSR's 
+;===sustain value, it is dependent on BOTH the note's length and it's AGD or ASD
+SLP
+
+
+
+
+	c.1	3	;loop start reference scale
+	d.1	3
+	e.1	3
+	
+	d.1	3
+	e.1	3
+	f.1	3
+
+	e.1	3
+	f.1	3
+	g.1	3
+
+	f.1	3
+	g.1	3
+	a.1	3
+	
+	g.1	3
+	a.1	3
+	b.1	3
+
+	a.1	3
+	b.1	3
+	c.2	3
+
+	b.1	3
+	c.2	3	
+	d.2	3
+
+	c.2	12
+	rest	21	
+
+	
+
+
+ ADSR 22,70,15,70,75	
+VFM 0,0,0,56,0		 
+ASD 1 			;FIRST TWO ARE VERY SIMILAR
+	c.3	24
+	c.4	24
+	f.3	24	
+	g.3	24	
+ASD 10 			;
+	c.3	24
+	c.4	24
+	f.3	24	
+	g.3	24	
+ASD 20 			;some change here-
+	c.3	24
+	c.4	24
+	f.3	24	
+	g.3	24	
+ASD 30 			;continues here-less and less
+	c.3	24
+	c.4	24
+	f.3	24	
+	g.3	24	
+ASD 40 			;less
+	c.3	24
+	c.4	24
+	f.3	24	
+	g.3	24	
+ASD 50 			;about a semitone drop
+	c.3	24
+	c.4	24
+	f.3	24	
+	g.3	24	
+ASD 60 			;no effect on pitch
+	c.3	24
+	c.4	24
+	f.3	24	
+	g.3	24	
+ASD 70 			;no effect on pitch-slightly staccato
+	c.3	24
+	c.4	24
+	f.3	24	
+	g.3	24	
+ASD 80 			;no pitch change-more staccato
+	c.3	24
+	c.4	24
+	f.3	24	
+	g.3	24	
+ASD 90 			;strange, but this ASD creates a very quiet envelope
+	c.3	24
+	c.4	24
+	f.3	24	
+	g.3	24	
+ASD 91 			;softer
+	g.3	24	
+ASD 92 			;softest
+	g.3	24	
+ASD 93 			;silent
+	g.3	24	
+ASD 94 			;"loop"point for ASD-Allows a wraparound on VFM/ADSR values
+	g.3	24	;
+ASD 95 			;errors past here.
+	g.3	24	;
+ASD 96 			;note that you'll have to calculate note length 
+	g.3	24	;against the ASD/AGD value to prevent wraparounds
+ASD 97 			;on notes-it'll show up as "surging" or "pumping"
+	g.3	24	;of volume in a musical line or figure with extreme
+ASD 98 			;note length differences-Lx 
+	g.3	24	;
+ASD 99 			;
+	g.3	24	
+ASD 100 		;compared to this one, which is about the same as 
+	c.3	24	;ASD 10
+	c.4	24
+	f.3	24	
+	g.3	24	
+
+LOP 0
+	EMS
+
+ .end

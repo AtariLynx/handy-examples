@@ -1,0 +1,113 @@
+; === points2.spl ============================================================
+; HSPL Music File
+; Conversion of KCS file points.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+; This line is very skeletal...functions as an inner line providing harmnic cmplxty
+PRI 230
+DFV
+TPO 4
+AGD 18                 ;WORKS WITH BELOW ADSR FOR
+ADSR 4,75,12,30,42     ;A NICE PERCUSSIVE ENVELOPE
+
+
+; === Track 2:  TrebleLo ===
+; Bar 1
+	rest	78
+	ds4	3+27
+; Bar 2 (crossed by last note)
+	as4	3+63
+	ds4	3+93
+; Bar 3 (crossed by last note)
+	ds4	3+15
+; Bar 4
+	as3	3+9
+	as4	3+9
+	as3	3+45
+	as3	3+3
+	ds4	3+3
+	as3	3+9
+; Bar 5
+	as3	3+9
+	as3	3+45
+	as3	3+9
+	as3	3+9
+	as3	3+183
+; Bar 6 (crossed by last note)
+; Bar 7 (crossed by last note)
+	ds4	3+27
+; Bar 8 (crossed by last note)
+	as4	3+63
+	ds4	3+93
+; Bar 9 (crossed by last note)
+	ds4	3+27
+; Bar 10 (crossed by last note)
+	as4	3+63
+	ds4	3+285
+; Bar 11 (crossed by last note)
+; Bar 12 (crossed by last note)
+; Bar 13 (crossed by last note)
+	ds4	3+27
+; Bar 14 (crossed by last note)
+	as4	3+63
+	ds4	3+15
+; Bar 15
+	as4	3+21
+	as4	3+3
+	g.4	3+171
+; Bar 16 (crossed by last note)
+; Bar 17 (crossed by last note)
+	d.4	3+177
+; Bar 18 (crossed by last note)
+; Bar 19
+	as4	3+21
+	as4	3+3
+	g.4	3+165
+; Bar 20 (crossed by last note)
+; Bar 21 (crossed by last note)
+	c.5	3+3
+	d.4	3+189
+; Bar 22 (crossed by last note)
+; Bar 23 (crossed by last note)
+	d.4	3+189
+; Bar 24 (crossed by last note)
+; Bar 25 (crossed by last note)
+	d.4	3+189
+; Bar 26 (crossed by last note)
+; Bar 27 (crossed by last note)
+	d.4	3+189
+; Bar 28 (crossed by last note)
+; Bar 29 (crossed by last note)
+	d.4	3+177
+; Bar 30 (crossed by last note)
+; Bar 31
+	as4	3+21
+	as4	3+3
+	g.4	3+171
+; Bar 32 (crossed by last note)
+; Bar 33 (crossed by last note)
+	d.4	3+75
+	d.4	3+297
+; Bar 34 (crossed by last note)
+; Bar 35 (crossed by last note)
+; Bar 36 (crossed by last note)
+; Bar 37 (crossed by last note)
+	c.5	3+3
+	d.4	3+183
+; Bar 38 (crossed by last note)
+; Bar 39 (crossed by last note)
+	e.5	3+105
+; Bar 40 (crossed by last note)
+	c.5	3+3
+	c.5	3+3
+	d.4	3+3
+	g.4	3+51
+	d.4	3+9
+; Bar 41 (crossed by last note)
+	e.5	3+105
+	EMS
+
+
+	.end
+
+

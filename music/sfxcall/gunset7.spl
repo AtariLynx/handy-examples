@@ -1,0 +1,25 @@
+TPO 4
+PRI 30
+;===================================gunset7
+			SLP
+SFX hammer.bfx, 24
+SFX flameon2.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX flameon2.bfx,  24
+
+
+SFX hammer.bfx, 18
+SFX hammer.bfx, 6
+SFX flameoff2.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX perc1.bfx,  24
+
+			LOP 4
+
+EMS
+
+

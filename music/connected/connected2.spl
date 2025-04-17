@@ -1,0 +1,94 @@
+; === connected2.spl =========================================================
+; HSPL Music File
+; Conversion of KCS file connected.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+
+
+PRI 200
+;DFV
+FB $CA
+ADSR 4,99,6,52,12
+AGD 25
+TPO 4
+
+; Track 2:  GRACENTS ===
+; Bar 1
+	rest	682
+; Bar 2 (crossed by last note)
+; Bar 3 (crossed by last note)
+; Bar 4 (crossed by last note)
+; Bar 5 (crossed by last note)
+; Bar 6 (crossed by last note)
+; Bar 7 (crossed by last note)
+; Bar 8 (crossed by last note)
+; Bar 9 (crossed by last note)
+	f.6	7
+	rest	53
+	as5	5
+	rest	333
+; Bar 10 (crossed by last note)
+; Bar 11 (crossed by last note)
+; Bar 12 (crossed by last note)
+; Bar 13 (crossed by last note)
+	fs4	7
+	rest	17
+	gs4	8
+	rest	16
+	b.4	10
+	rest	26
+; Bar 14 (crossed by last note)
+	cs5	8
+	rest	184
+; Bar 15 (crossed by last note)
+; Bar 16 (crossed by last note)
+	cs5	15
+	rest	7
+	as5	5
+	rest	9
+	as5	5
+	rest	437
+; Bar 17 (crossed by last note)
+; Bar 18 (crossed by last note)
+; Bar 19 (crossed by last note)
+; Bar 20 (crossed by last note)
+; Bar 21 (crossed by last note)
+	f.6	7
+	rest	31
+	ds6	12
+	fs5	10
+	as5	5
+	rest	2239
+; Bar 22 (crossed by last note)
+; Bar 23 (crossed by last note)
+; Bar 24 (crossed by last note)
+; Bar 25 (crossed by last note)
+; Bar 26 (crossed by last note)
+; Bar 27 (crossed by last note)
+; Bar 28 (crossed by last note)
+; Bar 29 (crossed by last note)
+; Bar 30 (crossed by last note)
+; Bar 31 (crossed by last note)
+; Bar 32 (crossed by last note)
+; Bar 33 (crossed by last note)
+; Bar 34 (crossed by last note)
+; Bar 35 (crossed by last note)
+; Bar 36 (crossed by last note)
+; Bar 37 (crossed by last note)
+; Bar 38 (crossed by last note)
+; Bar 39 (crossed by last note)
+; Bar 40 (crossed by last note)
+; Bar 41 (crossed by last note)
+; Bar 42 (crossed by last note)
+; Bar 43 (crossed by last note)
+; Bar 44 (crossed by last note)
+; Bar 45 (crossed by last note)
+	f.6	7
+	rest	652
+
+	EMS
+
+
+	.end
+
+

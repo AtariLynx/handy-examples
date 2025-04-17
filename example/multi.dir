@@ -1,0 +1,30 @@
+**** HANDYROM Equates:
+
+HANDYROM_VER		.EQU	0
+HANDYROM_REV		.EQU	6
+
+
+**** ROM Directory Equates:
+
+ROMDIR_PAGE		.EQU	0
+ROMDIR_OFFSET		.EQU	1
+ROMDIR_FLAG		.EQU	3
+ROMDIR_DEST		.EQU	4
+ROMDIR_SIZE		.EQU	6
+
+ROMDIR_ENTRY_SIZE	.EQU	8
+
+
+**** ROM Directory File 0:
+	.byte $1	;page
+	.word $10	;offset
+	.byte $0	;flag
+	.word $6000	;RAM destination
+	.word 1564	;file size
+
+**** ROM Directory File 1:
+	.byte $4	;page
+	.word $2c	;offset
+	.byte $0	;flag
+	.word $400	;RAM destination
+	.word 9545	;file size

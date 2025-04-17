@@ -1,0 +1,110 @@
+TPO 4
+PRI 30
+; Track 4:  NewBsDrm ===
+;=========================================gunset3
+
+			SLP
+SFX hammer.bfx, 12
+SFX flameon1.bfx,  12
+SFX jamzwhap.bfx,  6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+			LOP 3
+
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+
+
+
+
+;-====================================gunset4
+			SLP
+SFX flameoff.bfx, 24
+SFX jamzwhap.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX jamzwhap.bfx,  24
+
+
+SFX hammer.bfx, 18
+SFX hammer.bfx, 6
+SFX jamzwhap.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX jamzwhap.bfx,  24
+
+			LOP 2
+
+;=====================================gunset5
+			SLP
+SFX hammer.bfx, 24
+SFX snare1.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX snare2.bfx,  24
+
+
+SFX hammer.bfx, 18
+SFX hammer.bfx, 6
+SFX snare1.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX snare3.bfx,  24
+
+			LOP 2
+
+;=====================================gunset6
+			SLP
+SFX hammer.bfx, 24
+SFX snare1.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX snare1.bfx,  18
+SFX jamzwhap.bfx,  6
+
+
+SFX hammer.bfx, 18
+SFX hammer.bfx, 6
+SFX snare1.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX snare1.bfx,  24
+
+			LOP 2
+
+;===================================gunset7
+			SLP
+SFX hammer.bfx, 24
+SFX flameon2.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX flameon2.bfx,  24
+
+
+SFX hammer.bfx, 18
+SFX hammer.bfx, 6
+SFX flameoff2.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX perc1.bfx,  24
+
+			LOP 2
+
+EMS
+
+

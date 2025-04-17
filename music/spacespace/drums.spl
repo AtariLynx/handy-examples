@@ -1,0 +1,113 @@
+
+PRI 190
+TPO 4
+AGD 1
+
+; Track 4:  NewBsDrm ===
+; Bar 1
+ 
+rest 3
+
+SFX snare1.bfx, 3
+rest 3
+SFX snare3.bfx, 3
+rest 3
+SFX snare1.bfx, 3
+rest 3
+SFX snare3.bfx, 3
+rest 3
+
+SLP
+
+;Bar 1
+
+SFX flameoff.bfx, 48
+
+SFX hammer.bfx, 12
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX snare3.bfx, 3
+rest	9
+SFX omi3.bfx, 12
+
+; Bar 2
+
+SFX omi3.bfx, 12
+SFX hammer.bfx, 12  ;rest 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 3
+rest	9
+
+SFX hammer.bfx, 12
+SFX hammer.bfx, 12
+SFX snare1.bfx, 12
+SFX snare3.bfx, 6
+SFX snare1.bfx, 6
+
+SLP2
+
+;Bar 1
+
+SFX hammer.bfx, 12
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX snare1.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 12
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX snare3.bfx, 3
+rest	9
+SFX omi3.bfx, 12
+
+; Bar 2
+
+SFX omi3.bfx, 12
+SFX hammer.bfx, 12  ;rest 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 3
+rest	9
+
+SFX hammer.bfx, 12
+SFX hammer.bfx, 12
+SFX snare1.bfx, 12
+SFX snare3.bfx, 6
+SFX snare1.bfx, 6
+
+LOP2 16
+
+;Bar 35
+
+SFX hammer.bfx, 12
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX snare1.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 12
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX snare3.bfx, 3
+rest	9
+SFX omi3.bfx, 12
+
+; Bar 36
+
+SFX omi3.bfx, 12
+SFX hammer.bfx, 12  ;rest 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 3
+rest	9
+
+SFX hammer.bfx, 12
+SFX hammer.bfx, 12
+SFX hammer.bfx, 12
+SFX hammer.bfx, 12
+
+LOP 3
+
+	EMS
+
+	.end
+

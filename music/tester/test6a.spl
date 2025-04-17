@@ -1,0 +1,108 @@
+; test tone for tambours
+; HSPL Music File
+; (Minimum duration used to create this file:  1)
+
+
+PRI 196
+DFV
+ASD 6 
+TPO 4
+;=======================decay time test==================================================
+;=======================decay time test==================================================
+;=======================decay time test==================================================
+;=======================decay time test==================================================
+;=======================decay time test==================================================
+;=======================decay time test==================================================
+;=======================decay time test==================================================
+
+SLP
+	c.1	6	;loop start reference scale
+	d.1	6
+	e.1	6
+	f.1	6
+	g.1	6
+	a.1	6
+	b.1	6
+	c.2	6
+	rest 48
+;===================sustains at full volume-not 10
+ADSR 2,70,1,10,2
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;====================sounds about right...
+ADSR 2,70,2,10,2
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;=====================just wanted to see if...you know, the broken decay cycle
+;=====================works like sustain in the notes-longer the decay, the 
+;=====================louder the sustain...hmm.
+ADSR 2,70,3,10,2
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;=====================sounds a LOT like the decay hits zero and keeps on going
+ADSR 2,70,4,10,2
+
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;===================it sounds like the decay turns into another attack phase
+;===================after dropping down thru "0"
+;===================the voice sorta goes "whduh-whduh"when it oughta go "duh-duh"
+ADSR 2,70,8,10,2
+
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6	;there's a multiple attack here
+	c.4	6
+	c.4	6
+	c.4	6
+;====================WRONGO RONGO BLPHHT!
+ADSR 2,70,16,10,2
+
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6	;LISTEN TO the double attack on these guys
+	c.4	6
+	c.4	6
+	c.4	6
+ADSR 2,70,32,10,2
+
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6	;suddenly these sixteenth notes sound ok....hmmm
+	c.4	6	;even with the modified sustain level
+	c.4	6
+	c.4	6
+LOP 0
+	EMS
+
+.end

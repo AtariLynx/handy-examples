@@ -1,0 +1,60 @@
+TPO 4
+PRI 30
+; Track 4:  NewBsDrm ===
+; Bar 1
+
+			SLP
+rest 6
+
+SFX perc2.bfx, 6
+
+SFX perc3.bfx, 6
+
+SFX perc4.bfx, 6
+
+SFX jamzwhap.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX jamzwhap.bfx,  24
+
+
+SFX hammer.bfx, 18
+SFX hammer.bfx, 6
+SFX jamzwhap.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX jamzwhap.bfx,  24
+
+SFX perc1.bfx, 6
+
+SFX perc2.bfx, 6
+
+SFX perc3.bfx, 6
+
+SFX perc4.bfx, 6
+
+SFX jamzwhap.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX jamzwhap.bfx,  24
+
+
+SFX hammer.bfx, 18
+SFX hammer.bfx, 6
+SFX jamzwhap.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX jamzwhap.bfx,  6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+			LOP 4
+
+
+EMS
+
+

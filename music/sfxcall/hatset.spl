@@ -1,0 +1,56 @@
+
+DFV
+ADSR 1,76,3,100,3
+ASD 2
+TPO 4
+LTR -24
+PRI 32
+
+
+SLP	 
+         SFX hat4.bfx, 6
+	 SFX hat6.bfx, 6
+	 SFX hat6.bfx, 6
+	 SFX hat4.bfx, 18
+	 SFX hat6.bfx, 6
+	 SFX hat4.bfx, 6
+
+	 SFX hat6.bfx, 12+12
+	 SFX hat6.bfx, 6
+	 SFX hat4.bfx, 6
+	 SFX hat4.bfx, 6
+	 SFX hat4.bfx, 6
+
+	 SFX hat6.bfx, 6
+	 SFX hat6.bfx, 6
+	 SFX hat6.bfx, 6+6
+	 SFX hat6.bfx, 6
+	 SFX hat6.bfx, 6+12
+
+	 SFX hat6.bfx, 6
+	 SFX hat6.bfx, 6+12
+	 SFX hat6.bfx, 6
+	 SFX hat6.bfx, 6+12
+
+         SFX hat4.bfx, 6
+	 SFX hat6.bfx, 6
+	 SFX hat6.bfx, 6
+	 SFX hat4.bfx, 6+12
+	 SFX hat6.bfx, 6
+	 SFX hat4.bfx, 6
+
+;	 SFX hat6.bfx, 12
+;+12
+;	 SFX hat6.bfx, 6
+;	 SFX hat4.bfx, 6
+;	 SFX hat4.bfx, 6
+;	 SFX hat4.bfx, 6
+FB $00CA
+	VFBM $0021,1,-45,0076,-2
+                ADSR 2,76,5,1,25
+	b.5	48
+	
+
+
+LOP 8
+		EMS

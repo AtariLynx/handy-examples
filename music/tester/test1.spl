@@ -1,0 +1,298 @@
+
+
+
+; test tone for tambours
+; HSPL Music File
+; (Minimum duration used to create this file:  1)
+
+
+PRI 194
+DFV
+ADSR 6,110,6,78,12
+ASD 39
+TPO 4
+
+
+SLP
+
+;=======================bank one===========================================================
+
+
+;FB $1		; THIS IS THE DEFAULT FB SETTING-ALL OTHERS REFERENCE IT
+;LTR 0
+
+	;rest	96  ;THIS IS THE TEST SEQUENCE
+	;c.3	96
+	;c.3	96
+	;rest	96
+
+
+;FB $2   	;	About the same as FB $1 which is to say a normal square wave
+;LTR 12  	;good for clarinets, wooden marimbas, electric piano, etc.
+
+;FB $3		;	this is a razzy thing in between a narrow pulse  
+;LTR 7		;	and a sawtooth wave
+
+;FB $4		;	sounds a lot like the default square wave, but just a few 
+;LTR 19		;	cents flat-makes for a nice rich chorus with default
+
+;FB $5		;	SOUNDS LIKE ANOTHER NARROW 20%PULSE OR SAWTOOTHISH SOUND
+;LTR 22		;	it is so sharp that it's almost a quarter tone off 7hz chorus
+
+;FB $6		;	ALMOST IDENTICAL TO FB $5
+;LTR 22		;
+
+;FB $7		;	sounds identical to default but note the LTR on it...
+;LTR 12
+
+;FB $8		;	IDENTICAL TO DEFAULT BUT 2 OCTAVES FLAT
+;LTR 24
+
+;FB $9		;	MAKES FOR A NICE CHORUS WITH DEFAULT-narrow pulse
+;LTR 35		;	that is just a bit sharp-1.4hz chorus
+
+
+;FB $A		;	ANOTHER NARROW PULSE 10% TO 20%-A BIT FLAT-BEATS AT 3hz
+;LTR 19
+
+;FB $B		; finally a unique timbre: its got a loud high harmonic-still
+;LTR 34		; sits quite sharp-be good for glockenspiel or bells/beats at 10hz
+
+;FB $C		; almost an oboe in quality, this one sits a few cycles sharp
+;LTR 35		; and beats at a good 2hz
+
+;FB $D		;Whichever harmonic sits on the third about three octaves sharp
+;LTR 31		;is the one what be loud here-still quite sharp-nice chorus with default
+
+;FB $E		;Noticibly sharp and obnoxious, this is another narrow pulse thing
+;LTR 34
+
+;FB $f		;Quite sharp but not obnoxious, another pulse-but thicker
+;LTR 16
+
+
+;=============bank two=================================================================
+
+
+;FB $10		;IDENTICAL TO DEFAULT BUT A DOZEN OR SO CENTS SHARP
+;LTR 28
+
+
+;FB $11		;PRoduces an annoying high frequency whine and is real sharp and
+;LTR 53		;narrow in character.
+
+
+	;rest	96	;NOTE THE LOWERED NOTE VALUE FOR FB $11
+	;c.2	96
+	;c.2	96
+	;rest	96
+
+
+;FB $12		; Couldn't do a thing for this baby-hi pitch non note activity
+;LTR 48		; it's also a quarter step sharp at this setting-real narrow pulse
+
+;FB $13		; This one's pretty sharp with a real loud harmonic 2 octaves 
+;LTR 46		; up at the fifth-oh, yeah-it's noticibly sharp-nice combination 
+		; sound, though.
+
+;FB $14		; THIS IS THE EVIL TWIN OF FB $12
+;LTR 47		; QUARTER TONE FLAT
+
+;FB $15		; a real loud tone-has that high (majorthird) harmonic and
+;LTR 47		;is flat enough to make a rich chorus sound
+
+;FB $16		;More saw than square, this one's slightly flat
+;LTR 31
+
+;FB $17		; as unusable as they come - just can't get this one in tune
+;LTR 46
+
+;FB $18		; ANOTHER THIN PULSE WAVE- QUITE SHARP-THERE IS A HIGH FREQ 
+;LTR 41		; WHINE BETWEEN NOTES, TOO 
+
+;FB $19		; A WINNER! NO DETUNING, AND A NICE HIGH LOUD HARMONIC-PROBABLY
+;LTR 24		; GOOD FOR PERCUSSIVE LEAD AND CHORDAL LINES
+
+;FB $1A		; sounds a bit flat-this one is "ring" like (as in bells)
+;LTR 47		; with real digital clarity hahaha
+
+;FB $1B		; yet another quarter tone off tone-this one's quite nasal
+;LTR 48		; but has a bit of the old sawtooth in it, yet...GOT THAT WHINE, TOO.
+
+;FB $1C		; THIS ONE sounds quite sharp alone-features nice high harmonics
+;LTR 46		; and choruses nicely with the default
+
+;	rest	96
+;	c.3	96
+;	c.3	96
+;	rest	96
+
+;	NOTE-AT THIS POINT, LTR's HAD GOTTEN SO EXTREME THAT I FELT IT WAS TIME
+;	TO ALTER THE TEST SEQUENCE-NOTE THAT FROM HERE FORWARD ALL VALUES HAVE
+;	AN IMBEDDED OFFSET OF TWO OCTAVES (AUTOMATIC BASS GENERATION IN OTHER WORDS)
+
+;	rest	96  ; here is the test sequence used following...
+;	c.5	96
+;	c.5	96
+;	rest	96
+
+
+;FB $1D		; nice and hornlike, but far too flat to be useful without VFM's
+;LTR 23		
+
+
+;FB $1E		;QUARTER TONE OFF, HI PITCH WHINE, english horn-like tambour
+;LTR 23
+
+;FB $1F		; nice sorta rich sawtooth with very slight dark flat intonation
+;LTR -5		; which makes for a nice chorus with default
+
+
+;============================bank three==========================================
+
+
+;FB $20		; Just a bit flatter than above, this one sounds almost identical
+;LTR 7		; to the default
+
+;FB $21		; very nasal and buzzer like, this one is fairly flat and causes
+;LTR 36		; a hi pitch whine in between notes
+
+;FB $22		; SORT OF A DRY SAWTOOTH SOUND-FAIRLY SHARP WITH FAST CHORUS
+;LTR 10
+
+;FB $23		; HI WHINE, A BIT FLAT AND SLIGHTLY THINNER SOUNDING THAN
+;LTR 36		; THE DEFAULT
+
+;FB $24		;REAL COOL with the default-slightly flat-just enough to 
+;LTR 2		; barely chorus with the default-soft, muffled, rich tone.
+
+
+;FB $25		; THIS one has a bright nasal tone-very digital/piezo like
+;LTR 22		; it is sharp enough to phase about 1hz 
+
+;FB $26		; THIS ONE'S A BIT FLAT WITH HI WHINE STUFF TWIXT NOTES
+;LTR 36		; SOUNDS LIKE A STEPPED ON THIN PULSE
+
+;FB $27		; USEABLE 20% OR SO PULSE-IT IS A BIT SHARP AND 
+;LTR 11		; PHASES AT ABOUT 2hz
+
+;FB $28		; Fast (4hz) chorus and a pulse/saw sound characterize this one
+;LTR 10 	
+
+;FB $29		; This one's a real bug killer-high ringing harmonic and it's
+;LTR 29		;noticeably sharp (2 or 3hz phase)ALSO A REAL HIGH WHINE
+
+;FB $2A		; Nice in tune sawtooth like sound-muted brass sounds
+;LTR 0
+
+;FB $2B		;NICE SAWTOOTH-but it's sharp and produces those annoying
+;LTR 17		; HIGHHH PITTCHHED WHINEE SOUNDGRRR!
+
+;FB $2C		; It's  bit flat (2hz), hi pitch whine twixt notes-some high 
+;LTR 36 	; harmonic content giving it a thin but present sound
+
+;FB $2D		; quite flat quite nasal sounding quite annoying hipitch whine
+;LTR 36
+ 
+;FB $2E		; kinda sharp, hornlike, bright sounding-trumpet type
+;LTR 11
+
+
+;======================bank four===================================================
+
+;FB $30		; SOUNDS VERY THIN TO ME, AND VERY FLAT. CHORUS AT 6hz
+;LTR 36
+
+;FB $31		; SHARP ENOUGH TO CHORUS WELL (2hz) has nice prominent high harmonic
+;LTR 16
+
+;FB $32		;it's a bit sharp for solo work- prominent high harmonic as in $31
+;LTR 29		; hi pitch artifacting tone(y'know, I betcha it has sumpin to do wit dem rests what we got)
+
+;FB $33		;this one sounded more in tune an octave south at LTR 24...sawtooth
+;LTR 36		; that's sawtooth/real flat/ artifacting tone imbed. hahaha
+
+;FB $34		; Sharp enuff to hurt-but still useable as a solo voice
+;LTR 22		; choruses at 2-3hz
+
+;FB $35		; Real digital sound/sorta beepy-like/beats at 1hz, maybe....
+;LTR 7
+
+
+;FB $36		; Really flat/ artifacting tone/ like a 10% pulse
+;LTR 36
+
+;FB $37		; MEDIUM CHORUS real sticky sounding pulse artifacting etc.
+;LTR 36
+
+;FB $37		;QUARTER TONE ARTIFACTING SQUARISH WAVE
+;LTR 35
+
+;FB $38		; WOODY,BRIGHT SOUND-ARTIFACTING/ QUWARTER TONE OFF
+;LTR 24
+
+;FB $39		;ARTIFACTING/A BIT SHARP/VERY BRIGHT SOLID TONE CHORUSING 2HZ.
+;LTR 36
+
+;FB $3A		; Thin reedy sound/ a bit sharp REAL high artifact
+;LTR 17
+
+;FB 3B		; SOUNDS LIKE A MUTED SAWTOOTH 1hz chorus-good one
+;LTR -17
+
+;FB 3C		;MUCH LIKE FB 3B- A BIT FULLER MORE MUTED
+;LTR -17
+
+;FB $3D		;REALLY THIN/ARTIFACTING/FLAT ENUFF FOR 2hz chorus
+;LTR 36
+
+;FB $3E		;NO ARTIFACTING/VERY SHARP/ BRIGHT RINGING TONE
+;LTR 36
+
+;FB $40		;MUST BE AN EVEN NUMBER OF FLAGS-NO SOUND
+
+;FB $41		;Identical to default
+;LTR -24
+
+;FB $42		;IDENTICAL TO DEFAULT
+;LTR -12
+
+;FB $43		;A bit flat/sounds like a sawtooth/triangle combo
+;LTR -17
+
+;FB $44		;SOUNDS LIKE A BIT FLAT VERSION OF THE DEFAULT
+;LTR -5
+
+;FB $45		;QUITE SHARP 3hz chorus mid pulse/sawtooth sound
+;LTR -2 
+
+;FB $46		;3hz chorus/ sounds LIKE fb $45
+;LTR -2
+
+;FB $47		;GOOD ONE-JUST A HAIR FLAT, REAL SAWTOOTHY SOUND
+;LTR -12
+
+;FB $48		; SOUNDS LIKE THE DEFAULT TO ME
+;LTR 0
+
+;FB $59		; Makes my head hurt-high harmonic and muted low harmonix
+;LTR 0		; real digital sounds
+
+;FB $CC		;NICE UNIQUE TAMBOUR BUT QUARTER STEPOFF AND ARTIFACTING
+;LTR 37		; sounds real hollow empty like buzzers in a can
+
+;FB $DE		;Y'KNOW, SOMETIMES YOU JUST CAN'T STOP YOURSELF FROM TAKING THOSE
+;LTR 36		;BIG LEAPS OF FAITH-NICE BUZZY PULSE-STILL AN OCTAVE LOW-ARTIFACTING
+	rest	96
+	c.5	96
+	c.5	96
+	rest	96
+
+LOP 0
+	
+	EMS
+
+
+	.end
+
+

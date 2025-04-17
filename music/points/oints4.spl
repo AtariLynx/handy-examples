@@ -1,0 +1,107 @@
+; === points4.spl ============================================================
+; HSPL Music File
+; Conversion of KCS file points.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+
+PRI 60
+DFV
+;AGD 18
+AGD 18                 ;WORKS WITH BELOW ADSR FOR
+ADSR 4,75,12,30,42     ;A NICE PERCUSSIVE ENVELOPE
+;ADSR 4,105,12,0,2
+TPO 4
+
+; === Track 4:  Bass Low ===
+				SLP
+; Bar 16 (crossed by last note)
+	c.3	96
+; Bar 17 (crossed by last note)
+	d.3	3+21
+	d.3	3+21
+; Bar 18
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+; Bar 19
+	d.3	3+69
+	c.3	3+81
+; Bar 20 (crossed by last note)
+	c.3	3+81
+; Bar 21 (crossed by last note)
+	d.3	3+21
+	d.3	3+21
+; Bar 22
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+	d.3	3+69
+; Bar 23 (crossed by last note)
+	d.3	3+21
+	d.3	3+21
+; Bar 24
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+	d.3	3+69
+; Bar 25 (crossed by last note)
+	d.3	3+21
+	d.3	3+21
+; Bar 26
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+	d.3	3+69
+; Bar 27 (crossed by last note)
+	d.3	3+21
+	d.3	3+21
+; Bar 28
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+	d.3	3+69
+; Bar 29 (crossed by last note)
+	d.3	3+21
+	d.3	3+21
+; Bar 30
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+; Bar 31
+	d.3	3+69
+	c.3	3+81
+; Bar 32 (crossed by last note)
+	c.3	3+81
+; Bar 33 (crossed by last note)
+	d.3	3+21
+	d.3	3+21
+; Bar 34
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+	d.3	3+69
+; Bar 35 (crossed by last note)
+	d.3	3+21
+	d.3	3+21
+; Bar 36
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+	d.3	3+69
+; Bar 37 (crossed by last note)
+	d.3	3+21
+	d.3	3+21
+; Bar 38
+	d.3	3+21
+	d.3	3+21
+	d.3	3+21
+	d.3	3+597-(96*3)
+				LOP 0
+	EMS
+
+
+	.end
+
+

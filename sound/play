@@ -1,0 +1,5 @@
+.k name/a
+;
+hspl
+copy <name>.dnl vdk:lx.dnl
+vdk:asm vdk:LXshell.src +svdk:lxshell.sym +ovdk:lxshell.bin

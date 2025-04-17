@@ -1,0 +1,95 @@
+; [4w
+; [1w
+
+		.pr printer.typ
+
+HANDYIO	.EQU	1		; We're talking to Handy hardware
+;; AIO2	.EQU	1		; We're talking to an AIO2 card
+;IO32		.EQU	1		; We're talking to an IO32 card
+;DEBUG		.eq 1
+
+
+		.65c02
+HANDYMATH	.eq 0
+		.in 6502:include/harddefs.i
+		.in 6502:include/monitor.i
+		.in 6502:include/hsfx.i
+		.in 6502:include/music.i	;new file for '6502/include' directory
+		.in 6502:macros/zpage.mac
+		.in 6502:src/syszpage.src	;contains new syszpage.src stuff
+		.in 6502:macros/hsfx.mac
+;muzak		.eq 1
+
+		INITHSFX
+
+		.or $800
+
+		.ru top
+top
+		jsr InitMusic			;initialize drivers (don't call 'InitHSFX')
+		sei
+
+		ldx #$1f
+.11
+		stz $fd20,x
+		dex
+		bpl .11
+
+		jmp .34
+
+		ldy #7				;for four or more voices
+		lda song+8
+		cmp #4
+		bcs .23
+		asl a				;else move three or less offsets
+		tay
+		dey				;move up to 4 voice offsets to where
+.23						;  music driver will read them.
+		lda song+9,y			;--see info after '.en' below
+		sta song,y
+		dey
+		bpl .23
+
+.34
+		lda #<song			;tell music driver where data is
+		ldx #>song
+		jsr StartMusic
+		cli				;let interrupts have it.
+
+.44
+	#IFDEF DEBUG
+		asl debug_flag
+		bcc .49
+		jsr music_irq2		;for debugging on apple //e
+		jsr InitMusic+3
+		cli
+.49
+	#ENDIF
+		lda voice_in_use		;loop until all effects done
+		ora voice_in_use+1
+		ora voice_in_use+2
+		ora voice_in_use+3
+		bne .44
+		brk				;return to sender
+
+		.in 6502:src/hsfx.src	;SFX driver
+		.in 6502:src/music.src	;new music driver
+song		.pc LX.dnl		;music data file
+
+		.in 6502:src/sysdata.src
+
+		.en
+
+
+
+music data module:
+
+		offset		what's there		what should be there
+
+$00-$07	preloaded voice(s)	offsets of voices used by music driver
+$08		# events in table	---------
+$09-$xx	offsets of events	---------
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

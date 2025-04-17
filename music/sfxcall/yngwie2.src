@@ -1,0 +1,24 @@
+SFX_1
+; HSFX Table for SoundEffect1 sound effect
+	;------ Next Frame
+	.WORD	0	; Frame number
+	.WORD	$0f00	; Flags
+	.WORD	$0014	; Freq accum
+	.WORD	$fffe	; Shifter accum
+	.WORD	$4900	; Feedback accum
+	.WORD	$0100	; Volume accum
+	;------ Next Frame
+	.WORD	100	; Frame number
+	.WORD	$0f20	; Flags
+	.WORD	$0014	; Freq accum
+	.WORD	$fffe	; Shifter accum
+	.WORD	$4900	; Feedback accum
+	.WORD	$7f00	; Volume accum
+	.WORD	$ffff	; Feedback interp
+	;------ Next Frame
+	.WORD	11000	; Frame number
+	.WORD	$0001	; Flags
+
+	.END
+
+; if you must, then eat this line

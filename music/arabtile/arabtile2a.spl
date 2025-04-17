@@ -1,0 +1,97 @@
+; === arabtile2.spl ==========================================================
+; HSPL Music File
+; Conversion of KCS file arabtile.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+
+
+PRI 220
+DFV
+ADSR 3,59,15,22,22
+TPO 4
+AGD 13 
+FB $1D
+LTR 36
+VFM 0,10,0,0,0
+; Track 2:  AradAdd ===
+
+				SLP
+
+; Bar 1
+	d.4	2+4
+	d.4	2+4
+	d.4	2+4
+	d.4	2+4
+	d.4	2+4
+	d.4	2+64
+; Bar 2
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+10
+	d.4	2+4
+	d.4	2+40
+; Bar 3 (crossed by last note)
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	d.4	2+64
+; Bar 4 (crossed by last note)
+	d.4	2+4
+	d.4	2+4
+	d.4	2+4
+	d.4	2+4
+	d.4	2+4
+	d.4	2+46
+; Bar 5 (crossed by last note)
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	ds4	2+4
+	d.4	2+46
+; Bar 6 (crossed by last note)
+	ds4	6
+	ds4	12
+	ds4	12
+	ds4	6
+	ds4	6
+	ds4	6
+	ds4	6
+	d.4	42
+ADSR 3,0,5,0,32
+
+	rest 	576
+;7
+	rest	96
+;8
+	rest	96
+;9
+	rest	96
+;10
+	rest	96
+;11
+	rest	96
+;12
+	rest	96
+
+			LOP 0
+	EMS
+
+
+	.end
+
+

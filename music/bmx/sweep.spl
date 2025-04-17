@@ -1,0 +1,149 @@
+; bass.spl
+; Calgames bmx bass line ring part
+;==================================voice data
+DFV
+PRI 24
+GTR 0
+TPO 6
+LTR -1
+ADSR 10,75,10,0,5
+ASD 5
+FB $1b
+;==============================end voice data
+; Bar 1 
+;			SLP
+;			LOP 7  <----a funny effect
+;
+;	e.3 8
+;VFM 0,45,45,45,45
+;	e.3 36
+;	rest 84
+					SLP ;(the real inf. loop)
+;==============================start
+			;SLP
+	e.4 8
+	e.4 8
+	rest 48+64
+			;LOP 6
+;==============================start
+			;SLP
+	e.4 8
+	e.4 8
+	rest 48+64
+			;LOP 6
+;==============================start
+			;SLP
+	e.4 8
+	e.4 8
+	rest 48+64
+			;LOP 6
+;==============================start
+			;SLP
+	e.4 8
+	e.4 8
+	rest 48+64
+			;LOP 6
+;==============================start
+			;SLP
+	e.4 8
+	e.4 8
+	rest 48+64
+			;LOP 6
+;==============================start
+			;SLP
+	e.4 8
+	e.4 8
+	rest 48+64
+			;LOP 6
+;========================END OF  LOP 6
+
+
+;=============================a fun little fill
+			;SLP 
+ADSR 1,120,5,70,5
+	e.3 8
+	c.4 4
+	d.4 4
+	e.3 8
+	c.4 4
+	d.4 4
+VFM 9,150,75,10,50
+ADSR 100,75,10,60,5
+FB $060b
+LTR 48
+	e.4 32
+FB $1b
+ADSR 10,75,10,0,5
+VFM 0,0,0,0,0
+LTR 11
+	e.4 8
+	d.4 8
+	b.4 8
+	a.4 8
+	gs3 8
+	g.3 8
+	fs3 8
+	f.3 8
+; this is a commented  for lop 3 below SLP
+	e.4 8
+	e.4 8
+	rest 48+64
+			;LOP 2
+;=============================a fun little fill
+			;SLP 
+ADSR 1,120,5,70,5
+	e.3 8
+	c.4 4
+	d.4 4
+	e.3 8
+	c.4 4
+	d.4 4
+
+VFM 9,150,75,10,50
+ADSR 100,75,10,60,5
+FB $060b
+LTR 48
+	e.4 32
+FB $1b
+ADSR 10,75,10,0,5
+VFM 0,0,0,0,0
+LTR 11
+	e.4 8
+	d.4 8
+	b.4 8
+	a.4 8
+	gs3 8
+	g.3 8
+	fs3 8
+	f.3 8
+; this is a commented  for lop 3 below SLP
+	e.4 8
+	e.4 8
+	rest 48+64
+			;LOP 2
+;=============================end of LOP 2
+	rest 24	
+SFX omi3.bfx, 8	
+SFX omi1.bfx, 16	
+SFX omi1.bfx, 16	
+			;SLP
+SFX omi3.bfx, 32	
+SFX snare2.bfx, 32	
+
+			;LOP 3
+			;SLP
+SFX omi3.bfx, 32	
+SFX snare2.bfx, 32	
+
+			;LOP 3
+			;SLP
+SFX omi3.bfx, 32	
+SFX snare2.bfx, 32	
+
+			;LOP 3
+;========================end of LOP 3
+					
+
+						LOP 0
+				EMS
+.end	

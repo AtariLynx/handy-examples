@@ -1,0 +1,73 @@
+; Monday 30-Apr-90 17:55:04
+* === lxfast.src ============================================================
+*
+* Shell program to play Handy music files
+*
+* Confidential and Proprietary
+* Copyright (C) 1989, Epyx, Inc.
+* 
+* Date		Name		Description
+* ---------	--------------	----------------------------------------------
+* 30-Apr-90	SHL		Brought up to date with 1.3 Handy release
+*				Fixed to work with Howard board
+* 13-Apr-89	Chris Grigg	Modified
+*
+* ===========================================================================
+
+		.in 6502:include/harddefs.i
+		.in 6502:include/monitor.i
+		.in 6502:include/hsfx.i
+		.in 6502:include/hmusic.i
+
+		.in 6502:macros/zpage.mac
+		.in 6502:src/syszpage.src
+
+		.in 6502:macros/sys.mac
+		.in 6502:macros/hmusic.mac
+		.in 6502:macros/hsfx.mac
+
+		.or $800
+
+		.ru top
+top
+	 sei
+	  CLD
+	  LDX #$FF
+	  TXS
+	  INITSYS
+	  INITINT inttable
+	 CLI
+
+	INITHMUSIC
+
+	lda #<song		; Play the song
+	ldx #>song
+	PLAYMUSIC
+
+.44	  lda VoiceInUse		; Loop until all effects done
+	  ora VoiceInUse+1
+	  ora VoiceInUse+2
+	  ora VoiceInUse+3
+	 bne .44
+	HBRK	; force break on Howard board	\_ Return to sender
+	brk	; force break on Mandy/Pinky	/
+	bra top
+
+	.in 6502:src/sys.src	; system routines
+	.in 6502:src/hsfx.src	; HSFX driver
+	.in 6502:src/hmusic.src	; HMUSIC driver
+	.in 6502:src/hsfx.var	; HSFX variables
+	.in 6502:src/hmusic.var	; HMUSIC variables
+	.in 6502:src/sysdata.src	; system variables
+
+inttable	.ds 16		; interrupt vector jmp table
+
+	.or $2000
+song	;.pc LX.dnl		;music data file
+	; This version of the shell program was created
+	; to be assembled once, seperately from the 
+	; music data modules.  The resulting LxFast.bin
+	; is .pd'd in the LxShell.src program together 
+	; with a .pc of the current music data file, which
+	; is presumed to have been copied to ram:lx.dnl.
+

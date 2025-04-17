@@ -1,0 +1,33 @@
+
+
+Attention Handy oops LYNXX progrerammblers-here's them hspl workout files
+you been lookin'fer...............
+
+test1.spl and test2.spl are played together to illustrate different tones
+available on handy oops LYNX thru use of FB and corresponding LTR values.  I have
+also guesstimated the "detuning" required to make the resulting tones play in
+tune with default voices.
+
+test3.spl works out the attack peak parameter by using a small melody and 
+a variety of note lengths.
+
+test4.spl works out the sustain parameters with test3's stupid melody.
+test4a.spl works out the sustain parameters more intensively.
+
+test5.spl is a test of attack times-specifically short attack times possible and
+their"character".  I'd sure be a happy pup if I had more resolution on short
+attacks...
+
+test6.spl is a test of decay times-there are problems with the decay which I have 
+tried to define in the comment fields of this file
+test6a.spl does the same sequence, but with a sustain value of 10-more problems
+here that I talk about in the comment field.
+
+test7.spl is a test of the release times out to 256 frames.  Nice decay sounds
+
+test8.spl checks value #1 in a VFM command-initial offset IT'S BROKEN-NEEDS FIXIN'
+test8a.spl checks value #2 in a VFM command-attack rate
+test8b.spl checks value #3 in a VFM command-decay rate
+test8c.spl checks value #4 in a VFM command-sustain "rate"
+test8d.spl checks value #5 in a VFM command-release rate
+test8e.spl illustrates VFM command combinations

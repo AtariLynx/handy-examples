@@ -1,0 +1,46 @@
+; CYMBALS 
+; Calgames bmx
+; translated from original C64 source
+
+; We may want to replace these macro bodies with CallSFX's
+
+;HH	.EQ AS6 Hihat
+#macro HH ?1
+	a#6 ?1
+#endm
+
+;CM	.EQ AS6 Cymbal
+#macro CM ?1
+	a#6 ?1
+#endm
+
+SLP	
+    ;IVB 0 0 NOISE*16 $05 $69 
+    LTR 0 
+    AGD 2 
+    ; 1 
+    SLP2
+	 HH 2 
+	 HH 2 
+	 HH 2 
+	 HH 2 
+	 HH 2 
+	 HH 2 
+	 HH 2 
+	 HH 2 
+    LOP2 11
+    ; 12 
+    ;ADSR $05 $6A 
+    CM 4 
+    CM 4 
+    CM 4 
+    CM 4 
+LOP 4
+; The End
+AGD 4 
+; ADSR,$09,$09 
+CM 8 
+Rest 8+16 
+	
+EMS 
+.end

@@ -1,0 +1,117 @@
+; test tone for tambours
+; HSPL Music File
+; (Minimum duration used to create this file:  1)
+
+
+PRI 196
+DFV
+ASD 100 
+TPO 4
+;==================VFM test first (attack) parameter================================
+;==================VFM test first (attack) parameter================================
+;==================VFM test first (attack) parameter================================
+;==================VFM test first (attack) parameter================================
+;==================VFM test first (attack) parameter================================
+;==================VFM test first (attack) parameter================================
+;==================VFM test first (attack) parameter================================
+;==================VFM test first (attack) parameter================================
+;==================VFM test first (attack) parameter================================
+;==================VFM test first (attack) parameter================================
+;==================VFM test first (attack) parameter================================
+;===Oh, by the way-this doesn't work
+
+SLP
+
+
+
+	c.1	6	;loop start reference scale
+	d.1	6
+	e.1	6
+	f.1	6
+	g.1	6
+	a.1	6
+	b.1	6
+	c.2	6
+	rest 48
+
+
+
+;==================
+ADSR 2,70,15,70,75
+
+VFM 0,0,0,0,0		;zero offset
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;===================
+ADSR 12,70,15,70,75
+
+VFM 2,0,0,0,0		;two "points" offset
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;===================
+ADSR 12,70,15,70,75
+
+VFM 2,0,0,0,0		;sixteen "points" offset
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;===================
+ADSR 12,70,15,70,75
+
+VFM 2,0,0,0,0		;one hundred "points" offset
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;===================
+ADSR 12,70,15,70,75
+
+VFM -200000,0,0,0,0	; negative two "points" offset
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;===================
+ADSR 22,70,15,70,75
+
+VFM -4000000,0,0,0,0	; negative four million points offset
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+
+
+
+LOP 0
+	EMS
+
+.end

@@ -1,0 +1,79 @@
+; test tone for tambours
+; HSPL Music File
+; (Minimum duration used to create this file:  1)
+
+
+PRI 196
+DFV
+ASD 60
+TPO 4
+;=======================attack time test==================================================
+;=======================attack time test==================================================
+;=======================attack time test==================================================
+;=======================attack time test==================================================
+;=======================attack time test==================================================
+;=======================attack time test==================================================
+;=======================attack time test==================================================
+;=======================attack time test==================================================
+;=======================attack time test==================================================
+;=======================attack time test==================================================
+;=======================attack time test==================================================
+;My analysis says this; the most crucial area of envelope generation-
+;the first 20 milliseconds of attack time-has only three possible steps..one of which
+;doesn't work.  Somehow, thru decimals or something, I need access to about TEN
+;increments which live within the first four (five, if you count zero as being
+;an instant transition to the attack peak) possible attack times. Jesus, LX-you
+;trying to be Beethoven or sumpin? I mean Jeez-it's just a game machine.....  
+
+SLP
+
+
+;=====================SILENCE
+ADSR 1,70,2,70,2
+
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+;====================="ptm" attack shortest possible attack-kind of spits at you 
+ADSR 2,70,2,70,2
+
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+;====================="tm" attackslightly softer than 2-no garbage at head of note
+ADSR 4,70,2,70,2
+
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+;====================="whm"kinda blown attack/horn-like
+ADSR 8,70,2,70,2
+
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+;=====================sort of a violin type attack
+ADSR 16,70,2,70,2
+
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+LOP 0
+	EMS
+
+.end

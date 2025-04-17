@@ -1,0 +1,58 @@
+; === buzybee.spl ===========================================================
+; HSPL Music File
+; Conversion of KCS file buzybee.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+
+
+PRI 200
+DFV
+;ADSR 7,99,4,78,12
+ADSR 3,90,2,0,2
+AGD 25
+TPO 5
+FB $127
+LTR 23
+SLP
+
+; === Track 3:  bassline ===
+; Bar 1
+	as4	3+3
+	gs4	3+3
+	f.4	3+3
+	f.4	3+3
+	as4	3+3
+	gs4	3+3
+	as4	3+3
+	f.4	3+3
+	as4	3+3
+	as4	3+3
+	as4	3+3
+	f.4	3+3
+	as4	3+3
+	cs5	3+3
+	as4	3+3
+; Bar 2
+	f.4	3+3
+	as4	3+3
+	gs4	3+3
+	as4	3+3
+	f.4	3+3
+	as4	3+3
+	gs4	3+3
+	as4	3+3
+	f.4	3+3
+	as4	3+3
+	cs5	3+3
+	as4	3+3
+	f.4	3+3
+	as4	3+3
+	gs4	3+3
+	as4	3+3
+LOP 0
+
+	EMS
+
+	.end
+
+
