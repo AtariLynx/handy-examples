@@ -1,0 +1,23 @@
+most.variables
+; some system variables
+	.in 6502:src/hmusic.var
+	.in 6502:src/hsfx.var
+; buffers
+; interrupt vector table
+MyIntTable		.ds 16
+
+; color palette buffers
+new.colors.rgb
+new.colors.g		.ds 16
+new.colors.br		.ds 16
+
+old.colors.rgb
+old.colors.g		.ds 16
+old.colors.br		.ds 16
+	#ifdef MULTIPLAYER
+messages	.ds MAX_PLAYERS
+	#endif
+
+; screen buffers
+Buffer1	.eq {$ffff-{DISPLAY_BUFSIZE+4}}&$fffc
+Buffer2	.eq {Buffer1-{DISPLAY_BUFSIZE+4}}&$fffc
