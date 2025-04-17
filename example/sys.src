@@ -1,0 +1,1349 @@
+;sys.src 12/11/89
+;M. Peter Engelbrite
+;system control routines
+;including sound, music, controls debounce, special controls,
+;score, display, frame logic, and other includes
+;it implents option 2 as music on/off, and option 1 is useable by the game
+
+		.65c02
+
+; system equates
+MUTE_USER		.eq 1
+HANDYIO			.eq 1	; We're talking to Handy hardware
+EOF_USER		.eq 1	; I use end of frame
+HANDYMATH		.eq 0	; handymath type = hardware
+HMUSIC_CHANNELCOUNT	.eq 4
+STOPMUSIC_USER		.eq 1
+FRAMECOUNT_UP		.eq 1
+GETDIR_USER		.eq 1
+DEBOUNCE		.eq 12/FRAME_RATE	;(.26 seconds)
+BUTTON_A		.eq OUTER_BUTTON
+BUTTON_B		.eq INNER_BUTTON
+
+; larger system includes
+		.in	6502:include/sys.i
+		.in	6502:include/monitor.i
+		.in	6502:include/harddefs.i
+		.in	6502:include/hsfx.i
+		.in	6502:include/hmusic.i
+		.in	6502:include/sprite.i
+		.in	6502:include/cart.i
+		.in	6502:include/cartdefs.i
+
+		.in	6502:macros/zpage.mac
+		.in	6502:src/syszpage.src
+
+		.in	6502:macros/sys.mac
+		.in	6502:macros/hsfx.mac
+		.in	6502:macros/hmusic.mac
+		.in	6502:macros/sprite.mac
+		.in	6502:macros/handymath.mac
+		.in	6502:macros/controls.mac
+		.in	6502:macros/display.mac
+		.in	6502:macros/cart.mac
+;	.list on
+
+
+; zero page variables for sys
+
+	BEGIN_ZPAGE
+; variables to clear upon entry to a new world
+random.ndx		.ds 2	;for random number generator
+tmp			.ds 4	;temporary (used by system or user)
+count			.ds 1	;incremented once each game frame
+vscroll			.ds 2	;this is the screens "window" on the world
+hscroll			.ds 2	;upper left corner of screen
+
+;used by system
+new.colors		.ds 1	;used in palette control
+fading			.ds 1	;used in palette control
+slow.fade		.ds 1	;set to $ff to cause colors to fade slowly
+
+; game score
+score			.ds SCORE_SIZE	;score (in BCD)
+
+
+; control.level
+; joystick / fire control (1 = pressed, 0 = not pressed)
+; bits 4-7 = $f0 means: pause button pressed
+
+; control.edge
+; similar to control.level, but it indicates the leading edge of a press
+; this state exists for one game frame only!
+; 1 = just pressed, 0 = not
+
+
+	#ifdef MULTIPLAYER
+number.of.players	.ds 1	; total number of players logged in
+my.player		.ds 1	; player number for this unit
+control.level		.ds MAX_PLAYERS
+control.edge		.ds MAX_PLAYERS
+level			.ds MAX_PLAYERS
+edge			.ds MAX_PLAYERS
+pause.timer		.ds MAX_PLAYERS
+opt2.timer		.ds MAX_PLAYERS
+
+	#else
+control.level		.ds 1
+control.edge		.ds 1
+level			.ds 1
+edge			.ds 1
+pause.timer		.ds 1
+opt2.timer		.ds 1
+	#endif
+pause.flag		.ds 1
+
+	#ifdef MUSIC_TOGGLE
+quiet			.ds 1
+	#endif
+
+	END_ZPAGE
+
+	.or $400
+; ---- COLD START ENTRY ----
+;this is entered on powerup
+cold.start
+	sei
+	cld
+	ldx #$ff
+	txs
+; clear out all work variables
+	lda #>most.variables
+	sta 1
+	stz 0
+	ldy #<most.variables
+.11
+	lda #0
+.10
+	sta (0),y
+	iny
+	bne .10
+	inc 1
+	lda 1
+	cmp #$fc
+	bne .11
+
+	ldx #0
+.00
+	stz 0,x
+	stz $100,x
+	stz $200,x
+	stz $300,x
+	dex
+	bne .00
+
+	INITSYS
+	INITINT	MyIntTable,MyReturn
+	stz DisplayFrameCount
+	INITHMUSIC
+	SETCOLL Buffer1,2	; no collision (set to sceen anyway)
+	SETDISP_60
+	INITEOF
+	INITSUZY
+	SETDBUF	Buffer1,Buffer2
+	jsr clear.screen	; prevent garbage on screen while setting up
+	jsr black.screen
+	DISPLAY_ON
+
+; clear stretch and tilt
+	ldx #3
+.02
+	stz $fc1c,x
+	dex
+	bpl .02
+
+	jsr clear.screen
+	#ifdef MULTIPLAYER
+	jsr init.comlynx
+
+;wait for all fingers to lift from all buttons
+.33
+	jsr delay
+	ldx #0
+.34
+	phx
+	jsr get.controls
+	plx
+	lda control.level,x
+	bne .33
+	inx
+	cpx number.of.players
+	bne .34
+	#else
+.33
+	jsr delay
+	jsr get.controls
+	lda control.level
+	bne .33
+
+	#endif
+
+
+
+
+	jmp game.start		;enter actual game
+
+
+; SYSTEM FUNCTIONS 
+
+; ---------------------- game.frame ---------------------
+; call this after all game logic is done and all sprites displayed.
+; this does the comlynx overhead, does the screen buffering, displays score,
+; does the pause/flip/restart/music on-off overhead, and the color fade.
+; it will return with a new, blank screen (cleared to color 0)
+game.frame
+	inc count	;this is used by the system and the game (if desired)
+	jsr show.score		;display the score
+	jsr do.screen		;display the screen
+	jsr fade		;color scene fade operation
+	jsr check.controls	;process pause/options
+	#ifdef SCREEN_CLEAR
+	jsr clear.screen	;clear screen for the next go-around
+	#else
+	LDA	RenderBuffer	;lifted from SPRITES macro
+	STA	VIDBASL
+	LDA	RenderBuffer+1
+	STA	VIDBASH
+	lda hscroll
+	ldy hscroll+1
+	HOFF16
+	lda vscroll
+	ldy vscroll+1
+	VOFF16
+	#endif
+	rts
+
+
+
+; ---------------- do.sprite -------------
+; display a sprite list
+; call with x,y pointing to start of sprite list (high,low)
+do.sprite
+	stx tmp+1
+	sty tmp
+	RESPRITE tmp,1
+	rts
+
+; --------------- clear.screen -------------
+; clears screen to all pixel #0
+clear.screen
+	stz HOFFL
+	stz HOFFH
+	stz VOFFL
+	stz VOFFH
+	SPRITES black,0
+	lda hscroll
+	ldy hscroll+1
+	HOFF16
+	lda vscroll
+	ldy vscroll+1
+	VOFF16
+	rts
+
+; ---- SCREEN DISPLAY ----
+
+do.screen
+	DBUF_DISPLAY
+	ldx #FRAME_RATE
+	stx tmp
+wait.for.more.frames
+	WAITEOF
+	lda DisplayFrameCount
+	cmp tmp
+	bcc wait.for.more.frames
+	stz DisplayFrameCount
+	lda new.colors
+	beq no.screen
+	RGB16 old.colors.rgb
+	stz new.colors
+no.screen
+
+; warning - this is used as a null interrupt
+MyReturn
+	rts
+
+;one frame delay (for use in check.controls
+delay
+	ldx #FRAME_RATE
+	stx tmp
+continue.delay
+	WAITEOF
+	lda DisplayFrameCount
+	cmp tmp
+	bcc continue.delay
+	stz DisplayFrameCount
+	rts
+
+
+
+	#ifdef MULTIPLAYER
+
+;----------------- check.controls --------------
+
+; control button processing: pause/restart/flip
+
+check.controls.pause.loop
+	jsr delay
+
+;entry point
+check.controls
+check.controls.players
+	jsr get.controls	;get joystic/control info for next frame
+	ldx #0
+check.controls.player.loop
+;set the timers
+	lda control.edge,x
+	and #$f0
+	cmp #$f0
+	bne .00
+	lda #DEBOUNCE
+	sta pause.timer,x
+.00
+	lda control.edge,x
+	and #OPTION2_BUTTON
+	beq .01
+	lda #DEBOUNCE
+	sta opt2.timer,x
+.01
+;1st flip check
+	lda control.edge,x
+	and #OPTION2_BUTTON
+	beq .02
+	lda control.level,x
+	and #$f0
+	cmp #$f0
+	bne .02
+	phx
+	jsr do.flip
+	plx
+.02
+;reset check
+	lda control.level,x
+	and #OPTION1_BUTTON+$f0
+	cmp #OPTION1_BUTTON+$f0
+	bne .03
+	jmp do.reset
+.03
+;2nd flip check
+	lda control.level,x
+	and #OPTION2_BUTTON
+	beq .04
+	lda control.edge,x
+	and #$f0
+	cmp #$f0
+	bne .04
+	lda control.edge,x	;this prevents double flip if in same frame
+	and #OPTION2_BUTTON
+	bne .04
+	phx
+	jsr do.flip
+	plx
+.04
+;check pause timeout
+	lda pause.timer,x
+	beq .05
+	dec pause.timer,x
+	bne .05
+	phx
+	jsr toggle.pause
+	plx
+.05
+;check option2 timeout
+	lda opt2.timer,x
+	beq .06
+	dec opt2.timer,x
+	bne .06
+	#ifdef MUSIC_TOGGLE
+	phx
+	jsr toggle.music
+	plx
+	#else
+	lda edge,x
+	ora #OPTION2_BUTTON
+	sta edge,x
+	#endif
+.06
+	inx
+	cpx number.of.players
+	bne check.controls.player.loop
+	lda pause.flag
+	bne check.controls.pause.loop
+	rts
+
+	#ifdef MUSIC_TOGGLE
+toggle.music
+	cpx my.player
+	bne .00
+	MUTE
+	lda Mute_flag
+	sta quiet
+.00
+	rts
+	#endif
+
+do.flip
+	stz pause.timer,x
+	stz opt2.timer,x
+	cpx my.player
+	bne .00
+	FLIP
+.00
+	rts
+
+;updates level, edge, control.level and control.edge
+;called once per frame, packs pause into joystick field (all 1's)
+;this packing is done for the sake of comlynx (one byte transmittion)
+;this is called by the system, the game gets info from control.level and
+;control.edge
+;the game should never actually see the pause mode, so does not have to
+;take it into account
+get.controls
+	GETJOY			;get joystick info from hardware
+	sta tmp
+	GETSWITCH		;get pause button
+	and #PAUSE_SWITCH
+	beq .01
+	lda tmp			;all 1's in joystick means pause
+	ora #$f0
+	sta tmp
+.01
+	lda tmp
+	ldx my.player
+	sta messages,x
+
+; do the comlynx calls here: exchange control info with other players
+	jsr wait.comlynx
+
+	ldx #0
+another.player
+	lda messages,x			;get new joystick info
+
+;massage for use by sys controls
+	pha
+	and #$f0
+	cmp #$f0
+	beq .10
+	pla
+	and #$0f
+	bra .11
+.10
+	pla
+.11
+	tay
+	eor control.level,x	;check for any changes
+	sty control.level,x	;store new joystick info
+	and control.level,x	;mask for leading edge only
+	sta control.edge,x	;store to edge buffer
+
+	lda messages,x
+;massage for use by game
+	pha
+	and #$f0
+	cmp #$f0
+	bne .00
+	pla
+	and #$0f
+	bra .01
+.00
+	pla
+.01
+	#ifndef MUSIC_TOGGLE
+	and #$fb		;don't let the data through now
+	#endif
+	tay
+	eor level,x	;check for any changes
+	sty level,x	;store new joystick info
+	and level,x	;mask for leading edge only
+	sta edge,x	;store to edge buffer
+	inx
+	cpx number.of.players
+	bne another.player
+	rts
+
+
+	#ifdef FAKE_COMLYNX
+ORNERY	.eq $1f		;not ornery (no pauses, resets)
+;ORNERY	.eq $3f		;very ornery (resets, pauses, etc.)
+wait.comlynx
+	jsr random
+	cmp #70
+	bcs nfc
+	jsr random
+	and #ORNERY
+	tax
+	lda fake.com.tab,x
+	sta tmp
+	jsr random
+	and #3
+	cmp my.player
+	beq nfc
+	tax
+	lda tmp
+	sta messages,x	
+nfc
+	rts
+
+fake.com.tab
+	.by $10,$20,$40,$80,$50,$60,$90,$a0
+	.by $10,$20,$40,$80,$50,$60,$90,$a0
+	.by $10,$20,$40,$80,$50,$60,$90,$a0
+	.by $00,$00,$00,$00,$00,$00,$00,$00
+	.by $00,$00,$00,$00,$00,$00,$00,$00
+	.by $00,$00,$00,$00,$00,$00,$00,$00
+	.by $00,$00,$00,$00,$01,$02,$03,$04
+	.by $08,$04,$04,$0c,$f4,$f0,$f8,$fc
+
+init.comlynx
+	lda #MAX_PLAYERS
+	sta number.of.players
+	lda #2
+	sta my.player
+	rts
+
+	#else
+wait.comlynx
+init.comlynx
+	rts
+
+	#endif
+
+
+
+
+
+	#else ;of ifdef MULTIPLAYER
+;================= SINGLE PLAYER =====================
+
+;----------------- check.controls --------------
+
+; control button processing: pause/restart/flip
+
+check.controls.pause.loop
+	jsr delay
+
+;entry point
+check.controls
+	jsr get.controls	;get joystic/control info for next frame
+check.controls.player.loop
+;set the timers
+	lda control.edge
+	and #$f0
+	cmp #$f0
+	bne .00
+	lda #DEBOUNCE
+	sta pause.timer
+.00
+	lda control.edge
+	and #OPTION2_BUTTON
+	beq .01
+	lda #DEBOUNCE
+	sta opt2.timer
+.01
+;1st flip check
+	lda control.edge
+	and #OPTION2_BUTTON
+	beq .02
+	lda control.level
+	and #$f0
+	cmp #$f0
+	bne .02
+	jsr do.flip
+.02
+;reset check
+	lda control.level
+	and #OPTION1_BUTTON+$f0
+	cmp #OPTION1_BUTTON+$f0
+	bne .03
+	jmp do.reset
+.03
+;2nd flip check
+	lda control.level
+	and #OPTION2_BUTTON
+	beq .04
+	lda control.edge
+	and #$f0
+	cmp #$f0
+	bne .04
+	lda control.edge	;this prevents double flip if in same frame
+	and #OPTION2_BUTTON
+	bne .04
+	jsr do.flip
+.04
+;check pause timeout
+	lda pause.timer
+	beq .05
+	dec pause.timer
+	bne .05
+	jsr toggle.pause
+.05
+;check option timeout
+	lda opt2.timer
+	beq .06
+	dec opt2.timer
+	bne .06
+	#ifdef MUSIC_TOGGLE
+	jsr toggle.music
+	#else
+	lda edge
+	ora #OPTION2_BUTTON
+	sta edge
+	#endif
+.06
+	lda pause.flag
+	bne check.controls.pause.loop
+	rts
+
+	#ifdef MUSIC_TOGGLE
+toggle.music
+	MUTE
+	lda Mute_flag
+	sta quiet
+	rts
+	#endif
+
+do.flip
+	stz pause.timer
+	stz opt2.timer
+	FLIP
+	rts
+
+;updates level, edge, control.level and control.edge
+;called once per frame, packs pause into joystick field (all 1's)
+;this packing is done for the sake of comlynx (one byte transmittion)
+;this is called by the system, the game gets info from control.level and
+;control.edge
+;the game should never actually see the pause mode, so does not have to
+;take it into account
+get.controls
+	GETJOY			;get joystick info from hardware
+	sta tmp
+	GETSWITCH		;get pause button
+	and #PAUSE_SWITCH
+	beq .03
+	lda tmp			;all 1's in joystick means pause
+	ora #$f0
+	sta tmp
+.03
+	lda tmp
+
+;massage for use by sys controls
+	pha
+	and #$f0
+	cmp #$f0
+	beq .10
+	pla
+	and #$0f
+	bra .11
+.10
+	pla
+.11
+	tay
+	eor control.level	;check for any changes
+	sty control.level	;store new joystick info
+	and control.level	;mask for leading edge only
+	sta control.edge	;store to edge buffer
+
+	lda tmp
+;massage for use by game
+	pha
+	and #$f0
+	cmp #$f0
+	bne .00
+	pla
+	and #$0f
+	bra .01
+.00
+	pla
+.01
+	#ifndef MUSIC_TOGGLE
+	and #$fb		;don't let the data through now
+	#endif
+	tay
+	eor level	;check for any changes
+	sty level	;store new joystick info
+	and level	;mask for leading edge only
+	sta edge	;store to edge buffer
+	rts
+
+	#endif ;of else for ifdef MULTIPLAYER
+
+
+
+toggle.pause
+	lda pause.flag
+	eor #$ff
+	sta pause.flag
+	bne show.paused
+
+clear.paused
+	#ifdef MUSIC_TOGGLE
+	lda quiet
+	bne .00
+	lda Mute_flag
+	beq .00
+	MUTE
+.00
+	#else
+	MUTE
+	#endif
+	lda pause.save.1
+	sta GREENC		;save old screen colors
+	lda pause.save.2
+	sta BLUEREDC
+	lda pause.save.3
+	sta BLUERED8
+	lda pause.save.4
+	sta GREEN8
+	rts
+	
+show.paused
+	#ifdef MUSIC_TOGGLE
+	lda Mute_flag
+	bne .00
+	MUTE
+.00
+	#else
+	MUTE
+	#endif
+	lda GREENC		;save old screen colors
+	sta pause.save.1
+	lda BLUEREDC
+	sta pause.save.2
+	lda BLUERED8
+	sta pause.save.3
+	lda GREEN8
+	sta pause.save.4
+	lda #$ff		;make message white on black
+	sta GREENC
+	sta BLUEREDC
+	stz GREEN8
+	stz BLUERED8
+; reset screen offsets to center "Paused"
+	stz HOFFL
+	stz HOFFH
+	stz VOFFL
+	stz VOFFH
+; display the "Paused Message"
+	DBUF_DISPLAY
+	SPRITES paused.scb,0
+	DBUF_DISPLAY
+	rts
+
+pause.save.1	.by 0
+pause.save.2	.by 0
+pause.save.3	.by 0
+pause.save.4	.by 0
+
+; wait for awhile & cold boot
+do.reset
+	STOPMUSIC		;music off
+	jsr clear.screen
+	jsr black.screen
+	ldx #60
+	stx tmp
+.00
+	WAITEOF
+	lda DisplayFrameCount
+	cmp tmp
+	bcc .00
+	jmp cold.start
+
+
+
+
+
+
+	#ifdef CHEAP_PAUSED
+; this is the cheap version of paused
+paused.scb
+	.by TWO_PER_PIXEL+NONCOLL_SPRITE
+	.by RELOAD_HV
+	.by 0
+	.wo 0,paused.data,32,38
+	.wo $400,$400		;expand to big message
+	.by $08,$c0		;the rest of the palette doesn't matter
+
+paused.data
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$03,$7a,$84
+	.BYTE	$09,$c3,$53,$53,$f9,$9a,$9a,$9a,$50
+	.BYTE	$09,$c3,$33,$33,$f9,$99,$59,$59,$90
+	.BYTE	$09,$c3,$53,$53,$f9,$9a,$9a,$59,$90
+	.BYTE	$09,$c3,$2b,$33,$f9,$95,$99,$59,$90
+	.BYTE	$09,$c3,$2b,$33,$fa,$9a,$9a,$9a,$50
+	.BYTE	$03,$7a,$84
+	.BYTE	$00
+; 52 total image bytes
+	#else
+
+paused.Data
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$03,$68,$54
+	.BYTE	$08,$38,$f5,$e3,$c7,$8d,$02,$80
+	.BYTE	$09,$28,$64,$d1,$17,$8f,$1e,$2c,$1a
+	.BYTE	$0b,$20,$25,$f0,$57,$8f,$1e,$24,$aa,$d2,$80
+	.BYTE	$0c,$18,$15,$f0,$a0,$af,$1e,$3c,$41,$55,$a5,$00
+	.BYTE	$0c,$18,$15,$f0,$e0,$af,$1e,$3c,$31,$65,$a9,$40
+	.BYTE	$0f,$10,$14,$b0,$d1,$42,$4b,$05,$78,$d0,$2b,$c2,$96,$5a
+	.BYTE	$94
+	.BYTE	$13,$b0,$2d,$46,$45,$19,$14,$24,$61,$12,$10,$58,$0d,$30
+	.BYTE	$25,$25,$96,$a5,$00
+	.BYTE	$14,$10,$97,$b5,$28,$0a,$d4,$c4,$40,$91,$02,$48,$55,$69
+	.BYTE	$46,$15,$20,$54,$50,$50
+	.BYTE	$16,$18,$74,$50,$52,$01,$45,$19,$24,$46,$11,$db,$00,$b5
+	.BYTE	$f9,$50,$56,$a5,$03,$22,$82,$80
+	.BYTE	$14,$20,$66,$75,$24,$02,$8e,$1a,$68,$88,$a1,$22,$88,$d2
+	.BYTE	$9a,$22,$58,$89,$a0,$a0
+	.BYTE	$17,$20,$56,$d5,$28,$0d,$1c,$34,$77,$56,$a5,$6a,$54,$70
+	.BYTE	$df,$52,$d2,$ad,$4a,$18,$4a,$20,$a0
+	.BYTE	$17,$20,$44,$71,$91,$c2,$47,$09,$1c,$14,$50,$91,$c3,$7d
+	.BYTE	$4a,$d2,$b5,$2f,$ea,$5a,$a5,$a9,$40
+	.BYTE	$18,$19,$86,$a9,$a8,$89,$61,$22,$86,$8e,$0a,$28,$48,$e1
+	.BYTE	$bf,$a5,$5a,$56,$96,$fd,$2b,$52,$d5,$28
+	.BYTE	$15,$19,$25,$9f,$0d,$0c,$34,$70,$51,$42,$47,$0d,$d5,$2a
+	.BYTE	$d2,$a5,$86,$8a,$12,$28,$68
+	.BYTE	$15,$18,$15,$d1,$11,$42,$47,$09,$14,$14,$70,$dd,$54,$ad
+	.BYTE	$4a,$48,$88,$a1,$23,$88,$80
+	.BYTE	$12,$18,$25,$51,$d9,$d4,$96,$0a,$98,$2a,$68,$25,$86,$92
+	.BYTE	$e2,$d5,$2b,$4a
+	.BYTE	$11,$18,$14,$52,$d1,$01,$4d,$41,$4d,$26,$9f,$05,$6d,$96
+	.BYTE	$a6,$a5,$00
+	.BYTE	$14,$18,$14,$52,$13,$01,$49,$71,$6a,$a5,$a5,$2c,$34,$b0
+	.BYTE	$d2,$c3,$45,$09,$24,$14
+	.BYTE	$10,$c8,$0b,$52,$bc,$9a,$d1,$10,$c8,$67,$4a,$f4,$52,$d1
+	.BYTE	$42,$40
+	.BYTE	$12,$d0,$0b,$52,$8f,$08,$f0,$15,$50,$50,$2a,$30,$89,$02
+	.BYTE	$a3,$04,$84,$2a
+	.BYTE	$10,$d8,$2d,$4a,$03,$c0,$a4,$02,$a0,$9a,$83,$c1,$26,$20
+	.BYTE	$8c,$12
+	.BYTE	$04,$c0,$2d,$4a
+	.BYTE	$04,$b8,$b5,$28
+	.BYTE	$04,$b8,$b5,$28
+	.BYTE	$04,$b2,$d4,$a0
+	.BYTE	$04,$b2,$d4,$a0
+	.BYTE	$02,$2a
+	.BYTE	$03,$80,$34
+	.BYTE	$00
+; 394 total image bytes
+paused.scb
+; Handy Sprite
+	.BYTE	TWO_PER_PIXEL+NONCOLL_SPRITE ; Control 0
+	.BYTE	RELOAD_HVST ; Control 1
+	.BYTE	$00 ; Control 2
+	.WORD	$0000	; Next Sprite
+	.WORD	paused.Data	; ImageData
+	.WORD	33	; HPos
+	.WORD	37	; VPos
+	.WORD	$0100	; HSize
+	.WORD	$0100	; VSize
+	.WORD	$0000	; Stretch
+	.WORD	$0000	; Tilt
+	; Palette
+
+; use palette to select which colors "paused" message is to be in
+	.BYTE	$08,$c0
+	#endif
+
+
+
+
+
+
+
+; ------------------ start.tune -------------------
+; Starts playing tune
+; x high byte of music address
+; a low byte of music address
+; y tune poke (some timing magic)
+
+start.tune
+	phy
+	PLAYMUSIC
+	ply
+	sty TIMER6
+	rts
+
+
+; ---------------- black.screen -------------
+; clears screen to black (no fade), but does not draw to screen
+black.screen
+	ldx #32-1
+.00
+	stz new.colors.rgb,x
+	stz old.colors.rgb,x
+	dex
+	bpl .00
+	WAITEOF
+	RGB16 old.colors.rgb
+	lda #1
+	sta new.colors
+	rts
+
+; --------------- fade.to.black -------------
+; initiates fade to all black operation
+fade.to.black
+	lda #0
+; warning! fall through to set.colors
+
+
+; --------------- set.colors ----------------
+; set color palette from table
+; note that this initiates a fade from the current palette to the new one
+; color set number in accum
+set.colors
+	asl
+	tax
+	lda color.pnts,x
+	sta tmp
+	lda color.pnts+1,x
+	sta tmp+1
+	ldy #32-1
+	sty fading	;non-zero
+.00
+	lda (tmp),y
+	sta new.colors.rgb,y
+	dey
+	bpl .00
+	rts
+
+; this is called by the system to fade to different color sets
+fade
+	lda slow.fade	;set to $ff to fade slowly
+	bpl .00
+	lda count
+	and #7
+	beq .00
+	rts
+.00
+	lda fading
+	beq done.fade
+	stz fading
+	ldy #1
+	ldx #15
+fade.1
+	lda new.colors.g,x
+	and #$f
+	sta tmp
+	lda old.colors.g,x
+	jsr fader
+	sta old.colors.g,x
+
+	lda new.colors.br,x
+	and #$f
+	sta tmp
+	lda old.colors.br,x
+	jsr fader
+	sta tmp+1
+
+	lda new.colors.br,x
+	lsr
+	lsr
+	lsr
+	lsr
+	and #$f
+	sta tmp
+	lda old.colors.br,x
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr fader
+	asl
+	asl
+	asl
+	asl
+	and #$f0
+	ora tmp+1
+	sta old.colors.br,x
+	dex
+	bpl fade.1
+	lda #1
+	sta new.colors
+done.fade
+	rts
+
+fader
+	and #$f			;trim current fade
+	cmp tmp			;compare with target
+	beq fader.2		;done
+	bcs fader.1		;don't go past target
+	ina
+	and #$f
+	sty fading		;y is non-zero
+	rts
+fader.1
+	dea
+	sty fading		;y is non-zero
+fader.2
+	rts
+
+
+num		.eq $ff
+dig.wid		.eq 8
+scpos		.eq 160-{SCORE_SIZE*2*dig.wid}
+
+; this is called by the system to display the score
+; the score is right justified in the upper right corner of the screen
+; leading zeros are trimmed, and a score of all 0 produces a blank
+
+show.score
+	stz HOFFL		;clear scrolling
+	stz HOFFH
+	stz VOFFL
+	stz VOFFH
+	stz tmp			;blank leading zeros
+	lda #scpos
+	sta score.scb+7
+
+	ldx #SCORE_SIZE-1
+show.score.loop
+	lda score,x
+	jsr show.score.byte
+	dex
+	bpl show.score.loop
+	rts
+
+show.score.byte
+	phx
+	pha
+	lsr
+	lsr
+	lsr
+	lsr
+	jsr show.score.nib
+	pla
+	and #$f
+	jsr show.score.nib
+	plx
+	rts
+
+show.score.nib
+	ldx tmp
+	bne score.nib.1
+	cmp #0
+	bne score.nib.1
+clear.score.nib
+	lda #10			;blank leading zeros
+	bra score.nib.2
+score.nib.1
+	ldx #1
+	stx tmp
+score.nib.2
+	tax
+	lda num.tab.lo,x
+	sta score.scb+5
+	lda num.tab.hi,x
+	sta score.scb+6
+
+	RESPRITE score.scb,0
+	lda score.scb+7
+	clc
+	adc #dig.wid
+	sta score.scb+7
+	rts
+
+score.scb
+	.by TWO_PER_PIXEL+NONCOLL_SPRITE
+	.by RELOAD_HVST
+	.by 0
+	.wo 0,num0.data
+	.wo 0,2
+	.wo $0100
+	.wo $0100
+	.wo 0,0
+	.by $08,$c0
+
+
+num0.data
+
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$04,$80,$54,$00
+	.BYTE	$05,$0a,$38,$28,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$0a,$38,$28,$00
+	.BYTE	$04,$80,$54,$00
+	.BYTE	$00
+; 54 total image bytes
+num1.data
+
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$04,$08,$34,$00
+	.BYTE	$06,$80,$14,$34,$10,$00
+	.BYTE	$05,$88,$8a,$82,$00
+	.BYTE	$06,$80,$14,$34,$10,$00
+	.BYTE	$06,$09,$04,$34,$10,$00
+	.BYTE	$06,$09,$04,$34,$10,$00
+	.BYTE	$05,$12,$18,$48,$00
+	.BYTE	$05,$82,$5a,$08,$00
+	.BYTE	$03,$3a,$00
+	.BYTE	$00
+; 47 total image bytes
+
+num2.data
+
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$04,$80,$54,$00
+	.BYTE	$05,$0a,$38,$28,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$22,$1a,$08,$00
+	.BYTE	$06,$80,$14,$50,$50,$00
+	.BYTE	$05,$0a,$18,$48,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$82,$5a,$08,$00
+	.BYTE	$03,$3a,$00
+	.BYTE	$00
+; 48 total image bytes
+num3.data
+
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$04,$80,$54,$00
+	.BYTE	$05,$0a,$38,$28,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$22,$1a,$08,$00
+	.BYTE	$06,$09,$04,$54,$10,$00
+	.BYTE	$05,$22,$1a,$08,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$0a,$38,$28,$00
+	.BYTE	$04,$80,$54,$00
+	.BYTE	$00
+; 49 total image bytes
+num4.data
+
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$04,$10,$44,$00
+	.BYTE	$06,$08,$14,$54,$10,$00
+	.BYTE	$06,$80,$14,$74,$10,$00
+	.BYTE	$07,$0a,$1a,$08,$68,$20,$00
+	.BYTE	$07,$82,$18,$28,$60,$a0,$00
+	.BYTE	$05,$82,$6a,$08,$00
+	.BYTE	$05,$22,$18,$28,$00
+	.BYTE	$06,$11,$04,$74,$10,$00
+	.BYTE	$04,$10,$54,$00
+	.BYTE	$00
+; 51 total image bytes
+num5.data
+
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$03,$3a,$00
+	.BYTE	$05,$82,$5a,$08,$00
+	.BYTE	$05,$82,$18,$88,$00
+	.BYTE	$05,$82,$48,$28,$00
+	.BYTE	$05,$22,$1a,$08,$00
+	.BYTE	$06,$80,$34,$34,$10,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$0a,$38,$28,$00
+	.BYTE	$04,$80,$54,$00
+	.BYTE	$00
+; 46 total image bytes
+
+num6.data
+
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$04,$08,$44,$00
+	.BYTE	$06,$80,$14,$54,$10,$00
+	.BYTE	$05,$0a,$18,$48,$00
+	.BYTE	$05,$82,$18,$48,$00
+	.BYTE	$05,$82,$4a,$08,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$0a,$38,$28,$00
+	.BYTE	$04,$80,$54,$00
+	.BYTE	$00
+; 49 total image bytes
+
+num7.data
+
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$03,$3a,$00
+	.BYTE	$05,$82,$5a,$08,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$22,$1a,$08,$00
+	.BYTE	$06,$08,$14,$30,$50,$00
+	.BYTE	$06,$09,$04,$30,$50,$00
+	.BYTE	$06,$09,$04,$34,$10,$00
+	.BYTE	$06,$09,$04,$34,$10,$00
+	.BYTE	$04,$08,$34,$00
+	.BYTE	$00
+; 49 total image bytes
+
+num8.data
+
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$04,$80,$54,$00
+	.BYTE	$05,$0a,$38,$28,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$88,$8e,$82,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$0a,$38,$28,$00
+	.BYTE	$04,$80,$54,$00
+	.BYTE	$00
+; 52 total image bytes
+
+num9.data
+
+; Handy Sprite Image Data
+; Bits per Pixel = 2
+; Next data is down-right
+	.BYTE	$04,$80,$54,$00
+	.BYTE	$05,$0a,$38,$28,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$07,$82,$18,$28,$68,$20,$00
+	.BYTE	$05,$0a,$4a,$08,$00
+	.BYTE	$06,$80,$34,$34,$10,$00
+	.BYTE	$06,$08,$14,$30,$50,$00
+	.BYTE	$05,$88,$8a,$0a,$00
+	.BYTE	$04,$80,$44,$00
+	.BYTE	$00
+; 50 total image bytes
+nada.data
+	.by 0,0,0,0
+
+num.tab.lo
+	.by <num0.data,<num1.data,<num2.data,<num3.data,<num4.data
+	.by <num5.data,<num6.data,<num7.data,<num8.data,<num9.data
+	.by <nada.data
+
+num.tab.hi
+	.by >num0.data,>num1.data,>num2.data,>num3.data,>num4.data
+	.by >num5.data,>num6.data,>num7.data,>num8.data,>num9.data
+	.by >nada.data
+
+
+
+
+
+; ---------------- start.sound ----------------
+; sound effect rountine
+; makes sound based on the value in A
+start.sound
+	tax
+	ldy sound.pri,x
+	lda sound.hi,x
+	pha
+	lda sound.lo,x
+	plx
+	PLAYHSFX
+	rts
+
+
+; ------------- random -------------
+; random number generator
+; returns with number in Acc (does not affect other registers)
+; (sequence of 64K numbers)
+random
+	phy
+	ldy random.ndx
+	lda random,y
+	eor cold.start,y	;some place in code
+	eor random.ndx
+	inc random.ndx
+	bne .00
+	inc random.ndx+1
+.00
+	eor random.ndx+1
+	ply
+	rts
+
+
+
+;----------------- add.score ------------------------
+; add to score
+; enter with BCD value ($00 to $99) in Acc
+add.score
+	ldx #0
+; note: falls through to add.big.score
+
+
+
+;----------------- add.big.score ------------------------
+; enter here to add large numbers to score
+; enter with BCD value ($00 to $99) in Acc
+; Reg X should contain the exponent: 1=times100, 2=times10000, 3=times1000000 
+add.big.score
+	sed
+	clc
+	adc score
+	sta score
+	bcc done.score
+add.score.1
+	php
+	inx
+	cpx #SCORE_SIZE		; prevents fatal type wrap-around
+	beq done.score.1
+	plp
+	lda score,x
+	adc #0
+	sta score,x
+	bcs add.score.1
+done.score
+	cld	
+	rts
+done.score.1
+	plp
+	cld
+	rts
+
+black.Data
+; Handy Sprite Image Data
+; Bits per Pixel = 1
+; Next data is down-right
+	.BYTE	$02,$08
+	.BYTE	$02,$08
+	.BYTE	$00
+; 5 total image bytes
+black
+; Handy Sprite
+	.BYTE	ONE_PER_PIXEL+BACKNONCOLL_SPRITE ; Control 0
+	.BYTE	RELOAD_HVST ; Control 1
+	.BYTE	$00 ; Control 2
+	.WORD	$0000	; Next Sprite
+	.WORD	black.Data	; ImageData
+	.WORD	0	; HPos
+	.WORD	0	; VPos
+	.WORD	80*256	; HSize
+	.WORD	51*256	; VSize
+	.WORD	$0000	; Stretch
+	.WORD	$0000	; Tilt
+	; Palette
+	.BYTE	$00
+
+
+beg.sys
+; system code source includes
+	.in 6502:src/sysdata.src
+	.in 6502:src/hsfx.src
+	.in 6502:src/hmusic.src
+	.in 6502:src/sprite.src
+	.in 6502:src/controls.src
+	.in 6502:src/sys.src
+	.in 6502:src/display.src
+	.in 6502:src/cart.src
+len.sys		.eq *-beg.sys

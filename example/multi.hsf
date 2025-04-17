@@ -1,0 +1,13 @@
+* Specification file for example
+* 12/6/89
+
+
+	OUT multi.rom
+	.IN 6502:include/cartdefs.i
+
+	FILE
+	BIN intro.bin
+
+	FILE
+	BIN multi.bin
+
