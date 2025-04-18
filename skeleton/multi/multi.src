@@ -1,6 +1,7 @@
-; Example program skeleton - single player
+; Example program skeleton - multiplayer
 ; 12/8/89 M. Peter Engelbrite
 	.list off
+
 ;masks for game controls
 ;JOY_DOWN
 ;JOY_UP
@@ -23,14 +24,15 @@
 
 ; sys control constants
 ; set to adjust system to specific game needs
-;MULTIPLAYER		.eq 1	;define this for comlynx game
-;MAX_PLAYERS		.eq 4	;maximum number of players possible in game
-;FAKE_COMLYNX		.eq 1	;simulates other players
-SCORE_SIZE		.eq 3	;this is the number of bytes (1/2 # of digits)
-CHEAP_PAUSED		.eq 1	;define this for smaller "paused" message
+MULTIPLAYER		.eq 1	;define this for comlynx game
+MAX_PLAYERS		.eq 4	;maximum number of players possible in game
+FAKE_COMLYNX	.eq 1	;simulates other players
+SCORE_SIZE		.eq 5	;this is the number of bytes (1/2 # of digits)
+CHEAP_PAUSED	.eq 1	;define this for smaller "paused" message
 FRAME_RATE		.eq 4	;number of 60Hz frames in a game frame
-;MUSIC_TOGGLE		.eq 1	;define for Opt 2 = music on/off
-;SCREEN_CLEAR		.eq 1	;clear the screen each frame automatically
+MUSIC_TOGGLE	.eq 1	;define for Opt 2 = music on/off
+SCREEN_CLEAR	.eq 1	;clear the screen each frame automatically
+
 
 	.in sys.src
 	BEGIN_ZPAGE
@@ -61,6 +63,9 @@ game.start
 ; ---- MAIN GAME LOOP ----
 ; example
 loop
+	ldx #>blob
+	ldy #<blob
+	jsr do.sprite	;display a sprite
 	lda count		;this counts once per game frame
 	and #$7f
 	bne .01			;once in a while
@@ -70,37 +75,54 @@ loop
 	jsr add.score
 .01
 ; display sprites
-	lda level	;joystick/firebutton levels
+	ldx my.player
+	ldx number.of.players
+face.loop
+	lda level,x	;joystick/firebutton levels
 	bit #JOY_UP
 	beq .02
-	dec face+SCB_VPOS	;move the face around
+	dec facev,x
+
 .02
 	bit #JOY_DOWN
 	beq .03
-	inc face+SCB_VPOS
+	inc facev,x
 .03
 	bit #JOY_LEFT
 	beq .04
-	dec face+SCB_HPOS
+	dec faceh,x
 .04
 	bit #JOY_RIGHT
 	beq .05
-	inc face+SCB_HPOS
+	inc faceh,x
 .05
-	lda edge	;joystick/firebutton leading edges
-	bit #OPTION2_BUTTON
+
+
+	cpx my.player		;check button for my.player only
+	bne .06
+	lda edge,x	;joystick/firebutton leading edges
+	bit #BUTTON_A	
+;	bit #OPTION2_BUTTON
 	beq .06
+	phx
 	lda #lazsnd
 	jsr start.sound
 	lda #$50
 	jsr add.score
+	plx
 .06
-	ldx #>blob
-	ldy #<blob
-	jsr do.sprite	;display a sprite
+	lda facev,x
+	sta face+SCB_VPOS
+	lda faceh,x
+	sta face+SCB_HPOS
+	phx
 	ldx #>face
 	ldy #<face
 	jsr do.sprite	;display a sprite
+	plx
+	dex
+	bpl face.loop
+
 	jsr game.frame	;wait for next game frame (& display screen, etc.)
 	bra loop
 
@@ -735,8 +757,8 @@ len.free	.eq Buffer2-* ;number of bytes unused RAM for game buffers
 ;------------------------------------------------------------------
 ; more game variables/buffers (use the .ds command only)
 ; there is room for 512 bytes here
-my.small.buffer	.ds 512
-
+faceh	.ds 4
+facev	.ds 4
 
 ;------------------------------------------------------------------
 

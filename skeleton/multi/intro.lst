@@ -1,0 +1,730 @@
+Epyx HandyAsm 1.12      intro                           16-Apr-12512:11:23 Page    1
+                                                        12:11:23  
+
+    1                   		.list off
+    3                   		.list on
+    4 FFFE:             		.or $6000
+    5 6000:             intro.pal
+    6                   ; white on black
+    7                   ; Handy Color Palette
+    8                   ; Greens
+    9 6000:00 0F 00 00  	.BYTE	$00,$0f,$00,$00,$00,$00,$00,$00
+    9      00 00 00 00  
+    9                   
+   10 6008:00 00 00 00  	.BYTE	$00,$00,$00,$00,$00,$00,$00,$00
+   10      00 00 00 00  
+   10                   
+   11                   ; Blues-Reds
+   12                   
+   13 6010:00 FF 00 00  	.BYTE	$00,$ff,$00,$00,$00,$00,$00,$00
+   13      00 00 00 00  
+   13                   
+   14 6018:00 00 00 00  	.BYTE	$00,$00,$00,$00,$00,$00,$00,$00
+   14      00 00 00 00  
+   14                   
+   15                   
+   16 6020:             intro.background.scb
+   17 6020:81           	.by THREE_PER_PIXEL+BACKNONCOLL_SPRITE
+   18 6021:10           	.by RELOAD_HV
+   19 6022:00           	.by 0
+   20 6023:00 00 00 00  	.wo demo.scb,intro.background.data,0,0
+   20      00 00 00 00  
+   20                   
+   21 602B:00 52 00 34  	.wo 82*256,52*256		;expand to clear screen
+   21                   
+   22 602F:00 00 00 00  	.by $00,$00,$00,$00	;the rest of the palette doesn't 
+   22                   
+   23 6033:             intro.background.data
+   24                   ; Handy Sprite Image Data
+   25                   ; Bits per Pixel = 3
+   26                   ; Next data is down-right
+   27 6033:03 0F 00     	.BYTE	$03,$0f,$00
+   28 6036:03 0F 00     	.BYTE	$03,$0f,$00
+   29 6039:00           	.BYTE	$00
+   30                   
+   31 603A:             demo.Data
+   32                   ; Handy Sprite Image Data
+   33                   ; Bits per Pixel = 1
+   34                   ; Next data is down-right
+   35 603A:0A 39 16 97  	.BYTE	$0a,$39,$16,$97,$38,$b3,$35,$80,$56,$34
+   35      38 B3 35 80  
+   35      56 34        
+   36 6044:0B 19 D4 9D  	.BYTE	$0b,$19,$d4,$9d,$19,$32,$07,$28,$54,$13,$00
+   36      19 32 07 28  
+   36      54 13 00     
+   37 604F:0B 99 BE 73  	.BYTE	$0b,$99,$be,$73,$e1,$2e,$21,$63,$12,$72,$a0
+   37      E1 2E 21 63  
+   37      12 72 A0     
+   38 605A:0D A3 DF 28  	.BYTE	$0d,$a3,$df,$28,$d2,$bb,$8f,$e7,$dc,$fc,$0b,$29
+   38      D2 BB 8F E7  
+   38      DC FC 0B 29  
+   38      B0           
+Epyx HandyAsm 1.12      intro                           16-Apr-12512:11:23 Page    2
+                                                        12:11:23  
+
+   39 6067:0F 3F AE 0F  	.BYTE	$0f,$3f,$ae,$0f,$90,$3b,$06,$8d,$dc,$ee,$0b,$28
+   39      90 3B 06 8D  
+   39      DC EE 0B 28  
+   39      F1 07        
+   40 6075:00           	.BYTE	$00
+   41 6076:0F D7 E3 3B  	.BYTE	$0f,$d7,$e3,$3b,$5c,$3d,$a2,$48,$ef,$67,$85,$94
+   41      5C 3D A2 48  
+   41      EF 67 85 94  
+   41      69 42        
+   42 6084:80           	.BYTE	$80
+   43 6085:0E CF 86 96  	.BYTE	$0e,$cf,$86,$96,$78,$77,$03,$33,$7f,$1c,$69,$46
+   43      78 77 03 33  
+   43      7F 1C 69 46  
+   43      98 28        
+   44 6093:0E 30 35 05  	.BYTE	$0e,$30,$35,$05,$18,$f7,$b2,$7c,$1b,$37,$30,$93
+   44      18 F7 B2 7C  
+   44      1B 37 30 93  
+   44      85 00        
+   45 60A1:0D 28 55 05  	.BYTE	$0d,$28,$55,$05,$31,$55,$87,$e8,$fe,$e6,$12,$80
+   45      31 55 87 E8  
+   45      FE E6 12 80  
+   45      A0           
+   46 60AE:0D 28 35 83  	.BYTE	$0d,$28,$35,$83,$50,$d5,$bd,$e1,$f8,$73,$07,$40
+   46      50 D5 BD E1  
+   46      F8 73 07 40  
+   46      50           
+   47 60BB:0D 20 35 83  	.BYTE	$0d,$20,$35,$83,$40,$d6,$89,$e8,$fd,$e6,$12,$70
+   47      40 D6 89 E8  
+   47      FD E6 12 70  
+   47      E0           
+   48 60C8:0D 18 55 3F  	.BYTE	$0d,$18,$55,$3f,$c0,$fc,$f1,$3d,$1f,$9c,$e1,$ce
+   48      C0 FC F1 3D  
+   48      1F 9C E1 CE  
+   48      1C           
+   49 60D5:0D A8 6A 7F  	.BYTE	$0d,$a8,$6a,$7f,$81,$e1,$ef,$bc,$7e,$0e,$70,$e6
+   49      81 E1 EF BC  
+   49      7E 0E 70 E6  
+   49      0E           
+   50 60E2:0E A0 D2 1C  	.BYTE	$0e,$a0,$d2,$1c,$a1,$58,$d4,$07,$fc,$3e,$3a,$02
+   50      A1 58 D4 07  
+   50      FC 3E 3A 02  
+   50      98 38        
+   51 60F0:0F A0 CE 24  	.BYTE	$0f,$a0,$ce,$24,$a1,$56,$14,$af,$f8,$7c,$7f,$c1
+   51      A1 56 14 AF  
+   51      F8 7C 7F C1  
+   51      0C 82        
+   52 60FE:40           	.BYTE	$40
+   53 60FF:0E C1 C0 D3  	.BYTE	$0e,$c1,$c0,$d3,$07,$48,$73,$07,$e8,$78,$7f,$c6
+   53      07 48 73 07  
+   53      E8 78 7F C6  
+   53      0E 34        
+   54 610D:0C 09 74 09  	.BYTE	$0c,$09,$74,$09,$20,$f3,$3f,$c1,$c0,$79,$87,$80
+   54      20 F3 3F C1  
+   54      C0 79 87 80  
+   54                   
+   55 6119:0A 09 15 9F  	.BYTE	$0a,$09,$15,$9f,$4b,$10,$33,$09,$50,$30
+   55      4B 10 33 09  
+   55      50 30        
+   56 6123:07 10 97 9B  	.BYTE	$07,$10,$97,$9b,$79,$41,$40
+Epyx HandyAsm 1.12      intro                           16-Apr-12512:11:23 Page    3
+                                                        12:11:23  
+
+   56      79 41 40     
+   57 612A:04 79 04 C0  	.BYTE	$04,$79,$04,$c0
+   57                   
+   58 612E:00           	.BYTE	$00
+   59                   ; 245 total image bytes
+   60 612F:             demo.scb
+   61                   ; Handy Sprite
+   62 612F:05           	.BYTE	ONE_PER_PIXEL+NONCOLL_SPRITE ; Control 0
+   63 6130:30           	.BYTE	RELOAD_HVST ; Control 1
+   64 6131:00           	.BYTE	$00 ; Control 2
+   65 6132:00 00        	.WORD	$0000	; Next Sprite
+   66 6134:3A 60        	.WORD	demo.Data	; ImageData
+   67 6136:20 00        	.WORD	32	; HPos
+   68 6138:28 00        	.WORD	40	; VPos
+   69 613A:00 01        	.WORD	$0100	; HSize
+   70 613C:00 01        	.WORD	$0100	; VSize
+   71 613E:00 00        	.WORD	$0000	; Stretch
+   72 6140:00 00        	.WORD	$0000	; Tilt
+   73                   	; Palette
+   74 6142:01           	.BYTE	$01
+   75                   
+   76                   
+   77                   
+   78                   
+   79                   
+   80 6143:             intro.Data
+   81                   ; Handy Sprite Image Data
+   82                   ; Bits per Pixel = 3
+   83                   ; Next data is down-right
+   84 6143:27 DF 1C 71  	.BYTE	$27,$df,$1c,$71,$c7,$fc,$7f,$f0,$3f,$03,$fe,$3f
+   84      C7 FC 7F F0  
+   84      3F 03 FE 3F  
+   84      E0 5C        
+   85 6151:83 FF 81 FF  	.BYTE	$83,$ff,$81,$ff,$1f,$80,$07,$02,$e4,$17,$e3,$8f
+   85      1F 80 07 02  
+   85      E4 17 E3 8F  
+   85      F8 17        
+   86 615F:20 0F 08 17  	.BYTE	$20,$0f,$08,$17,$f8,$e3,$8f,$f8,$ff,$8e,$38
+   86      F8 E3 8F F8  
+   86      FF 8E 38     
+   87 616A:26 E7 1C 71  	.BYTE	$26,$e7,$1c,$71,$c0,$e0,$7f,$8e,$38,$e3,$80,$38
+   87      C0 E0 7F 8E  
+   87      38 E3 80 38  
+   87      E3 98        
+   88 6178:77 8E 38 E3  	.BYTE	$77,$8e,$38,$e3,$8e,$07,$10,$87,$28,$c7,$1c,$70
+   88      8E 07 10 87  
+   88      28 C7 1C 70  
+   88      07 30        
+   89 6186:E7 1C 71 C7  	.BYTE	$e7,$1c,$71,$c7,$1c,$71,$0b,$70,$07,$1c
+   89      1C 71 0B 70  
+   89      07 1C        
+   90 6190:24 18 FF 1C  	.BYTE	$24,$18,$ff,$1c,$0e,$07,$1c,$71,$c0,$bd,$07,$e0
+   90      0E 07 1C 71  
+   90      C0 BD 07 E0  
+   90      0B 90        
+   91 619E:6B 8E 38 E3  	.BYTE	$6b,$8e,$38,$e3,$8e,$51,$0e,$51,$7e,$38,$ff,$81
+   91      8E 51 0E 51  
+   91      7E 38 FF 81  
+   91      72 0F        
+Epyx HandyAsm 1.12      intro                           16-Apr-12512:11:23 Page    4
+                                                        12:11:23  
+
+   92 61AC:F1 C7 E0 71  	.BYTE	$f1,$c7,$e0,$71,$c7,$1c,$0b,$80
+   92      C7 1C 0B 80  
+   92                   
+   93 61B4:24 18 17 E8  	.BYTE	$24,$18,$17,$e8,$1c,$0e,$38,$e3,$8e,$21,$6e,$38
+   93      1C 0E 38 E3  
+   93      8E 21 6E 38  
+   93      03 90        
+   94 61C2:6B 8E 38 E3  	.BYTE	$6b,$8e,$38,$e3,$8e,$51,$0e,$51,$8e,$38,$03,$8e
+   94      8E 51 0E 51  
+   94      8E 38 03 8E  
+   94      61 EE        
+   95 61D0:38 E3 8E 38  	.BYTE	$38,$e3,$8e,$38,$e3,$88,$43,$80
+   95      E3 88 43 80  
+   95                   
+   96 61D8:24 18 FF 1C  	.BYTE	$24,$18,$ff,$1c,$7f,$c7,$1c,$71,$c0,$bd,$07,$1c
+   96      7F C7 1C 71  
+   96      C0 BD 07 1C  
+   96      0B 90        
+   97 61E6:6B F0 3F E3  	.BYTE	$6b,$f0,$3f,$e3,$8e,$51,$0e,$50,$2f,$41,$ff,$02
+   97      8E 51 0E 50  
+   97      2F 41 FF 02  
+   97      E4 1F        
+   98 61F4:FC 0E 38 FF  	.BYTE	$fc,$0e,$38,$ff,$8f,$f8,$17,$00
+   98      8F F8 17 00  
+   98                   
+   99 61FC:02 00        	.BYTE	$02,$00
+  100 61FE:04 70 2C 00  	.BYTE	$04,$70,$2c,$00
+  100                   
+  101 6202:04 48 5C 00  	.BYTE	$04,$48,$5c,$00
+  101                   
+  102 6206:0A 40 5C 1D  	.BYTE	$0a,$40,$5c,$1d,$78,$78,$78,$40,$1c,$00
+  102      78 78 78 40  
+  102      1C 00        
+  103 6210:0D 38 54 0D  	.BYTE	$0d,$38,$54,$0d,$1c,$85,$78,$70,$15,$90,$81,$e1
+  103      1C 85 78 70  
+  103      15 90 81 E1  
+  103      30           
+  104 621D:0F 30 1C 0D  	.BYTE	$0f,$30,$1c,$0d,$64,$8d,$8f,$0b,$13,$b6,$52,$40
+  104      64 8D 8F 0B  
+  104      13 B6 52 40  
+  104      D4 86        
+  105 622B:40           	.BYTE	$40
+  106 622C:13 30 14 0D  	.BYTE	$13,$30,$14,$0d,$7c,$8c,$af,$07,$10,$a4,$90,$a5
+  106      7C 8C AF 07  
+  106      10 A4 90 A5  
+  106      90 A6        
+  107 623A:07 92 B2 92  	.BYTE	$07,$92,$b2,$92,$00
+  107      00           
+  108 623F:1A 28 14 0D  	.BYTE	$1a,$28,$14,$0d,$1a,$14,$ba,$52,$a5,$29,$20,$eb
+  108      1A 14 BA 52  
+  108      A5 29 20 EB  
+  108      C6 44        
+  109 624D:4A 48 95 3C  	.BYTE	$4a,$48,$95,$3c,$20,$1c,$ca,$52,$d9,$22,$42,$80
+  109      20 1C CA 52  
+  109      D9 22 42 80  
+  109                   
+  110 6259:1C 20 14 0D  	.BYTE	$1c,$20,$14,$0d,$f2,$52,$25,$62,$52,$25,$4f,$09
+  110      F2 52 25 62  
+  110      52 25 4F 09  
+Epyx HandyAsm 1.12      intro                           16-Apr-12512:11:23 Page    5
+                                                        12:11:23  
+
+  110      58 3B        
+  111 6267:22 52 44 A4  	.BYTE	$22,$52,$44,$a4,$96,$92,$12,$8a,$65,$29,$6c,$91
+  111      96 92 12 8A  
+  111      65 29 6C 91  
+  111      21 40        
+  112 6275:1E 20 14 FD  	.BYTE	$1e,$20,$14,$fd,$89,$48,$95,$a9,$49,$68,$e4,$29
+  112      89 48 95 A9  
+  112      49 68 E4 29  
+  112      61 6A        
+  113 6283:47 64 4A 5A  	.BYTE	$47,$64,$4a,$5a,$94,$92,$d2,$cd,$59,$25,$b5,$29
+  113      94 92 D2 CD  
+  113      59 25 B5 29  
+  113      47 02        
+  114 6291:87 00        	.BYTE	$87,$00
+  115 6293:20 18 14 C5  	.BYTE	$20,$18,$14,$c5,$91,$25,$25,$fd,$89,$48,$94,$89
+  115      91 25 25 FD  
+  115      89 48 94 89  
+  115      4A 90        
+  116 62A1:E0 D0 6A 06  	.BYTE	$e0,$d0,$6a,$06,$24,$4a,$5a,$90,$a0,$d0,$a1,$10
+  116      24 4A 5A 90  
+  116      A0 D0 A1 10  
+  116      A5 12        
+  117 62AF:B6 11 0E 00  	.BYTE	$b6,$11,$0e,$00
+  117                   
+  118 62B3:25 18 14 F5  	.BYTE	$25,$18,$14,$f5,$92,$25,$25,$b1,$29,$02,$83,$04
+  118      92 25 25 B1  
+  118      29 02 83 04  
+  118      BB 12        
+  119 62C1:52 25 2A 56  	.BYTE	$52,$25,$2a,$56,$98,$52,$c8,$90,$af,$92,$91,$29
+  119      98 52 C8 90  
+  119      AF 92 91 29  
+  119      12 91        
+  120 62CF:29 F8 94 89  	.BYTE	$29,$f8,$94,$89,$5a,$94,$a9,$51,$40
+  120      5A 94 A9 51  
+  120      40           
+  121 62D8:24 18 2C F5  	.BYTE	$24,$18,$2c,$f5,$a9,$4b,$62,$52,$25,$3f,$52,$8a
+  121      A9 4B 62 52  
+  121      25 3F 52 8A  
+  121      A5 62        
+  122 62E6:52 24 1A 51  	.BYTE	$52,$24,$1a,$51,$9b,$64,$4a,$aa,$be,$a4,$4a,$44
+  122      9B 64 4A AA  
+  122      BE A4 4A 44  
+  122      AC 4A        
+  123 62F4:CA 29 A4 AC  	.BYTE	$ca,$29,$a4,$ac,$4a,$54,$a8,$a0
+  123      4A 54 A8 A0  
+  123                   
+  124 62FC:23 18 2C F5  	.BYTE	$23,$18,$2c,$f5,$b1,$2b,$62,$52,$25,$7f,$52,$8a
+  124      B1 2B 62 52  
+  124      25 7F 52 8A  
+  124      A5 6A        
+  125 630A:52 24 1A 50  	.BYTE	$52,$24,$1a,$50,$1a,$18,$65,$b9,$12,$91,$2b,$12
+  125      1A 18 65 B9  
+  125      12 91 2B 12  
+  125      14 F5        
+  126 6318:B1 2B 12 91  	.BYTE	$b1,$2b,$12,$91,$2b,$45,$00
+  126      2B 45 00     
+  127 631F:22 18 2C C5  	.BYTE	$22,$18,$2c,$c5,$b2,$25,$62,$fa,$91,$2b,$52,$96
+  127      B2 25 62 FA  
+  127      91 2B 52 96  
+Epyx HandyAsm 1.12      intro                           16-Apr-12512:11:23 Page    6
+                                                        12:11:23  
+
+  127      A5 69        
+  128 632D:50 E8 C0 68  	.BYTE	$50,$e8,$c0,$68,$61,$96,$e4,$4a,$44,$ac,$48,$53
+  128      61 96 E4 4A  
+  128      44 AC 48 53  
+  128      D6 C4        
+  129 633B:A4 4A 44 AD  	.BYTE	$a4,$4a,$44,$ad,$14,$00
+  129      14 00        
+  130 6341:25 18 24 FD  	.BYTE	$25,$18,$24,$fd,$4a,$44,$ac,$4a,$44,$af,$ea,$52
+  130      4A 44 AC 4A  
+  130      44 AF EA 52  
+  130      D4 AD        
+  131 634F:4A 49 43 05  	.BYTE	$4a,$49,$43,$05,$46,$2d,$64,$49,$41,$2e,$c8,$94
+  131      46 2D 64 49  
+  131      41 2E C8 94  
+  131      89 5A        
+  132 635D:94 82 BC 89  	.BYTE	$94,$82,$bc,$89,$48,$94,$89,$5a,$28
+  132      48 94 89 5A  
+  132      28           
+  133 6366:25 10 0D 1C  	.BYTE	$25,$10,$0d,$1c,$dd,$4a,$44,$ad,$4a,$7e,$25,$6a
+  133      DD 4A 44 AD  
+  133      4A 7E 25 6A  
+  133      52 D4        
+  134 6374:AD 48 D0 54  	.BYTE	$ad,$48,$d0,$54,$42,$96,$44,$85,$3e,$95,$89,$48
+  134      42 96 44 85  
+  134      3E 95 89 48  
+  134      95 A9        
+  135 6382:48 3B B4 A4  	.BYTE	$48,$3b,$b4,$a4,$4a,$44,$ad,$14,$00
+  135      4A 44 AD 14  
+  135      00           
+  136 638B:24 10 15 14  	.BYTE	$24,$10,$15,$14,$0d,$1a,$15,$f2,$52,$25,$6a,$52
+  136      0D 1A 15 F2  
+  136      52 25 6A 52  
+  136      D4 85        
+  137 6399:46 A1 45 05  	.BYTE	$46,$a1,$45,$05,$46,$37,$62,$52,$44,$ad,$83,$5f
+  137      46 37 62 52  
+  137      44 AD 83 5F  
+  137      B6 25        
+  138 63A7:25 B6 A5 25  	.BYTE	$25,$b6,$a5,$25,$22,$8d,$02,$80
+  138      22 8D 02 80  
+  138                   
+  139 63AF:1C 10 15 14  	.BYTE	$1c,$10,$15,$14,$4d,$14,$15,$14,$35,$24,$85,$1c
+  139      4D 14 15 14  
+  139      35 24 85 1C  
+  139      0D 18        
+  140 63BD:85 34 15 14  	.BYTE	$85,$34,$15,$14,$15,$14,$85,$14,$25,$8c,$a3,$83
+  140      15 14 85 14  
+  140      25 8C A3 83  
+  140      A2 80        
+  141 63CB:1E 10 1D 84  	.BYTE	$1e,$10,$1d,$84,$3d,$fe,$02,$49,$68,$b2,$da,$00
+  141      3D FE 02 49  
+  141      68 B2 DA 00  
+  141      A9 20        
+  142 63D9:68 60 98 C4  	.BYTE	$68,$60,$98,$c4,$29,$61,$2e,$e5,$d6,$49,$6c,$98
+  142      29 61 2E E5  
+  142      D6 49 6C 98  
+  142      F4 30        
+  143 63E7:94 50        	.BYTE	$94,$50
+  144 63E9:1F 10 3D 86  	.BYTE	$1f,$10,$3d,$86,$15,$16,$c8,$92,$5d,$6d,$04,$b1
+  144      15 16 C8 92  
+Epyx HandyAsm 1.12      intro                           16-Apr-12512:11:23 Page    7
+                                                        12:11:23  
+
+  144      5D 6D 04 B1  
+  144      14 92        
+  145 63F7:F4 46 EB 62  	.BYTE	$f4,$46,$eb,$62,$15,$b6,$4b,$0d,$45,$83,$07,$45
+  145      15 B6 4B 0D  
+  145      45 83 07 45  
+  145      8F 42        
+  146 6405:09 63 28     	.BYTE	$09,$63,$28
+  147 6408:1E 10 35 16  	.BYTE	$1e,$10,$35,$16,$ed,$bb,$61,$24,$db,$50,$7a,$39
+  147      ED BB 61 24  
+  147      DB 50 7A 39  
+  147      7B 75        
+  148 6416:6E D1 01 B1  	.BYTE	$6e,$d1,$01,$b1,$51,$b9,$5b,$88,$c5,$45,$89,$60
+  148      51 B9 5B 88  
+  148      C5 45 89 60  
+  148      0F 60        
+  149 6424:05 40        	.BYTE	$05,$40
+  150 6426:21 18 2D 16  	.BYTE	$21,$18,$2d,$16,$c5,$a3,$6d,$25,$16,$55,$ac,$b6
+  150      C5 A3 6D 25  
+  150      16 55 AC B6  
+  150      EC 47        
+  151 6434:C0 1B B5 BC  	.BYTE	$c0,$1b,$b5,$bc,$dd,$bf,$6e,$b7,$9d,$6e,$ed,$a0
+  151      DD BF 6E B7  
+  151      9D 6E ED A0  
+  151      15 10        
+  152 6442:BD BA DA 00  	.BYTE	$bd,$ba,$da,$00,$a8
+  152      A8           
+  153 6447:1F 20 2D A6  	.BYTE	$1f,$20,$2d,$a6,$b6,$81,$61,$41,$e5,$db,$6b,$b6
+  153      B6 81 61 41  
+  153      E5 DB 6B B6  
+  153      6C 60        
+  154 6455:2C 54 3B CD  	.BYTE	$2c,$54,$3b,$cd,$da,$de,$6e,$ba,$dd,$1e,$bc,$b6
+  154      DA DE 6E BA  
+  154      DD 1E BC B6  
+  154      80 28        
+  155 6463:B0 C0 A8     	.BYTE	$b0,$c0,$a8
+  156 6466:18 28 45 90  	.BYTE	$18,$28,$45,$90,$d9,$e6,$44,$d2,$90,$b1,$90,$b2
+  156      D9 E6 44 D2  
+  156      90 B1 90 B2  
+  156      1E B6        
+  157 6474:6B 79 BB 6B  	.BYTE	$6b,$79,$bb,$6b,$67,$30,$a3,$06,$21,$a0
+  157      67 30 A3 06  
+  157      21 A0        
+  158 647E:15 28 45 08  	.BYTE	$15,$28,$45,$08,$79,$91,$34,$c4,$2c,$64,$2c,$a4
+  158      79 91 34 C4  
+  158      2C 64 2C A4  
+  158      6F 1B        
+  159 648C:37 69 6D 04  	.BYTE	$37,$69,$6d,$04,$40,$c4,$54
+  159      40 C4 54     
+  160 6493:10 30 45 80  	.BYTE	$10,$30,$45,$80,$79,$91,$35,$e5,$04,$58,$35,$a6
+  160      79 91 35 E5  
+  160      04 58 35 A6  
+  160      00 C6        
+  161 64A1:40 50        	.BYTE	$40,$50
+  162 64A3:0F 38 3D 79  	.BYTE	$0f,$38,$3d,$79,$91,$35,$e6,$44,$d3,$99,$6d,$4c
+  162      91 35 E6 44  
+  162      D3 99 6D 4C  
+  162      45 96        
+  163 64B1:40           	.BYTE	$40
+  164 64B2:16 38 25 90  	.BYTE	$16,$38,$25,$90,$b4,$c4,$38,$60,$56,$42,$d2,$91
+Epyx HandyAsm 1.12      intro                           16-Apr-12512:11:23 Page    8
+                                                        12:11:23  
+
+  164      B4 C4 38 60  
+  164      56 42 D2 91  
+  164      D0 82        
+  165 64C0:98 DC 63 0C  	.BYTE	$98,$dc,$63,$0c,$73,$00,$2c,$a2
+  165      73 00 2C A2  
+  165                   
+  166 64C8:15 38 25 08  	.BYTE	$15,$38,$25,$08,$31,$0e,$20,$15,$88,$a6,$22,$a2
+  166      31 0E 20 15  
+  166      88 A6 22 A2  
+  166      05 32        
+  167 64D6:BB 34 D4 0D  	.BYTE	$bb,$34,$d4,$0d,$b0,$41,$00
+  167      B0 41 00     
+  168 64DD:16 40 15 10  	.BYTE	$16,$40,$15,$10,$31,$0d,$20,$15,$08,$29,$80,$15
+  168      31 0D 20 15  
+  168      08 29 80 15  
+  168      10 29        
+  169 64EB:98 18 28 90  	.BYTE	$98,$18,$28,$90,$43,$08,$18,$80
+  169      43 08 18 80  
+  169                   
+  170 64F3:0E 68 79 91  	.BYTE	$0e,$68,$79,$91,$20,$c6,$00,$54,$40,$a4,$61,$25
+  170      20 C6 00 54  
+  170      40 A4 61 25  
+  170      20 A4        
+  171 6501:0E 68 79 91  	.BYTE	$0e,$68,$79,$91,$20,$a4,$20,$54,$20,$a4,$a0,$e5
+  171      20 A4 20 54  
+  171      20 A4 A0 E5  
+  171      20 E4        
+  172 650F:0E 60 79 91  	.BYTE	$0e,$60,$79,$91,$20,$c4,$42,$54,$03,$12,$82,$95
+  172      20 C4 42 54  
+  172      03 12 82 95  
+  172      04 90        
+  173 651D:0F 60 31 15  	.BYTE	$0f,$60,$31,$15,$20,$15,$80,$29,$30,$29,$28,$31
+  173      20 15 80 29  
+  173      30 29 28 31  
+  173      48 51        
+  174 652B:00           	.BYTE	$00
+  175 652C:0D 58 39 38  	.BYTE	$0d,$58,$39,$38,$15,$31,$28,$31,$20,$31,$48,$61
+  175      15 31 28 31  
+  175      20 31 48 61  
+  175      00           
+  176 6539:0F 58 31 48  	.BYTE	$0f,$58,$31,$48,$8d,$05,$24,$07,$25,$06,$28,$06
+  176      8D 05 24 07  
+  176      25 06 28 06  
+  176      21 05        
+  177 6547:20           	.BYTE	$20
+  178 6548:0D 50 79 91  	.BYTE	$0d,$50,$79,$91,$21,$e4,$44,$a0,$c5,$00,$c4,$40
+  178      21 E4 44 A0  
+  178      C5 00 C4 40  
+  178      A4           
+  179 6555:0D 50 79 99  	.BYTE	$0d,$50,$79,$99,$20,$bc,$9c,$18,$9c,$18,$90,$14
+  179      20 BC 9C 18  
+  179      9C 18 90 14  
+  179      80           
+  180 6562:0C 58 79 88  	.BYTE	$0c,$58,$79,$88,$2f,$27,$06,$27,$06,$26,$05,$20
+  180      2F 27 06 27  
+  180      06 26 05 20  
+  180                   
+  181 656E:05 78 60 29  	.BYTE	$05,$78,$60,$29,$00
+  181      00           
+Epyx HandyAsm 1.12      intro                           16-Apr-12512:11:23 Page    9
+                                                        12:11:23  
+
+  182 6573:1E 78 58 29  	.BYTE	$1e,$78,$58,$29,$10,$df,$00,$7f,$c7,$fc,$0b,$f8
+  182      10 DF 00 7F  
+  182      C7 FC 0B F8  
+  182      7E 07        
+  183 6581:FC 7F C7 E5  	.BYTE	$fc,$7f,$c7,$e5,$02,$f0,$02,$e4,$02,$fc,$1f,$f1
+  183      02 F0 02 E4  
+  183      02 FC 1F F1  
+  183      FF 1F        
+  184 658F:F0 2E        	.BYTE	$f0,$2e
+  185 6591:1F 78 58 29  	.BYTE	$1f,$78,$58,$29,$10,$e7,$00,$0e,$07,$00,$71,$0f
+  185      10 E7 00 0E  
+  185      07 00 71 0F  
+  185      71 C7        
+  186 659F:00 70 07 1C  	.BYTE	$00,$70,$07,$1c,$a2,$bc,$0e,$39,$04,$78,$ff,$03
+  186      A2 BC 0E 39  
+  186      04 78 FF 03  
+  186      81 C7        
+  187 65AD:1C 70 38     	.BYTE	$1c,$70,$38
+  188 65B0:1D 78 78 20  	.BYTE	$1d,$78,$78,$20,$c7,$00,$0e,$07,$10,$17,$f8,$e3
+  188      C7 00 0E 07  
+  188      10 17 F8 E3  
+  188      8F F8        
+  189 65BE:FF 8E 39 45  	.BYTE	$ff,$8e,$39,$45,$78,$1c,$72,$01,$7f,$01,$c0,$ff
+  189      78 1C 72 01  
+  189      7F 01 C0 FF  
+  189      8F C0        
+  190 65CC:1C           	.BYTE	$1c
+  191 65CD:1E 78 78 20  	.BYTE	$1e,$78,$78,$20,$e7,$00,$0e,$07,$00,$71,$0f,$71
+  191      E7 00 0E 07  
+  191      00 71 0F 71  
+  191      C0 1C        
+  192 65DB:70 07 1C A2  	.BYTE	$70,$07,$1c,$a2,$bc,$0e,$39,$04,$78,$ff,$03,$81
+  192      BC 0E 39 04  
+  192      78 FF 03 81  
+  192      C7 1C        
+  193 65E9:70 38        	.BYTE	$70,$38
+  194 65EB:1D 78 78 20  	.BYTE	$1d,$78,$78,$20,$17,$c0,$ff,$8f,$f8,$17,$f0,$e3
+  194      17 C0 FF 8F  
+  194      F8 17 F0 E3  
+  194      8F F8        
+  195 65F9:FF 8F CC 25  	.BYTE	$ff,$8f,$cc,$25,$c0,$17,$20,$ff,$1c,$0e,$07,$1c
+  195      C0 17 20 FF  
+  195      1C 0E 07 1C  
+  195      71 C0        
+  196 6607:B8           	.BYTE	$b8
+  197 6608:00           	.BYTE	$00
+  198                   ; 1222 total image bytes
+  199 6609:             intro.scb
+  200                   ; Handy Sprite
+  201 6609:85           	.BYTE	THREE_PER_PIXEL+NONCOLL_SPRITE ; Control 0
+  202 660A:10           	.BYTE	RELOAD_HV ; Control 1
+  203 660B:00           	.BYTE	$00 ; Control 2
+  204 660C:00 00        	.WORD	$0000	; Next Sprite
+  205 660E:43 61        	.WORD	intro.Data	; ImageData
+  206 6610:1F 00        	.WORD	31	; HPos
+  207 6612:15 00        	.WORD	21	; VPos
+  208 6614:00 01        	.WORD	$0100	; HSize
+  209 6616:00 01        	.WORD	$0100	; VSize
+  210                   	; Palette
+Epyx HandyAsm 1.12      intro                           16-Apr-12512:11:23 Page   10
+                                                        12:11:23  
+
+  211 6618:01 23 45 67  	.BYTE	$01,$23,$45,$67
+  211                   
+  212                   
+  213                   
+  214                   	.en
+Epyx HandyAsm 1.12      Symbols                         16-Apr-12512:11:23 Page   11
+                                                        12:11:23  
+
+$0040 ACCUMULATE                        $0040 ALGO_3
+$0000 ASM.EQUSYMS                       $010C ASM.VERSION
+$FD40 ATTENREG0                         $FD41 ATTENREG1
+$FD42 ATTENREG2                         $FD43 ATTENREG3
+$FD86 AUDIN                             $0010 AUDIN_BIT
+$FD20 AUDIO0                            $FD28 AUDIO1
+$FD30 AUDIO2                            $FD38 AUDIO3
+$0000 AUD_1                             $0004 AUD_16
+$0001 AUD_2                             $0005 AUD_32
+$0002 AUD_4                             $0006 AUD_64
+$0003 AUD_8                             $0004 AUD_BACKUP
+$0007 AUD_CLOCK_MASK                    $0005 AUD_CONTROL
+$0006 AUD_COUNTER                       $0001 AUD_FEEDBACK
+$0007 AUD_LINKING                       $0007 AUD_OTHER
+$0002 AUD_OUTPUT                        $0003 AUD_SHIFT
+$0000 AUD_VOLCNTRL                      $0001 A_BUTTON
+$0000 BACKGROUND_SPRITE                 $0001 BACKNONCOLL_SPRITE
+$0000 BACK_SHADOW_SPRITE                $00C0 BITS_MASK
+$FDB0 BLUERED0                          $FDB1 BLUERED1
+$FDB2 BLUERED2                          $FDB3 BLUERED3
+$FDB4 BLUERED4                          $FDB5 BLUERED5
+$FDB6 BLUERED6                          $FDB7 BLUERED7
+$FDB8 BLUERED8                          $FDB9 BLUERED9
+$FDBA BLUEREDA                          $FDBB BLUEREDB
+$FDBC BLUEREDC                          $FDBD BLUEREDD
+$FDBE BLUEREDE                          $FDBF BLUEREDF
+$0002 BORROW_IN                         $0001 BORROW_OUT
+$0003 BOUNDARY_SPRITE                   $0002 BSHADOW_SPRITE
+$0002 B_BUTTON                          $0002 CART0_IO_INACTIVE
+$0004 CART1_IO_INACTIVE                 $0002 CART_ADDR_DATA
+$0001 CART_ADDR_STROBE                  $0002 CART_POWER_OFF
+$FC0F COLLADRH                          $FC0E COLLADRL
+$FC0B COLLBASH                          $FC0A COLLBASL
+$FC25 COLLOFFH                          $FC24 COLLOFFL
+$FD91 CPUSLEEP                          $FFFE CPU_IRQ
+$FFFA CPU_NMI                           $FFFC CPU_RESET
+$FD95 DISPADRH                          $FD94 DISPADRL
+$FD92 DISPCTL                           $1FE0 DISPLAY_BUFSIZE
+$0008 DISP_COLOR                        $0002 DISP_FLIP
+$0004 DISP_FOURBIT                      $0001 DMA_ENABLE
+$0001 DRAW_LEFT                         $0002 DRAW_UP
+$0008 ENABLE_COUNT                      $0080 ENABLE_INT
+$0020 ENABLE_INTEGRATE                  $0010 ENABLE_RELOAD
+$0004 EVER_ON                           $0001 EXTERNAL_POWER
+$0080 FEEDBACK_7                        $0004 FLIP_BUTTON
+$00C0 FOUR_PER_PIXEL                    $0004 FRAMERR
+$FDA0 GREEN0                            $FDA1 GREEN1
+$FDA2 GREEN2                            $FDA3 GREEN3
+$FDA4 GREEN4                            $FDA5 GREEN5
+$FDA6 GREEN6                            $FDA7 GREEN7
+$FDA8 GREEN8                            $FDA9 GREEN9
+$FDAA GREENA                            $FDAB GREENB
+$FDAC GREENC                            $FDAD GREEND
+$FDAE GREENE                            $FDAF GREENF
+$FC00 HARDWARE_START                    $FD00 HCOUNT
+$0020 HFLIP                             $FC05 HOFFH
+$FC04 HOFFL                             $0001 HORIZONTAL_INT
+$FCC4 HOWIE                             $FC15 HPOSSTRTH
+Epyx HandyAsm 1.12      Symbols                         16-Apr-12512:11:23 Page   12
+                                                        12:11:23  
+
+$FC14 HPOSSTRTL                         $FC29 HSIZOFFH
+$FC28 HSIZOFFL                          $0002 INNER_BUTTON
+$FD80 INTRST                            $FD81 INTSET
+$FD8B IODAT                             $FD8A IODIR
+$FCC3 IOData                            $FCC2 IOStatus
+$FCB0 JOYSTICK                          $0080 JOY_DOWN
+$0010 JOY_LEFT                          $0020 JOY_RIGHT
+$0040 JOY_UP                            $0004 LAST_CLOCK
+$FCC0 LEDS                              $0010 LEFT0_SELECT
+$0020 LEFT1_SELECT                      $0040 LEFT2_SELECT
+$0080 LEFT3_SELECT                      $0008 LEFTHAND
+$0008 LEFTHANDED                        $00F0 LEFT_ATTENMASK
+$0080 LITERAL                           $FFF9 MAPCTL
+$FC55 MATHA                             $FC54 MATHB
+$FC53 MATHC                             $0020 MATHCARRY
+$FC52 MATHD                             $FC63 MATHE
+$FC62 MATHF                             $FC61 MATHG
+$FC60 MATHH                             $FC6F MATHJ
+$FC6E MATHK                             $FC6D MATHL
+$FC6C MATHM                             $FC57 MATHN
+$FC56 MATHP                             $0040 MATHWARNING
+$0080 MATHWORKING                       $FD88 MIKEYHREV
+$FD89 MIKEYSREV                         $FD00 MIKEY_BASE
+$0002 MIKEY_SPACE                       $FD44 MPAN
+$FD50 MSTEREO                           $FD9C MTEST0
+$FD9D MTEST1                            $FD9E MTEST2
+$0004 NOEXP                             $0005 NONCOLL_SPRITE
+$0004 NORMAL_SPRITE                     $0020 NO_COLLIDE
+$0000 ONE_PER_PIXEL                     $0008 OPTION1_BUTTON
+$0004 OPTION2_BUTTON                    $0001 OUTER_BUTTON
+$0008 OVERRUN                           $0001 PARBIT
+$0010 PAREN                             $0010 PARERR
+$0001 PAREVEN                           $0001 PAUSE_SWITCH
+$FD93 PBKUP                             $0002 POWERON
+$FC2F PROCADRH                          $FC2E PROCADRL
+$FCB2 RCART_0                           $FCB3 RCART_1
+$0010 READ_ENABLE                       $0010 RELOAD_HV
+$0020 RELOAD_HVS                        $0030 RELOAD_HVST
+$0030 RELOAD_MASK                       $0000 RELOAD_NONE
+$0008 RESETERR                          $0040 RESET_DONE
+$0008 RESTART_BUTTON                    $0008 RESTLESS
+$0008 REUSE_PALETTE                     $0001 RIGHT0_SELECT
+$0002 RIGHT1_SELECT                     $0004 RIGHT2_SELECT
+$0008 RIGHT3_SELECT                     $000F RIGHT_ATTENMASK
+$0004 ROM_SPACE                         $0002 RXBRK
+$0040 RXINTEN                           $0040 RXRDY
+$FC2D SCBADRH                           $FC2C SCBADRL
+$FC11 SCBNEXTH                          $FC10 SCBNEXTL
+$FC23 SCVPOSH                           $FC22 SCVPOSL
+$FD90 SDONEACK                          $FD8C SERCTL
+$FD8D SERDAT                            $FD10 SERIALRATE
+$0010 SERIAL_INT                        $0007 SHADOW_SPRITE
+$0080 SIGNMATH                          $0004 SKIP_SPRITE
+$FC82 SPRCOLL                           $FC80 SPRCTL0
+$FC81 SPRCTL1                           $FC13 SPRDLINEH
+$FC12 SPRDLINEL                         $FC21 SPRDOFFH
+$FC20 SPRDOFFL                          $FC91 SPRGO
+$FC19 SPRHSIZH                          $FC18 SPRHSIZL
+$FC83 SPRINIT                           $0002 SPRITESTOP
+Epyx HandyAsm 1.12      Symbols                         16-Apr-12512:11:23 Page   13
+                                                        12:11:23  
+
+$0002 SPRITETOSTOP                      $0001 SPRITEWORKING
+$0001 SPRITE_GO                         $FC92 SPRSYS
+$FC1B SPRVSIZH                          $FC1A SPRVSIZL
+$FC1D STRETCHH                          $FC1C STRETCHL
+$FC90 SUZYBUSEN                         $FC88 SUZYHREV
+$FC89 SUZYSREV                          $FC00 SUZY_BASE
+$0001 SUZY_SPACE                        $FCB1 SWITCHES
+$FD87 SYSCTL1                           $0080 THREE_PER_PIXEL
+$FC03 TILTACUMH                         $FC02 TILTACUML
+$FC1F TILTH                             $FC1E TILTL
+$FD00 TIMER0                            $0001 TIMER0_INT
+$FD04 TIMER1                            $0002 TIMER1_INT
+$FD08 TIMER2                            $0004 TIMER2_INT
+$FD0C TIMER3                            $0008 TIMER3_INT
+$FD10 TIMER4                            $FD14 TIMER5
+$0020 TIMER5_INT                        $FD18 TIMER6
+$0040 TIMER6_INT                        $FD1C TIMER7
+$0080 TIMER7_INT                        $0008 TIMER_DONE
+$0000 TIM_BACKUP                        $0001 TIM_CONTROLA
+$0003 TIM_CONTROLB                      $0002 TIM_COUNT
+$FC01 TMPADRH                           $FC00 TMPADRL
+$0080 TURBO_DISABLE                     $0040 TWO_PER_PIXEL
+$0002 TXBRK                             $0020 TXEMPTY
+$0080 TXINTEN                           $0004 TXOPEN
+$0080 TXRDY                             $0004 UNSAFEACCESS
+$0004 UNSAFEACCESSRST                   $FD08 VCOUNT
+$0008 VECTOR_SPACE                      $0004 VERTICAL_INT
+$0010 VFLIP                             $FC0D VIDADRH
+$FC0C VIDADRL                           $FC09 VIDBASH
+$FC08 VIDBASL                           $FC07 VOFFH
+$FC06 VOFFL                             $FC17 VPOSSTRTH
+$FC16 VPOSSTRTL                         $FC27 VSIZACUMH
+$FC26 VSIZACUML                         $FC2B VSIZOFFH
+$FC2A VSIZOFFL                          $0010 VSTRETCH
+$0010 VSTRETCHING                       $0006 XOR_SHADOW_SPRITE
+$0006 XOR_SPRITE                        $603A demo.Data
+$612F demo.scb                          $6143 intro.Data
+$6033 intro.background.data             $6020 intro.background.scb
+$6000 intro.pal                         $6609 intro.scb

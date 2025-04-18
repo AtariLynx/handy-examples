@@ -41,7 +41,7 @@ BUTTON_B		.eq INNER_BUTTON
 		.in	6502:macros/controls.mac
 		.in	6502:macros/display.mac
 		.in	6502:macros/cart.mac
-;	.list on
+	.list on
 
 
 ; zero page variables for sys
@@ -141,9 +141,11 @@ cold.start
 	INITEOF
 	INITSUZY
 	SETDBUF	Buffer1,Buffer2
+	CLI
+
 	jsr clear.screen	; prevent garbage on screen while setting up
 	jsr black.screen
-	DISPLAY_ON
+;	DISPLAY_ON
 
 ; clear stretch and tilt
 	ldx #3
@@ -1341,8 +1343,8 @@ beg.sys
 	.in 6502:src/sysdata.src
 	.in 6502:src/hsfx.src
 	.in 6502:src/hmusic.src
-	.in 6502:src/sprite.src
-	.in 6502:src/controls.src
+;	.in 6502:src/sprite.src
+;	.in 6502:src/controls.src
 	.in 6502:src/sys.src
 	.in 6502:src/display.src
 	.in 6502:src/cart.src

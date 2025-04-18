@@ -1,3 +1,0 @@
-asm intro
-asm single +R +H30000
-handyrom single.hsf
