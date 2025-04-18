@@ -1,0 +1,129 @@
+; test tone for tambours
+; HSPL Music File
+; (Minimum duration used to create this file:  1)
+
+
+PRI 196
+DFV
+ASD 100 
+TPO 4
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+;==================VFM test of fourth (sustain) parameter===================================
+
+
+SLP
+
+
+
+	c.1	3	;loop start reference scale
+	d.1	3
+	e.1	3
+	f.1	3
+	g.1	3
+	a.1	3
+	b.1	3
+	c.2	3
+	c.2	3	
+	d.2	3
+	e.2	3
+	f.2	3
+	g.2	3
+	a.2	3
+	b.2	3
+	c.3 	3
+	rest 48
+
+
+
+ ADSR 22,70,15,70,75	
+
+VFM 0,0,0,1,0		;very slight
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	192
+VFM 0,0,0,2,0		;
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	192
+VFM 0,0,0,4,0		;
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	192
+VFM 0,0,0,8,0		;
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	192
+VFM 0,0,0,16,0		;
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	192
+VFM 0,0,0,32,0		;
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	192
+VFM 0,0,0,64,0		;
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	192
+VFM 0,0,0,128,0		
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	192	;wraps around once on 192 value
+VFM 0,0,0,256,0		 
+	c.3	24
+	c.3	48
+	f.3	96	;ping! at end
+	f.3	192	;wraps twice
+
+
+LOP 0
+SLP			;===notice this little bit excluded by the previous 
+			;===infinite loop-sort of a two voice effecxt?
+			;===it might be useable at some point.
+
+
+ ADSR 22,70,15,70,75	
+VFM 0,0,0,56,0		
+	c.3	24
+	c.3	24
+	f.3	24	
+	g.3	24	
+
+	c.3	24
+	c.3	24
+	f.3	24	
+	g.3	24	
+
+	c.3	24
+	c.3	24
+	f.3	24	
+	g.3	24	
+
+	c.3	24
+	c.3	24
+	f.3	24	
+	g.3	24	
+
+	c.3	24
+	c.3	24
+	f.3	24	
+	g.3	24	
+
+
+LOP 0
+	EMS
+
+ .end

@@ -1,0 +1,85 @@
+; bass.spl
+; Calgames bmx bass line ring part
+
+SLP
+	GTR 0
+	;IVB 0,768,Pulse*16,$05,$C5
+	LTR -36
+	ASD 2
+    ; Bar 1 
+    SLP2 
+	e.3 2
+	e.3 2
+	f.3 2
+	f.3 2
+	f#3 2
+	f#3 2
+	f.3 2
+	f.3 2
+    LOP2 4 
+
+    ; BAR 5 
+    SLP2
+	a.3 2
+	a.3 2
+	a#3 2
+	a#3 2
+	b.3 2
+	b.3 2
+	a#3 2
+	a#3 2
+    LOP2 2
+
+    ; Bar 7 
+    SLP2
+	e.3 2
+	e.3 2
+	f.3 2
+	f.3 2
+	f#3 2
+	f#3 2
+	f.3 2
+	f.3 2
+    LOP2 2
+
+    ; BAR 9 
+	b.3 2
+	b.3 2
+	b.3 2
+	b.3 2
+	b.3 2
+	b.3 2
+	b.3 2
+	b.3 2
+
+	c.4 2
+	c.4 2
+	c.4 2
+	c.4 2
+	c.4 2
+	c.4 2
+	c.4 2
+	c.4 2
+
+	d.4 2
+	d.4 2
+	d.4 2
+	d.4 2
+	d.4 2
+	d.4 2
+	d.4 2
+	d.4 2
+
+	e.4 4
+	e.3 4
+	e.3 2
+	e.3 2
+	e.3 2
+	e.3 2
+LOP 4
+e.3 2
+Rest 6
+Rest 16+8
+EMS
+.end	
+

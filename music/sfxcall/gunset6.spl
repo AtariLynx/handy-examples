@@ -1,0 +1,28 @@
+TPO 4
+PRI 30
+; Track 4:  NewBsDrm ===
+;=====================================gunset6
+			SLP
+SFX hammer.bfx, 24
+SFX snare1.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX snare1.bfx,  18
+SFX jamzwhap.bfx,  6
+
+
+SFX hammer.bfx, 18
+SFX hammer.bfx, 6
+SFX snare1.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX snare1.bfx,  24
+
+			LOP 8
+
+
+EMS
+
+

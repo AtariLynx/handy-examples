@@ -1,0 +1,35 @@
+; === buzybee.spl ===========================================================
+; HSPL Music File
+; Conversion of KCS file buzybee.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+
+
+PRI 200
+DFV
+;ADSR 7,99,4,78,12
+ADSR 3,90,2,60,2
+ASD 5
+TPO 5
+;FB $256,LTR 31...this combo provides a 20%pulse wave that is slightly flat			
+;FB $127,LTR 36...makes for a squarish sound exactly quarter step sharp
+;FB $13, LTR 46...A bit sharp with some high harmonic sounds making it brighter
+;FB $14, LTR 47...Quartertone flat-bright nasal tone
+;FB $3,LTR 7...A bit sharp-good harmonic content
+;FB $4,LTR 19...less sharp than above-less high harmonix, too
+;FB $52, LTR 47...FLAT N'BRASSY
+;FB $5, LTR 22...MORE FLAT AND BUZZY
+			SLP
+ 			
+
+
+; === Track 3:  bassline ===
+; Bar 1
+	as4	48
+	rest    24
+			LOP 0
+
+
+	EMS
+
+	.end

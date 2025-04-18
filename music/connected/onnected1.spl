@@ -1,0 +1,334 @@
+; === connected1.spl =========================================================
+; HSPL Music File
+; Conversion of KCS file connected.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+
+PRI 200
+;DFV
+FB $CA
+ADSR 5,110,6,92,12
+VFM 4,0,0,0,0
+AGD 37
+TPO 4
+GTR 13    ; GTR FOR FB OF $CA
+;GTR -27  ; GTR FOR NORMAL FB
+
+SLP
+
+; === Track 1:  CONNECTD ===
+; Bar 1
+; Bar 2
+	gs4	5+31
+	gs4	5+19
+	cs5	6+6
+	as4	7+17
+; Bar 3
+	gs4	5+31
+	gs4	5+19
+	cs5	6+6
+	fs4	7+23
+; Bar 4 (crossed by last note)
+	fs4	6
+	b.4	6+6
+	ds5	6+6
+	fs4	6
+	ds5	7+5
+	fs4	6
+	b.4	7+5
+	ds5	6+6
+	fs4	5+7
+; Bar 5
+	fs5	6+6
+	fs4	8+4
+	fs5	8+4
+	fs4	6
+	fs5	7+5
+	fs4	6
+	fs5	9+3
+	gs4	11+1
+	gs5	5+7
+; Bar 6
+	b.5	11+1
+	as5	5+1
+	b.5	5+7
+	b.5	6
+	as5	6+6
+	as5	10+2
+	fs5	7+35
+; Bar 7 (crossed by last note)
+	cs5	6
+	fs5	11+1
+	gs5	7+5
+	cs5	6
+	b.5	7+5
+	b.5	7+5
+	as5	5+1
+	b.5	11+1
+	as5	6
+	fs5	6+36
+; Bar 8
+	b.5	8+4
+	ds6	6
+	b.5	6
+	fs6	12
+	b.5	6
+	ds6	6+24
+; Bar 9 (crossed by last note)
+	fs6	18
+	f.6	6
+	cs6	6
+	gs5	6
+	ds6	12
+	fs5	12
+	b.5	12
+	as5	6
+	cs5	53+55
+; Bar 10 (crossed by last note)
+; Bar 11 (crossed by last note)
+	fs4	5+1
+	gs4	6
+	as4	6
+	b.4	6
+	b.4	6+6
+	cs5	6+12
+	b.4	6
+	as4	6
+	b.4	5+7
+	as4	5+7
+; Bar 12
+	fs4	5+19
+	fs4	8+22
+	b.3	5+1
+	ds4	6+6
+	fs4	5+7
+	b.3	10+2
+; Bar 13
+	b.4	10+14
+	ds5	8+16
+	fs5	9+15
+	b.5	10+2
+	cs6	9+15
+; Bar 14 (crossed by last note)
+	as5	8+82
+; Bar 15 (crossed by last note)
+	fs4	5+1
+	gs4	6
+	as4	6
+	b.4	18+12
+	cs5	10+2
+	as4	6
+	b.4	5+1
+	cs5	5+23
+; Bar 16 (crossed by last note)
+	as5	4
+	b.5	13+9
+	b.5	9+3
+	b.5	11+1
+	as5	7+5
+	fs5	6
+	cs5	18+12
+; Bar 17
+	cs5	6
+	b.5	12+6
+	as5	8+4
+	b.5	6+6
+	as5	6+12
+	fs5	5+1
+	cs5	5+7
+; Bar 18
+	fs5	5+91
+; Bar 19
+	fs2	89+7
+; Bar 20
+	b.2	24
+	cs5	6
+	fs5	6
+	b.5	6+6
+	ds6	6
+	b.5	6
+	fs6	12
+	b.5	6
+	ds6	6
+	b.2	5+19
+; Bar 21 (crossed by last note)
+	fs6	18
+	f.6	6
+	cs6	6
+	gs5	6
+	ds6	12
+	fs5	12
+	b.5	12
+	as5	6
+	cs5	35+7
+; Bar 22 (crossed by last note)
+	cs5	36+12
+	b.5	7+5
+; Bar 23
+	as5	5+1
+	fs5	5+1
+	cs5	7+11
+	b.4	5+1
+	cs5	36+12
+	cs5	6+6
+; Bar 24
+	fs5	7+77
+	ds5	7+5
+; Bar 25
+	gs5	6+78
+	cs5	12
+; Bar 26
+	fs5	6+96
+; Bar 27 (crossed by last note)
+	fs4	5+1
+	gs4	6
+	as4	6
+	b.4	5+1
+	b.4	5+7
+	b.4	6
+	b.4	5+1
+	b.4	5+7
+	b.4	6+24
+; Bar 28
+	b.5	11+1
+	as5	5+1
+	b.5	6+6
+	b.5	6
+	as5	9+3
+	as5	10+2
+	fs5	10+32
+; Bar 29 (crossed by last note)
+	cs5	6
+	fs5	11+1
+	gs5	7+5
+	cs5	6
+	b.5	5+7
+	b.5	7+5
+	as5	5+1
+	b.5	11+1
+	as5	6
+	fs5	6+192
+; Bar 30
+; Bar 31 (crossed by last note)
+; Bar 32
+	b.5	11+1
+	as5	5+1
+	b.5	6+6
+	b.5	6
+	as5	9+3
+	as5	10+2
+	fs5	10+32
+; Bar 33 (crossed by last note)
+	cs5	6
+	fs5	11+1
+	gs5	7+5
+	cs5	6
+	b.5	6+6
+	b.5	7+5
+	as5	5+1
+	b.5	11+1
+	as5	6
+	fs5	6+60
+; Bar 34
+	cs5	6+6
+	as4	7+77
+; Bar 35 (crossed by last note)
+	cs5	6+6
+	fs4	7+17
+; Bar 36
+	b.5	11+1
+	as5	5+1
+	b.5	5+7
+	b.5	6
+	as5	9+3
+	cs6	12
+	fs5	10+32
+; Bar 37 (crossed by last note)
+	fs4	6
+	cs5	6
+	fs5	5+1
+	gs5	7+5
+	cs5	6
+	b.5	5+7
+	b.5	7+5
+	as5	5+1
+	b.5	11+1
+	as5	6
+	fs5	6
+; Bar 38
+	fs4	5+31
+	gs4	17+7
+	cs5	6+6
+	as4	7+17
+; Bar 39
+	gs4	5+31
+	gs4	17+7
+	cs5	6+6
+	fs4	7+17
+; Bar 40
+	b.5	29+7
+	b.5	5+13
+	b.5	6
+	cs6	6+6
+	as5	12
+	fs5	8+10
+; Bar 41 (crossed by last note)
+	b.4	6
+	cs5	6
+	fs5	6
+	gs5	7+5
+	cs5	6
+	b.5	5+7
+	b.5	7+5
+	as5	5+1
+	b.5	11+1
+	as5	6
+	fs5	6+180
+; Bar 42
+; Bar 43 (crossed by last note)
+	fs4	6+6
+; Bar 44
+	b.4	6+24
+	fs5	6
+	b.5	6+6
+	ds6	6
+	b.5	6
+	fs6	12
+	b.5	6
+	ds6	6
+	b.4	5+7
+; Bar 45
+	ds5	6+6
+	fs6	18
+	f.6	6
+	cs6	6
+	gs5	6
+	ds6	6
+	cs6	6
+	as5	6
+	fs5	6
+	cs5	6
+	b.5	6
+	as5	12
+; Bar 46 (crossed by last note)
+	fs5	57+123
+; Bar 47 (crossed by last note)
+	cs5	5+7
+; Bar 48 (crossed by last note)
+	fs5	5+81
+	cs5	5+1
+; Bar 49
+	cs5	4
+	fs5	5+79
+	cs5	7+5
+; Bar 50 (crossed by last note)
+	fs5	55+130
+
+LOP 0
+
+	EMS
+
+
+	.end
+
+

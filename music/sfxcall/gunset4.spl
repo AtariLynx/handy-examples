@@ -1,0 +1,28 @@
+TPO 4
+PRI 30
+; Track 4:  NewBsDrm ===
+
+;-====================================gunset4
+			SLP
+SFX flameoff.bfx, 24
+SFX jamzwhap.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX jamzwhap.bfx,  24
+
+
+SFX hammer.bfx, 18
+SFX hammer.bfx, 6
+SFX jamzwhap.bfx, 12
+SFX hammer.bfx, 12
+
+SFX hammer.bfx, 24
+SFX jamzwhap.bfx,  24
+
+			LOP 2
+
+
+EMS
+
+

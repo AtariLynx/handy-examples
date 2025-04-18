@@ -1,0 +1,8 @@
+TPO 4
+PRI 32
+			SLP
+	rest 24
+SFX cpu1b.bfx, 36
+	rest 24
+SFX cpu1b.bfx, 36
+			LOP 10

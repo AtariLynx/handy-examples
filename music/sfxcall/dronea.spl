@@ -1,0 +1,61 @@
+
+PRI 218
+TPO 4
+AGD 10
+
+SLP
+
+SLP2
+
+SFX perc2.bfx, 12
+SFX perc3.bfx, 12
+SFX perc3.bfx, 24
+
+SFX perc3.bfx, 18
+SFX perc3.bfx, 18
+SFX perc2.bfx, 6
+SFX perc2.bfx, 6
+
+
+LOP2 16
+
+SFX yngwie.bfx, 12
+SFX yngwie.bfx, 6
+SFX yngwie.bfx, 6
+SFX yngwie.bfx, 6
+SFX yngwie.bfx, 12
+
+SFX yngwie.bfx, 6
+SFX yngwie.bfx, 6
+SFX yngwie.bfx, 6
+SFX yngwie.bfx, 12
+SFX yngwie.bfx, 6
+SFX yngwie.bfx, 6
+SFX yngwie.bfx, 12
+
+SLP2
+
+SFX yngwie.bfx, 192
+
+LOP2 4
+
+SLP2
+
+SFX perc2.bfx, 6
+SFX perc2.bfx, 6
+SFX perc3.bfx, 12
+SFX perc3.bfx, 30
+SFX perc3.bfx, 18
+SFX perc3.bfx, 12
+SFX perc2.bfx, 6
+SFX perc2.bfx, 6
+
+
+LOP2 8
+
+LOP 0
+
+	EMS
+
+	.end
+

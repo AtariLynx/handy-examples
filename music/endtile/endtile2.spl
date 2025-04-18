@@ -1,0 +1,44 @@
+; === endtile2.spl ===========================================================
+; HSPL Music File
+; Conversion of KCS file endtile.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+
+PRI 230
+DFV
+AGD 38
+ADSR 7,105,12,55,12
+TPO 4
+
+; === Track 2:  End 2 ===
+; Bar 1
+	rest	13
+	as5	30
+	rest	18
+	a.5	30
+	rest	18
+; Bar 2 (crossed by last note)
+	cs5	12
+	rest	12
+	c.5	13
+	rest	11
+	as4	12
+	d.5	12
+	g.5	12
+; Bar 3 (crossed by last note)
+	rest	12
+	d.4	25
+	rest	71
+; Bar 4 (crossed by last note)
+	cs4	24
+	c.4	24
+	as3	12
+	a.3	12
+	as3	18
+; Bar 5 (crossed by last note)
+	EMS
+
+
+	.end
+
+

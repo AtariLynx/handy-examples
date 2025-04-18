@@ -1,0 +1,140 @@
+
+
+PRI 220
+DFV
+ADSR 1,76,3,1,3
+AGD 2
+TPO 4
+LTR -24
+
+SLP
+
+; Track 4:  NewBsDrm ===
+; Bar 1
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX tom4.bfx, 12
+SFX omi3.bfx, 12
+SFX snare3.bfx, 12
+AGD 5
+SFX tom4.bfx, 12
+
+; Bar 2
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX tom4.bfx, 12
+SFX snare3.bfx, 12
+	rest	 12
+SFX snare3.bfx, 12
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX tom4.bfx, 12
+SFX omi3.bfx, 12
+SFX snare3.bfx, 12
+AGD 5
+SFX tom4.bfx, 12
+
+; Bar 3
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX tom4.bfx, 12
+SFX omi3.bfx, 12
+SFX snare3.bfx, 12
+AGD 5
+SFX tom4.bfx, 12
+
+
+; Bar 4
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX tom4.bfx, 12
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX snare3.bfx, 12
+AGD 5
+SFX tom4.bfx, 12
+
+; Bar 5
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX snare3.bfx, 12
+SFX omi3.bfx, 12
+SFX tom4.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+AGD 5
+SFX tom4.bfx, 12
+
+
+; Bar 6
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX tom4.bfx, 12
+SFX snare3.bfx, 12
+	rest	12
+	rest	12
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX tom4.bfx, 12
+SFX omi3.bfx, 12
+SFX snare3.bfx, 12
+AGD 5
+SFX tom4.bfx, 12
+
+; Bar 7
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX tom4.bfx, 12
+SFX snare3.bfx, 6
+SFX snare3.bfx, 6
+	rest 12
+SFX snare3.bfx, 12
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX tom4.bfx, 12
+SFX omi3.bfx, 12
+SFX snare3.bfx, 12
+AGD 5
+SFX tom4.bfx, 12
+
+; Bar 8
+SFX snare1.bfx, 12
+SFX omi3.bfx, 12
+SFX snare3.bfx, 12
+SFX omi3.bfx, 12
+SFX snare1.bfx, 12
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX snare3.bfx, 12
+AGD 5
+SFX tom4.bfx, 12
+LOP 0
+
+	EMS

@@ -1,0 +1,27 @@
+
+PRI 216
+TPO 4
+AGD 1
+
+SLP
+
+SLP2
+
+rest 96
+
+LOP2 17 
+
+SLP2
+
+SFX cpu2.bfx, 360
+
+rest 24
+
+LOP2 4
+
+LOP 0
+	EMS
+
+
+	.end
+

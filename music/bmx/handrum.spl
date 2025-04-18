@@ -1,0 +1,529 @@
+; DRUMS 
+; Calgames bmx handy
+TPO 6
+
+omi1.bfx
+omi2.bfx
+omi3.bfx
+snare1.bfx
+snare2.bfx
+hammer.bfx
+
+
+
+PRI 20
+AGD 1
+;==============================start
+					SLP
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;====================================end LOP 5
+;=================
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+
+SFX hammer.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;==============================end of LOP 5
+SFX omi3.bfx, 4
+SFX omi3.bfx, 4
+
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 4
+SFX snare1.bfx, 4
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+;==================
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5 ;here?
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5 ;here?
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5 ;here?
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5 ;here?
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5 ;here?
+;=================================end 0of Lop 5
+;=================
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+
+SFX hammer.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+;=================
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+;===========================ahem!
+
+
+
+SFX omi3.bfx, 4
+SFX omi3.bfx, 4
+
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 4
+SFX snare1.bfx, 4
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+;==================
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 3
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 3
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 3
+;==================================end of LOP 3				
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+SFX snare1.bfx, 8
+SFX snare1.bfx, 8
+SFX snare1.bfx, 8
+
+	;==============================start
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================================end of LOP 5
+;=================
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+
+SFX hammer.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5
+
+;============================END OF LOP 5
+SFX omi3.bfx, 4
+SFX omi3.bfx, 4
+
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 4
+SFX snare1.bfx, 4
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+;==================
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5 ;here?
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5 ;here?
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5 ;here?
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5 ;here?
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 5 ;here?
+;================= ===================end of LOP 5
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+
+SFX hammer.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+SFX omi2.bfx, 4
+;=================
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+;===========================ahem!
+
+
+
+SFX omi3.bfx, 4
+SFX omi3.bfx, 4
+
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 4
+SFX snare1.bfx, 4
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+;==================
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 3
+				
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 3
+				
+;=================
+			;SLP
+SFX omi3.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+
+SFX snare1.bfx, 8
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+			;LOP 3
+				
+;========================ened of LOP 3
+SFX omi1.bfx, 4
+SFX omi1.bfx, 4
+SFX snare1.bfx, 8
+SFX snare1.bfx, 8
+SFX snare1.bfx, 8
+					LOP 0
+		EMS
+
+.end

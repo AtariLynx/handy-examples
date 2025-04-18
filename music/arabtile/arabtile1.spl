@@ -1,0 +1,107 @@
+; === arabtile1.spl ==========================================================
+; HSPL Music File
+; Conversion of KCS file arabtile.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+
+
+PRI 60
+DFV
+ADSR 3,79,15,22,32
+AGD 23 
+TPO 4
+GTR -15
+
+; === Track 1:  HighStuf ===
+				SLP
+; Bar 1
+	rest	48
+	g.4	2+4
+	c.5	2+4
+	as4	2+10
+	g.4	2+70
+; Bar 2 (crossed by last note)
+	as4	2+4
+	c.5	2+4
+	g.4	2+10
+	as4	2+4
+	c.5	2+4
+	as4	2+58
+; Bar 3 (crossed by last note)
+	g.4	2+4
+	c.5	2+4
+	as4	2+10
+	g.4	2+70
+; Bar 4 (crossed by last note)
+	as4	2+4
+	c.5	2+4
+	g.4	2+10
+	as4	2+4
+	c.5	2+4
+	as4	6+12
+; Bar 5 (crossed by last note)
+	fs4	2+4
+	c.5	2+10
+	g.4	3+9
+	as4	2+70
+; Bar 6 (crossed by last note)
+	as4	2+16
+	as4	3+3
+	as4	2+10
+	c.5	2+16
+	g.4	2+10
+	fs4	2+22
+; Bar 7 (crossed by last note)
+	fs4	2+4
+	c.5	2+10
+	g.4	3+9
+	as4	2+58
+; Bar 8
+	c.5	2+4
+	g.4	2+4
+	c.5	2+4
+	g.4	3+27
+	fs4	2+46
+; Bar 9
+	a.3	2+16
+	fs4	2+4
+	c.5	2+10
+	g.4	2+10
+	a.3	2+46
+; Bar 10
+	c.5	2+16
+	fs4	2+4
+	a.3	2+16
+	g.4	2+10
+	c.5	2+16
+	fs4	2+10
+	a.3	2+10
+; Bar 11
+	g.4	3+9
+	c.5	3+15
+	fs4	3+21
+	c.5	2+10
+	g.4	2+4
+	a.3	2+10
+	fs4	2+10
+; Bar 12
+; Bar 10
+	c.5	2+16
+	fs4	2+4
+	a.3	2+16
+	g.4	2+10
+	c.5	2+16
+	fs4	2+10
+	a.3	2+10
+
+
+
+;	c.5	30
+;	a.3	66
+				LOP 0
+	EMS
+
+
+	.end
+
+

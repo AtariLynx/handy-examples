@@ -1,0 +1,104 @@
+
+
+
+	Dear tool builder person(s);
+
+
+	Here in thee sound departurement wee bee accustomed to flawed tools
+
+but like all good children we hope for improvements...
+
+	
+
+
+	-Our "envelope generator" (hspl ENV header) doesn't work as advertised.
+
+the interpolation is rate rather than level dependent.  Also, we have no way to 
+
+quickly compare tempo and ENV numbers to intuitively set up envelopes for music.
+
+ASD's and AGD's work kinda strange-especially in conjunction with rests and
+
+non-standard FB values.  All sorts of squeaks and pops can occur when the hi pitch 
+
+note the driver uses as a rest interacts with it's AS(G)D VALUE...
+
+	Last, we've got nearly no control over timing of short transients
+
+and a ridiculously fine control over long values....sort of a trademark of the 
+
+driver.
+
+
+
+	-In a related matter, VFM doesn't work as advertised.  Sorry, but we NEED 
+
+to have a defineable initial offset value (the first # in a VFM statement) in
+
+order to do any cool stuff with timbre or chorusing.
+
+	If possible, it might be better to have VFM be a four value definition
+
+and turn the initial offset into a seperate instruction-called of course DETUNE
+
+
+
+	-If I was capable of punching code, there's a little utility I'd probably
+
+do some of that programmer stuff to realize.  It would allow me to play a music
+
+(maybe even a sound effect) file on a handy oops LYNX and use the joyplate 
+
+and buttons to alter voicing parameters "on the fly" so to speak.  That way,
+
+I'd be able to "patch" joyplate "X" axis to my decay time, "Y" axis to 
+
+sustain level, maybe semitone transpose to one of the buttons, and with some minor
+
+feedback from the display (text explaining my patches{X=Decay} and
+
+their numeric values as they were updated {decay = 0 to 127})a file I had 
+
+some questions about would be PLAYABLE-I'd be able to make more intuitive 
+
+decisions about my arrangements.  
+
+
+	-Seems I heard a while back that linear interpolation is what all 
+
+this stuff is about i.e. if your next keyframe is 25 ahead, you only can 
+
+interpolate a given parameter up or down a maximum of 25.  Can't be true, can it?
+
+
+	-reviewing the above it occurs to me that half the time I have no idea
+
+what the incremental value I am changing IS.  All parameters need to reference
+
+as follows: 
+
+	frequency/fine=cents 		(100 per semitone) 
+
+      frequency/coarse=semitones 	(12 per octave)
+
+        envelope rates=milliseconds	(0 to ?)
+
+	envelope level=percent 		(0 to 100)
+
+        note durations=mindur 		(determined by hspl)
+	
+       		  beat=multiple of mindur(requested by program)
+
+		 tempo=beats per minute (determined by frame rate, et al)
+
+  feedback or shifters=binary flag representations(like HSFX)
+
+
+
+	Here's why.  It's not impossible for me to do tons of conversions
+
+all the time, but when I do I slow down the process of editing music and 
+
+making it sound cool.  I know, it's part of my job, but the less I hink 
+
+about numbers and the more i think about sound....

@@ -1,0 +1,42 @@
+
+PRI 188
+TPO 4
+AGD 1
+
+; Track 4:  NewBsDrm ===
+; Bar 1
+ 
+SLP
+
+rest 12
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX snare1.bfx, 3
+rest	9
+SFX omi3.bfx, 12
+SFX omi3.bfx, 12
+SFX omi3.bfx, 6
+SFX omi3.bfx, 6
+SFX snare3.bfx, 3
+rest	9
+SFX omi3.bfx, 12
+SFX snare3.bfx, 6
+SFX omi3.bfx, 6
+
+;rest 12
+;SFX omi3.bfx, 12
+SFX snare1.bfx, 3
+rest	9
+SFX omi3.bfx, 24
+SFX omi3.bfx, 12
+SFX snare3.bfx, 3
+rest	9
+SFX snare3.bfx, 12
+SFX omi3.bfx, 12
+
+LOP 0
+
+	EMS
+
+	.end
+

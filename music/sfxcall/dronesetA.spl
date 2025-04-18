@@ -1,0 +1,11 @@
+TPO 4
+PRI 34
+			SLP
+SFX hammer.bfx, 6
+	rest 24
+SFX cpu1a.bfx, 96
+	rest 24
+SFX cpu1a.bfx, 96
+			LOP 20
+
+		EMS

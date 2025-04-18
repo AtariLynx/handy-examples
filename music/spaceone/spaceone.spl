@@ -1,0 +1,478 @@
+; === spaceone.spl ==========================================================
+; HSPL Music File
+; Conversion of KCS file spaceone.all
+; Metronome:  6502
+; (Minimum duration used to create this file:  1)
+
+
+PRI 232
+DFV
+AGD 38
+ADSR 7,105,12,85,12
+TPO 4
+GTR -32
+
+; === Track 1:  SpaceOne ===
+; Bar 1
+	f.3	12
+	c.4	11
+	rest	1
+	f.4	9
+	rest	3
+	as3	12
+	c.4	12
+	as4	12
+	rest	24
+; Bar 2
+	gs5	9
+	rest	15
+	g.5	12
+	rest	12
+	f.5	12
+	f.5	10
+	rest	26
+; Bar 3
+	f.3	12
+	f.4	12
+	c.5	12
+	c.4	11
+	rest	1
+	ds4	10
+	rest	2
+	as4	12
+	rest	21
+	g.5	3
+; Bar 4
+	gs5	12
+	rest	12
+	f.5	8
+	rest	16
+	c.6	10
+	rest	2
+	gs5	11
+	rest	1
+	gs3	12
+	ds4	9
+	rest	3
+; Bar 5
+	f.3	12
+	c.4	11
+	rest	1
+	f.4	12
+	as3	12
+	c.4	12
+	as4	12
+	rest	24
+; Bar 6
+	gs5	9
+	rest	15
+	g.5	12
+	rest	12
+	f.5	12
+	f.5	10
+	rest	14
+	f.3	6
+	f.3	6
+; Bar 7
+	f.3	12
+	f.4	12
+	c.5	12
+	c.4	11
+	rest	1
+	ds4	10
+	rest	2
+	as4	12
+	rest	21
+	g.5	3
+; Bar 8
+	gs5	12
+	rest	12
+	f.5	8
+	rest	16
+	c.6	10
+	rest	2
+	c.6	11
+	rest	1
+	gs3	12
+	ds4	9
+	rest	3
+; Bar 9
+	c.4	12
+	g.4	11
+	rest	1
+	c.5	9
+	rest	3
+	f.4	12
+	g.4	12
+	f.5	12
+	rest	24
+; Bar 10
+	ds6	18
+	rest	6
+	d.6	9
+	rest	15
+	c.6	7
+	rest	5
+	c.6	10
+	rest	14
+	c.4	6
+	c.4	6
+; Bar 11
+	c.4	12
+	c.5	12
+	g.5	12
+	g.4	11
+	rest	1
+	as4	10
+	rest	2
+	f.5	12
+	f.5	12
+	g.4	10
+	d.6	2
+; Bar 12
+	ds6	13
+	rest	11
+	c.6	12
+	rest	12
+	g.6	8
+	rest	4
+	ds6	11
+	rest	1
+	ds4	12
+	as4	9
+	rest	3
+; Bar 13
+	as3	12
+	f.4	6
+	rest	6
+	as4	12
+	ds4	12
+	f.4	12
+	ds5	12
+	rest	22
+	c.6	2
+; Bar 14
+	cs6	18
+	rest	6
+	c.6	9
+	rest	15
+	as5	7
+	rest	5
+	as5	16
+	rest	8
+	as3	6
+	as3	6
+; Bar 15
+	as3	12
+	as4	12
+	f.5	12
+	f.4	11
+	rest	1
+	gs4	10
+	rest	2
+	ds5	12
+	rest	24
+; Bar 16
+	cs6	18
+	rest	6
+	as5	18
+	rest	6
+	gs6	10
+	rest	2
+	f.6	12
+	cs4	12
+	gs4	9
+	rest	3
+; Bar 17
+	f.3	12
+	c.4	11
+	rest	1
+	f.4	9
+	rest	3
+	as3	12
+	c.4	12
+	as4	12
+	rest	24
+; Bar 18
+	gs5	9
+	rest	15
+	g.5	12
+	rest	12
+	f.5	12
+	f.5	10
+	rest	26
+; Bar 19
+	f.3	12
+	f.4	12
+	c.5	12
+	c.4	11
+	rest	1
+	ds4	10
+	rest	2
+	as4	12
+	rest	21
+	g.5	3
+; Bar 20
+	gs5	12
+	rest	12
+	f.5	8
+	rest	16
+	c.6	10
+	rest	2
+	gs5	11
+	rest	1
+	gs3	12
+	ds4	9
+	rest	3
+; Bar 21
+	f.3	12
+	c.4	11
+	rest	1
+	f.4	12
+	as3	12
+	c.4	12
+	as4	12
+	rest	24
+; Bar 22
+	gs5	9
+	rest	15
+	g.5	12
+	rest	12
+	f.5	12
+	f.5	10
+	rest	14
+	f.3	6
+	f.3	6
+; Bar 23
+	f.3	12
+	f.4	12
+	c.5	12
+	c.4	11
+	rest	1
+	ds4	10
+	rest	2
+	as4	12
+	rest	21
+	g.5	3
+; Bar 24
+	gs5	12
+	rest	12
+	f.5	8
+	rest	16
+	c.6	10
+	rest	2
+	c.6	11
+	rest	1
+	gs3	12
+	ds4	9
+	rest	3
+; Bar 25
+	c.4	12
+	g.4	11
+	rest	1
+	c.5	9
+	rest	3
+	f.4	12
+	g.4	12
+	f.5	12
+	rest	24
+; Bar 26
+	ds6	18
+	rest	6
+	d.6	9
+	rest	15
+	c.6	7
+	rest	5
+	c.6	10
+	rest	26
+; Bar 27
+	c.4	12
+	c.5	12
+	g.5	12
+	g.4	11
+	rest	1
+	as4	10
+	rest	2
+	f.5	12
+	rest	22
+	d.6	2
+; Bar 28
+	ds6	13
+	rest	11
+	c.6	12
+	rest	12
+	g.6	8
+	rest	4
+	ds6	11
+	rest	13
+	as4	9
+	rest	3
+; Bar 29
+	as3	12
+	f.4	6
+	rest	6
+	as4	12
+	ds4	12
+	f.4	12
+	ds5	12
+	rest	22
+	c.6	2
+; Bar 30
+	cs6	18
+	rest	6
+	c.6	9
+	rest	15
+	as5	7
+	rest	5
+	as5	16
+	rest	8
+	as3	6
+	as3	6
+; Bar 31
+	as3	12
+	as4	12
+	f.5	12
+	f.4	11
+	rest	1
+	gs4	10
+	rest	2
+	ds5	12
+	rest	24
+; Bar 32
+	cs6	18
+	rest	6
+	as5	18
+	rest	6
+	gs6	10
+	rest	2
+	f.6	12
+	cs4	12
+	gs4	9
+	rest	3
+	EMS
+
+
+; === Track 2:  LowAdd ===
+; Bar 1
+	rest	336
+; Bar 2 (crossed by last note)
+; Bar 3 (crossed by last note)
+; Bar 4 (crossed by last note)
+	ds5	10
+	rest	2
+	c.5	10
+	rest	362
+; Bar 5 (crossed by last note)
+; Bar 6 (crossed by last note)
+; Bar 7 (crossed by last note)
+; Bar 8 (crossed by last note)
+	ds5	10
+	rest	2
+	c.5	10
+	rest	362
+; Bar 9 (crossed by last note)
+; Bar 10 (crossed by last note)
+; Bar 11 (crossed by last note)
+; Bar 12 (crossed by last note)
+	as5	10
+	rest	2
+	g.5	10
+	rest	362
+; Bar 13 (crossed by last note)
+; Bar 14 (crossed by last note)
+; Bar 15 (crossed by last note)
+; Bar 16 (crossed by last note)
+	gs5	10
+	rest	2
+	f.5	10
+	rest	122
+; Bar 17 (crossed by last note)
+; Bar 18
+	c.3	29
+	rest	7
+	c.3	15
+	rest	9
+	c.3	10
+	rest	2
+	ds3	9
+	rest	3
+	f.3	12
+; Bar 19
+	rest	96
+; Bar 20
+	c.3	22
+	rest	1
+	c.3	12
+	rest	12
+	c.3	11
+	rest	1
+	c.3	12
+	rest	120
+; Bar 21 (crossed by last note)
+	c.3	22
+; Bar 22 (crossed by last note)
+	rest	2
+	c.3	12
+	rest	12
+	c.3	11
+	rest	1
+	c.3	12
+	ds3	13
+	rest	107
+; Bar 23 (crossed by last note)
+	c.3	28
+; Bar 24 (crossed by last note)
+	rest	8
+	c.3	12
+	ds5	10
+	rest	2
+	c.5	10
+	rest	122
+; Bar 25 (crossed by last note)
+	c.4	26
+; Bar 26 (crossed by last note)
+	rest	10
+	ds4	29
+	rest	7
+	d.4	12
+	ds4	12
+	rest	96
+; Bar 27 (crossed by last note)
+	c.4	20
+; Bar 28 (crossed by last note)
+	rest	4
+	c.4	23
+	rest	1
+	ds4	23
+	rest	1
+	d.4	12
+	ds4	12
+	as3	20
+; Bar 29 (crossed by last note)
+	rest	76
+	cs4	14
+; Bar 30 (crossed by last note)
+	rest	10
+	c.4	17
+	rest	7
+	as3	12
+	as3	10
+	rest	122
+; Bar 31 (crossed by last note)
+	ds3	16
+; Bar 32 (crossed by last note)
+	rest	8
+	ds3	18
+	rest	6
+	cs3	11
+	rest	1
+	ds3	9
+	rest	3
+	cs3	24
+	rest	1
+	EMS
+
+
+	.end
+
+

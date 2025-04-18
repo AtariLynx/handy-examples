@@ -1,0 +1,61 @@
+TPO 4
+PRI 30
+; Track 4:  NewBsDrm ===
+; Bar 1
+
+			SLP
+rest 6
+
+SFX perc2.bfx, 6
+
+SFX perc3.bfx, 6
+
+SFX perc4.bfx, 6
+
+
+SFX perc1.bfx, 6
+
+SFX perc2.bfx, 6
+
+SFX perc3.bfx, 6
+
+SFX perc4.bfx, 6
+
+rest 48
+rest 48
+rest 48
+
+			LOP 3
+rest 48
+SFX uzi.bfx, 48
+
+			SLP
+rest 6
+
+SFX perc2.bfx, 6
+
+SFX perc3.bfx, 6
+
+SFX perc4.bfx, 6
+
+
+SFX perc1.bfx, 6
+
+SFX perc2.bfx, 6
+
+SFX perc3.bfx, 6
+
+SFX perc4.bfx, 6
+
+rest 48
+rest 48
+rest 48
+
+			LOP 3
+rest 48
+SFX flameon1.bfx, 48
+
+
+EMS
+
+

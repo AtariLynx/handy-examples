@@ -1,0 +1,116 @@
+; test tone for tambours
+; HSPL Music File
+; (Minimum duration used to create this file:  1)
+
+
+PRI 196
+DFV
+AGD 6 
+TPO 4
+;=======================release time test==================================================
+
+SLP
+	c.1	6	;loop start reference scale
+	d.1	6
+	e.1	6
+	f.1	6
+	g.1	6
+	a.1	6
+	b.1	6
+	c.2	6
+	rest 48
+;==================PFFT PFFT
+ADSR 2,70,15,70,1
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;==================sounds like release 1
+ADSR 2,70,15,70,2
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;==================sounds like 1
+ADSR 2,70,15,70,4
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;==================sounds a bit longer than 1
+ADSR 2,70,15,70,8
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;==================good plucked release-a bit short for a fluid run
+ADSR 2,70,15,70,16
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;==================longer release-good for legato lines that breath
+ADSR 2,70,15,70,32
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;==================this would be a nice release for a bassline
+ADSR 2,70,15,70,64
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;==================I'd expect this kind of release off a cheap electronic piano
+ADSR 2,70,15,70,128 
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+;===================no glitches or anything on the short notes, 
+;===================...nice linear decay, by the way.
+ADSR 2,70,15,70,256 
+	c.3	24
+	c.3	48
+	f.3	96
+	f.3	12
+	c.4	6
+	c.4	6
+	c.4	6
+	c.4	6
+LOP 0
+	EMS
+
+.end

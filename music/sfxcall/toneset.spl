@@ -1,0 +1,25 @@
+
+
+
+DFV
+ADSR 1,126,3,1,5
+AGD 2
+TPO 4
+LTR -12
+PRI 34
+; Track 4:  NewBsDrm ===
+; Bar 1
+SLP
+	fs1	12
+	rest	36
+	fs2	12
+	rest	24
+	fs1	12
+
+; Bar 2
+	rest	48
+	fs2	12
+	rest	24
+	e.1	12
+LOP 8
+	EMS

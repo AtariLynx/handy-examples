@@ -1,0 +1,27 @@
+TPO 4
+PRI 30
+; Track 4:  NewBsDrm ===
+; Bar 1
+
+			SLP
+SFX hammer.bfx, 12
+SFX flameon1.bfx,  12
+SFX jamzwhap.bfx,  6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+			LOP 3
+
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+SFX hammer.bfx, 6
+
+
+EMS
+
+
