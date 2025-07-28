@@ -27,9 +27,9 @@ To fix this there are two approaches:
 2. Hand-edit the files `mult32.bin`, `multiply.bin`, `divide.bin` and `spritedemo.bin`  
    Insert a `JMP <run-address>` in front of the start of the load address. This will take three additional bytes, that need to be loaded before the current load address. The length of the section will be three bytes longer.
 
-   For example, take mult32.src 
-   Run: asm mult32.src
-   Edit the mult32.bin to load at address - 3, length + 3 and do a JUMP run address.
+   For example, take `mult32.src`  
+   Run: `asm mult32.src`  
+   Edit the `mult32.bin` to load at `address - 3`, `length + 3` and do a `JMP <run-address>`.
 
    For example, take a binary that is loaded at `$426B` and has a length of `$0C07`. If the start address is located at `$YYXX` you can change the binary content of the `.bin` file:
 
